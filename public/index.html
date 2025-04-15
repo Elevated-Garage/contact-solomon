@@ -11,14 +11,7 @@
       width: 100vw;
       height: 100vh;
       font-family: 'Segoe UI', sans-serif;
-      background: #f9f9f9;
-      overflow: hidden;
-    }
-
-    .container {
-      width: 100%;
-      height: 100%;
-      background: url('https://assets.zyrosite.com/YNqPvxrOE7FXXPyr/see-through-logo-ALpeo5rB8WTewJPP.png') center center no-repeat;
+      background: url('https://assets.zyrosite.com/YNqPvxrOE7FXXPyr/see-through-logo-ALpeo5rB8WTewJPP.png') center center no-repeat #f9f9f9;
       background-size: 60%;
       backdrop-filter: blur(12px);
       display: flex;
@@ -48,21 +41,20 @@
       width: 100%;
       max-width: 800px;
       height: 65vh;
-      background: rgba(255,255,255,0.85);
-      border-radius: 14px;
-      padding: 1rem;
       overflow-y: auto;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
       display: flex;
       flex-direction: column;
+      gap: 0.5rem;
+      padding: 0.5rem;
     }
 
     .message {
       padding: 0.8rem 1rem;
-      border-radius: 10px;
+      border-radius: 18px;
       margin-bottom: 0.6rem;
       max-width: 80%;
       line-height: 1.4;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
     }
 
     .bot {
@@ -77,16 +69,16 @@
       align-self: flex-end;
     }
 
-    .form-row {
+    .form-col {
       width: 100%;
       max-width: 800px;
       display: flex;
+      flex-direction: column;
       gap: 0.5rem;
       margin-top: 1rem;
     }
 
     input[type="text"], input[type="file"] {
-      flex-grow: 1;
       padding: 0.7rem;
       font-size: 1rem;
       border-radius: 8px;
@@ -121,25 +113,23 @@
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <h1>Let’s Elevate Your Garage!</h1>
-      <p>Your smart garage designer is standing by—let’s build your vision together.</p>
-    </div>
-
-    <div class="chat-box" id="chat-box">
-      <div class="message bot">👋 Hi there! I'm Solomon, your garage design assistant. What’s your full name?</div>
-    </div>
-
-    <div id="typing" style="display:none;">Solomon is typing...</div>
-
-    <form id="chat-form" class="form-row">
-      <input type="text" id="user-input" placeholder="Type your answer..." required />
-      <input type="file" id="file-upload" />
-      <button type="submit">Send</button>
-    </form>
-    <img id="preview" style="display:none;" />
+  <div class="header">
+    <h1>Let’s Elevate Your Garage!</h1>
+    <p>Your smart garage designer is standing by—let’s build your vision together.</p>
   </div>
+
+  <div class="chat-box" id="chat-box">
+    <div class="message bot">👋 Hi there! I'm Solomon, your garage design assistant. What’s your full name?</div>
+  </div>
+
+  <div id="typing" style="display:none;">Solomon is typing...</div>
+
+  <form id="chat-form" class="form-col">
+    <input type="text" id="user-input" placeholder="Type your answer..." required />
+    <input type="file" id="file-upload" />
+    <button type="submit">Send</button>
+  </form>
+  <img id="preview" style="display:none;" />
 
   <script>
     const chatBox = document.getElementById("chat-box");
