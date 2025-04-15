@@ -6,11 +6,11 @@
   <title>Let’s Elevate Your Garage!</title>
   <style>
     html, body {
-      padding-top: 40px;
+      padding-top: 20px;
       margin: 0;
       padding: 0;
       width: 100vw;
-      min-height: 100vh;
+      height: 680px;
       font-family: 'Segoe UI', sans-serif;
       background: transparent;
       display: flex;
@@ -93,7 +93,7 @@
     .chat-box {
       width: 100%;
       max-width: 800px;
-      height: 55vh;
+      height: 38vh;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
@@ -130,8 +130,8 @@
       flex-direction: column;
       gap: 0.5rem;
       margin-top: 0.5rem;
-      margin-bottom: 1.5rem;
-      padding: 0 1rem;
+      margin-bottom: 1rem;
+      padding: 0 0.5rem;
     }
 
     input[type="text"], input[type="file"] {
@@ -167,7 +167,7 @@
     }
 
     #preview {
-      max-height: 150px;
+      max-height: 90px;
       margin-top: 0.5rem;
     }
   </style>
@@ -249,3 +249,42 @@
   </script>
 </body>
 </html>
+
+<style>
+  @media (max-width: 768px) {
+    .chat-box {
+      height: 30vh !important;
+      padding: 0.25rem !important;
+    }
+
+    .form-col {
+      gap: 0.4rem !important;
+      margin-bottom: 1rem !important;
+      padding: 0 0.5rem !important;
+    }
+
+    input[type="text"],
+    input[type="file"] {
+      padding: 0.5rem !important;
+      font-size: 0.95rem !important;
+    }
+
+    button {
+      padding: 0.6rem 1rem !important;
+      width: 100% !important;
+      font-size: 0.95rem !important;
+    }
+
+    .header h1 {
+      font-size: 1.6rem !important;
+    }
+
+    .header p {
+      font-size: 0.9rem !important;
+    }
+
+    #preview {
+      max-height: 80px !important;
+    }
+  }
+</style>
