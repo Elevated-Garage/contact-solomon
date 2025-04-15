@@ -5,24 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Let’s Elevate Your Garage!</title>
   <style>
-    .content {
-      background: rgba(255, 255, 255, 0.6);
-      backdrop-filter: blur(16px);
-      border-radius: 20px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-    }
     html, body {
       margin: 0;
       padding: 0;
       width: 100vw;
       height: 100vh;
       font-family: 'Segoe UI', sans-serif;
-      background: #f9f9f9;
-      overflow: hidden;
-      position: relative;
+      background: transparent;
       display: flex;
       flex-direction: column;
       align-items: center;
+      box-sizing: border-box;
     }
 
     body::before {
@@ -34,46 +27,43 @@
       height: 100%;
       background: url('https://assets.zyrosite.com/YNqPvxrOE7FXXPyr/see-through-logo-ALpeo5rB8WTewJPP.png') center center no-repeat;
       background-size: 60%;
-      opacity: 0.1;
       z-index: 0;
       pointer-events: none;
+      opacity: 0.3; filter: contrast(1.2);
     }
 
-    .content {
+    .header, .chat-box, form, #typing, #preview {
       position: relative;
       z-index: 1;
-      width: 100%;
-      max-width: 800px;
-      padding: 1rem;
-      box-sizing: border-box;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
     }
 
     .header {
       text-align: center;
       margin-bottom: 0.5rem;
+      padding-top: 1rem;
     }
 
     .header h1 {
       margin: 0;
-      font-size: 1.8rem;
+      font-size: 2.2rem;
       color: #B91B21;
     }
 
     .header p {
       color: #555;
-      font-size: 0.9rem;
+      font-size: 1rem;
     }
 
     .chat-box {
-      height: 48vh;
+      width: 100%;
+      max-width: 800px;
+      height: 55vh;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
       gap: 0.5rem;
       padding: 0.5rem;
+      margin-bottom: 0.5rem;
     }
 
     .message {
@@ -98,32 +88,35 @@
     }
 
     .form-col {
-      align-items: center;
+      width: 100%;
+      max-width: 800px;
       display: flex;
       flex-direction: column;
       gap: 0.5rem;
-      padding-bottom: 2rem;
+      margin-top: 0.5rem;
+      margin-bottom: 1.5rem;
+      padding: 0 1rem;
     }
 
     input[type="text"], input[type="file"] {
-      padding: 0.6rem;
-      max-width: 280px;
-      margin: 0 auto;
+      padding: 0.7rem;
       font-size: 1rem;
       border-radius: 8px;
       border: 1px solid #ccc;
       width: 100%;
+      box-sizing: border-box;
     }
 
     button {
-      padding: 0.6rem 1.2rem;
+      padding: 0.7rem 1.2rem;
       background: #B91B21;
       border: none;
       color: white;
       border-radius: 8px;
       font-weight: bold;
       cursor: pointer;
-      margin: 0 auto;
+      align-self: center;
+      width: 50%;
     }
 
     button:hover {
@@ -138,31 +131,29 @@
     }
 
     #preview {
-      max-height: 120px;
+      max-height: 150px;
       margin-top: 0.5rem;
     }
   </style>
 </head>
 <body>
-  <div class="content">
-    <div class="header">
-      <h1>Let’s Elevate Your Garage!</h1>
-      <p>Your smart garage designer is standing by—let’s build your vision together.</p>
-    </div>
-
-    <div class="chat-box" id="chat-box">
-      <div class="message bot">👋 Hi there! I'm Solomon, your garage design assistant. What’s your full name?</div>
-    </div>
-
-    <div id="typing" style="display:none;">Solomon is typing...</div>
-
-    <form id="chat-form" class="form-col">
-      <input type="text" id="user-input" placeholder="Type your answer..." required />
-      <input type="file" id="file-upload" />
-      <button type="submit">Send</button>
-    </form>
-    <img id="preview" style="display:none;" />
+  <div class="header">
+    <h1>Let’s Elevate Your Garage!</h1>
+    <p>Your smart garage designer is standing by—let’s build your vision together.</p>
   </div>
+
+  <div class="chat-box" id="chat-box">
+    <div class="message bot">👋 Hi there! I'm Solomon, your garage design assistant. What’s your full name?</div>
+  </div>
+
+  <div id="typing" style="display:none;">Solomon is typing...</div>
+
+  <form id="chat-form" class="form-col">
+    <input type="text" id="user-input" placeholder="Type your answer..." required />
+    <input type="file" id="file-upload" />
+    <button type="submit">Send</button>
+  </form>
+  <img id="preview" style="display:none;" />
 
   <script>
     const chatBox = document.getElementById("chat-box");
