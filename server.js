@@ -6,6 +6,7 @@ const nodemailer = require('nodemailer');
 const OpenAI = require('openai');
 const { google } = require('googleapis');
 const cors = require('cors');
+const multer = require('multer');
 require('dotenv').config();
 
 const app = express();
@@ -24,6 +25,83 @@ const transporter = nodemailer.createTransport({
   auth: {
     user: process.env.LEAD_EMAIL_USER,
     pass: process.env.LEAD_EMAIL_PASS,
+  }
+});
+
+const oauth2Client = new google.auth.OAuth2(
+  process.env.GOOGLE_CLIENT_ID,
+  process.env.GOOGLE_CLIENT_SECRET,
+  process.env.GOOGLE_REDIRECT_URI
+);
+
+app.get('/auth', (req, res) => {
+  const authUrl = oauth2Client.generateAuthUrl({
+    access_type: 'offline',
+    scope: ['https://www.googleapis.com/auth/drive.file'],
+    redirect_uri: process.env.GOOGLE_REDIRECT_URI
+  });
+  res.redirect(authUrl);
+});
+
+app.get('/api/oauth2callback', async (req, res) => {
+  const code = req.query.code;
+  try {
+    const { tokens } = await oauth2Client.getToken(code);
+    oauth2Client.setCredentials(tokens);
+    fs.writeFileSync('token.json', JSON.stringify(tokens, null, 2));
+    res.send("✅ Authorization successful! You may close this window.");
+  } catch (err) {
+    console.error('❌ Error retrieving access token:', err.message);
+    res.status(500).send('Failed to authorize. Please try again.');
+  }
+});
+
+// ✅ NEW: FORM SUBMISSION TO GOOGLE DRIVE
+const upload = multer({ dest: 'uploads/' });
+
+app.post('/api/submit', upload.single('photo'), async (req, res) => {
+  const { responses } = req.body;
+
+  try {
+    const formData = Buffer.from(responses, 'utf-8');
+    const drive = google.drive({ version: 'v3', auth: oauth2Client });
+
+    const formFile = await drive.files.create({
+      requestBody: {
+        name: `Garage_Form_${Date.now()}.txt`,
+        mimeType: 'text/plain',
+      },
+      media: {
+        mimeType: 'text/plain',
+        body: formData,
+      },
+    });
+
+    let imageFile = null;
+    if (req.file) {
+      const filePath = path.join(__dirname, req.file.path);
+      imageFile = await drive.files.create({
+        requestBody: {
+          name: req.file.originalname,
+          mimeType: req.file.mimetype,
+        },
+        media: {
+          mimeType: req.file.mimetype,
+          body: fs.createReadStream(filePath),
+        },
+      });
+      fs.unlinkSync(filePath);
+    }
+
+    res.json({
+      success: true,
+      formFileId: formFile.data.id,
+      photoFileId: imageFile?.data.id || null,
+    });
+
+  } catch (error) {
+    console.error("❌ Upload failed:", error.message);
+    res.status(500).json({ success: false, message: "Upload to Drive failed." });
   }
 });
 
@@ -46,14 +124,14 @@ app.post('/message', async (req, res) => {
       from: process.env.LEAD_EMAIL_USER,
       to: 'nick@elevatedgarage.com',
       subject: '📥 New Consultation Request',
-      text: `
+      text: \`
 New Lead Captured:
 
-Name: ${name}
-Email: ${email}
-Phone: ${phone}
-Original Message: ${message}
-      `.trim()
+Name: \${name}
+Email: \${email}
+Phone: \${phone}
+Original Message: \${message}
+      \`.trim()
     };
 
     transporter.sendMail(mailOptions, (error, info) => {
@@ -88,8 +166,8 @@ Original Message: ${message}
       ]
     });
 
-    const reply = aiResponse.choices?.[0]?.message?.content || 
-                  "✅ Solomon received your message but didn’t return a clear reply. Please try rephrasing.";
+    const reply = aiResponse.choices?.[0]?.message?.content ||
+      "✅ Solomon received your message but didn’t return a clear reply. Please try rephrasing.";
 
     res.json({ reply });
 
@@ -101,37 +179,9 @@ Original Message: ${message}
   }
 });
 
-const oauth2Client = new google.auth.OAuth2(
-  process.env.GOOGLE_CLIENT_ID,
-  process.env.GOOGLE_CLIENT_SECRET,
-  process.env.GOOGLE_REDIRECT_URI
-);
-
-app.get('/auth', (req, res) => {
-  const authUrl = oauth2Client.generateAuthUrl({
-    access_type: 'offline',
-    scope: ['https://www.googleapis.com/auth/drive.file'],
-    redirect_uri: process.env.GOOGLE_REDIRECT_URI
-  });
-  res.redirect(authUrl);
-});
-
-app.get('/api/oauth2callback', async (req, res) => {
-  const code = req.query.code;
-
-  try {
-    const { tokens } = await oauth2Client.getToken(code);
-    oauth2Client.setCredentials(tokens);
-    fs.writeFileSync('token.json', JSON.stringify(tokens, null, 2));
-    res.send("✅ Authorization successful! You may close this window.");
-  } catch (err) {
-    console.error('❌ Error retrieving access token:', err.message);
-    res.status(500).send('Failed to authorize. Please try again.');
-  }
-});
-
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, () => {
+  console.log(`✅ Contact Solomon backend running on port ${PORT}`);
 });
 
 const PORT = process.env.PORT || 10000;
