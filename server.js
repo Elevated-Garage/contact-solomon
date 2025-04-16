@@ -124,14 +124,14 @@ app.post('/message', async (req, res) => {
       from: process.env.LEAD_EMAIL_USER,
       to: 'nick@elevatedgarage.com',
       subject: '📥 New Consultation Request',
-      text: \`
+      text: `
 New Lead Captured:
 
-Name: \${name}
-Email: \${email}
-Phone: \${phone}
-Original Message: \${message}
-      \`.trim()
+Name: ${name}
+Email: ${email}
+Phone: ${phone}
+Original Message: ${message}
+`.trim()
     };
 
     transporter.sendMail(mailOptions, (error, info) => {
