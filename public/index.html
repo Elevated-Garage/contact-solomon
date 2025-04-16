@@ -953,36 +953,106 @@ function showSummary() {
   editBtn.textContent = "Edit";
   editBtn.className = "ai-style-change-1";
   editBtn.style.cursor = "pointer";
-  editBtn.onclick = () => {
-    stepIndex = 0;
-    chatBox.innerHTML = "";
-    responses.length = 0;
-    nextStep();
-  };
+  editBtn.style.position = "absolute";
+  editBtn.style.top = "6px";
+  editBtn.style.right = "6px";
   summaryWrapper.appendChild(editBtn);
 
   const list = document.createElement("ul");
   list.style.paddingLeft = "16px";
   list.style.marginTop = "8px";
 
-  responses.forEach((entry) => {
-    const li = document.createElement("li");
-    li.textContent = `${entry.step}: ${entry.answer}`;
-    li.style.marginBottom = "4px";
+  let isEditing = false;
 
-    if (entry.step.toLowerCase().includes("photo") && entry.image) {
-      const img = document.createElement("img");
-      img.src = entry.image;
-      img.style.width = "120px"; img.style.height = "auto";
-      img.style.borderRadius = "8px";
-      img.style.marginTop = "6px";
-      li.appendChild(document.createElement("br"));
-      li.appendChild(img);
-    }
+  function renderList() {
+    list.innerHTML = "";
+    responses.forEach((entry, i) => {
+      const li = document.createElement("li");
+      const label = document.createElement("span");
+      label.textContent = `${entry.step}: `;
+      li.appendChild(label);
 
-    list.appendChild(li);
+      if (isEditing && entry.step.toLowerCase().includes("photo")) {
+        if (entry.image) {
+          const img = document.createElement("img");
+          img.src = entry.image;
+          img.style.width = "120px";
+          img.style.borderRadius = "8px";
+          img.style.marginTop = "6px";
+          li.appendChild(document.createElement("br"));
+          li.appendChild(img);
+        }
+
+        const changeBtn = document.createElement("button");
+        changeBtn.textContent = entry.image ? "Change Photo" : "Add Photo";
+        changeBtn.style.marginTop = "6px";
+        changeBtn.style.fontSize = "12px";
+        changeBtn.style.padding = "4px 8px";
+        changeBtn.style.background = "#444";
+        changeBtn.style.color = "white";
+        changeBtn.style.border = "1px solid #999";
+        changeBtn.style.borderRadius = "4px";
+        changeBtn.style.cursor = "pointer";
+
+        const fileInput = document.createElement("input");
+        fileInput.type = "file";
+        fileInput.accept = "image/*";
+        fileInput.style.display = "none";
+
+        changeBtn.onclick = () => fileInput.click();
+        fileInput.onchange = () => {
+          const file = fileInput.files[0];
+          const reader = new FileReader();
+          reader.onload = () => {
+            entry.image = reader.result;
+            renderList();
+          };
+          if (file) reader.readAsDataURL(file);
+        };
+
+        li.appendChild(document.createElement("br"));
+        li.appendChild(changeBtn);
+        li.appendChild(fileInput);
+
+      } else if (isEditing) {
+        const input = document.createElement("input");
+        input.className = "editable";
+        input.value = entry.answer;
+        input.style.background = "#333";
+        input.style.color = "white";
+        input.style.border = "1px solid #888";
+        input.style.padding = "4px";
+        input.style.borderRadius = "4px";
+        input.style.width = "100%";
+        input.oninput = (e) => responses[i].answer = e.target.value;
+        li.appendChild(input);
+      } else {
+        const span = document.createElement("span");
+        span.textContent = entry.answer;
+        li.appendChild(span);
+
+        if (entry.image) {
+          const img = document.createElement("img");
+          img.src = entry.image;
+          img.style.width = "120px";
+          img.style.borderRadius = "8px";
+          img.style.marginTop = "6px";
+          li.appendChild(document.createElement("br"));
+          li.appendChild(img);
+        }
+      }
+
+      list.appendChild(li);
+    });
+  }
+
+  editBtn.addEventListener("click", () => {
+    isEditing = !isEditing;
+    editBtn.textContent = isEditing ? "Save" : "Edit";
+    renderList();
   });
 
+  renderList();
   summaryWrapper.appendChild(list);
   chatBox.appendChild(summaryWrapper);
   chatBox.scrollTop = chatBox.scrollHeight;
@@ -993,3 +1063,4 @@ function showSummary() {
 
 </body>
 </html>
+
