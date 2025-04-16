@@ -1074,6 +1074,10 @@ function showSummary() {
 
 
 <script>
+function isValidPhone(phone) {
+  return /^\+?1?[\s.-]?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/.test(phone);
+}
+
 function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
@@ -1116,6 +1120,30 @@ document.addEventListener("DOMContentLoaded", function () {
           } else {
             input.style.border = "";
             error.style.display = "none";
+          }
+        }
+
+        
+        if (step.toLowerCase().includes("phone")) {
+          const phoneValid = isValidPhone(message);
+          let phoneError = document.getElementById("phone-error");
+          if (!phoneError) {
+            phoneError = document.createElement("div");
+            phoneError.id = "phone-error";
+            phoneError.style.color = "red";
+            phoneError.style.fontSize = "14px";
+            phoneError.style.marginTop = "4px";
+            phoneError.style.display = "none";
+            input.insertAdjacentElement("afterend", phoneError);
+          }
+          if (!phoneValid) {
+            input.style.border = "2px solid red";
+            phoneError.style.display = "block";
+            phoneError.textContent = "Please enter a valid phone number.";
+            return;
+          } else {
+            input.style.border = "";
+            phoneError.style.display = "none";
           }
         }
 
