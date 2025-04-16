@@ -981,6 +981,7 @@ function showSummary() {
       const li = document.createElement("li");
       const label = document.createElement("span");
       label.textContent = `${entry.step}: `;
+      label.style.color = "#B91B21";
       li.appendChild(label);
 
       if (isEditing && entry.step.toLowerCase().includes("photo")) {
@@ -1027,7 +1028,7 @@ function showSummary() {
 
       } else if (isEditing) {
         const input = document.createElement("input");
-        input.className = "editable";
+        input.className = "editable"; input.style.color = "white";
         input.value = entry.answer;
         input.style.background = "#333";
         input.style.color = "white";
@@ -1040,6 +1041,7 @@ function showSummary() {
       } else {
         const span = document.createElement("span");
         span.textContent = entry.answer;
+        span.style.color = "white";
         li.appendChild(span);
 
         if (entry.image) {
@@ -1154,6 +1156,29 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 </script>
 
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const observer = new MutationObserver(() => {
+    const dateInput = document.querySelector('input[type="date"]');
+    if (dateInput && !dateInput.hasAttribute("data-enhanced")) {
+      dateInput.setAttribute("data-enhanced", "true");
+      dateInput.addEventListener("change", function () {
+        const message = dateInput.value;
+        if (!message) return;
+        appendMessage(message, "user");
+        responses.push({ step: steps[stepIndex], answer: message });
+        stepIndex++;
+        nextStep();
+      });
+    }
+  });
+
+  observer.observe(document.body, { childList: true, subtree: true });
+});
+</script>
+
 </body>
 </html>
+
 
