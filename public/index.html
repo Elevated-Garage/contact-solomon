@@ -7,9 +7,6 @@
   <title>Let’s Elevate Your Garage!</title>
   <style>
     html, body {
-  display: flex;
-  flex-direction: column;
-      padding-top: 20px;
       margin: 0;
       padding: 0;
       width: 100vw;
@@ -33,7 +30,8 @@
       background-size: 75%;
       z-index: 0;
       pointer-events: none;
-      opacity: 0.3; filter: contrast(1.2);
+      opacity: 0.3;
+      filter: contrast(1.2);
     }
 
     .header, .chat-box, form, #typing, #preview {
@@ -70,31 +68,13 @@
     }
 
     .header p {
-      color: white !important;
-      z-index: 2;
-      position: relative;
-      color: white;
       color: #555;
       font-size: 1rem;
       position: relative;
     }
 
-    .header p::before {
-      content: "";
-      position: absolute;
-      top: -10px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 400px;
-      height: 70px;
-      background: radial-gradient(circle, rgba(185,27,33,0.25) 0%, rgba(185,27,33,0) 80%);
-      filter: blur(32px);
-      z-index: -1;
-      border-radius: 20px;
-    }
-
     .chat-box {
-  flex-grow: 1;
+      flex-grow: 1;
       width: 100%;
       max-width: 800px;
       height: 260px;
@@ -128,11 +108,6 @@
     }
 
     .form-col {
-  position: sticky;
-  bottom: 0;
-  background: transparent;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
       width: 100%;
       max-width: 800px;
       display: flex;
@@ -188,25 +163,40 @@
   </div>
 
   <div class="chat-box" id="chat-box">
-    <div class="message bot">👋 Hi there! I'm Solomon, your garage design assistant. What’s your full name?</div>
+    <div class="message bot">👋 Hey there! Before we get started, I have a few quick questions to help design your perfect garage.</div>
   </div>
 
   <div id="typing" style="display:none;">Solomon is typing...</div>
 
   <form id="chat-form" class="form-col">
-    <input type="text" id="user-input" placeholder="Type your answer..." required />
+    <input type="text" id="user-input" placeholder="Type your answer or choose below..." required />
     <input type="file" id="file-upload" />
     <button type="submit">Send</button>
   </form>
   <img id="preview" style="display:none;" />
 
   <script>
+    const steps = [
+      "What’s your full name?",
+      "What’s the best email address to reach you at?",
+      "And your phone number?",
+      "What are your garage goals? (e.g. Workshop, Gym, Wellness Center, Car Storage)",
+      "What features must your garage include? (e.g. Cabinets, Flooring, Sauna, etc.)",
+      "What is your rough budget for this project?",
+      "When would you ideally like to get started?",
+      "Upload a photo of your current garage (optional).",
+      "Any other ideas or must-haves you'd like to share?"
+    ];
+
     const chatBox = document.getElementById("chat-box");
     const typing = document.getElementById("typing");
     const form = document.getElementById("chat-form");
     const input = document.getElementById("user-input");
     const fileUpload = document.getElementById("file-upload");
     const preview = document.getElementById("preview");
+
+    let stepIndex = 0;
+    let responses = [];
 
     function appendMessage(text, sender) {
       const msg = document.createElement("div");
@@ -216,30 +206,30 @@
       chatBox.scrollTop = chatBox.scrollHeight;
     }
 
-    form.addEventListener("submit", async (e) => {
+    function nextStep() {
+      if (stepIndex < steps.length) {
+        typing.style.display = "block";
+        setTimeout(() => {
+          appendMessage(steps[stepIndex], "bot");
+          typing.style.display = "none";
+        }, 800);
+      } else {
+        appendMessage("✅ Thanks! That was the last question. We’ll use this info to create something amazing.", "bot");
+        input.disabled = true;
+        fileUpload.disabled = true;
+        form.querySelector("button").disabled = true;
+      }
+    }
+
+    form.addEventListener("submit", (e) => {
       e.preventDefault();
       const message = input.value.trim();
       if (!message) return;
-
       appendMessage(message, "user");
+      responses.push({ step: steps[stepIndex], answer: message });
       input.value = "";
-      typing.style.display = "block";
-
-      const payload = { message, source: "contact" };
-
-      try {
-        const res = await fetch("/message", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        });
-        const data = await res.json();
-        appendMessage(data.reply, "bot");
-      } catch {
-        appendMessage("Sorry, Solomon couldn’t respond right now. Please try again.", "bot");
-      }
-
-      typing.style.display = "none";
+      stepIndex++;
+      nextStep();
     });
 
     fileUpload.addEventListener("change", () => {
@@ -249,57 +239,13 @@
         reader.onload = () => {
           preview.src = reader.result;
           preview.style.display = "block";
+          appendMessage("📸 Garage photo uploaded.", "user");
         };
         reader.readAsDataURL(file);
-      } else {
-        preview.style.display = "none";
       }
     });
+
+    nextStep();
   </script>
 </body>
 </html>
-
-<style>
-  @media (max-width: 768px) {
-    .chat-box {
-  flex-grow: 1;
-      height: 240px !important;
-      padding: 0.25rem !important;
-    }
-
-    .form-col {
-  position: sticky;
-  bottom: 0;
-  background: transparent;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-      gap: 0.4rem !important;
-      margin-bottom: 1rem !important;
-      padding: 0 0.5rem !important;
-    }
-
-    input[type="text"],
-    input[type="file"] {
-      padding: 0.5rem !important;
-      font-size: 0.95rem !important;
-    }
-
-    button {
-      padding: 0.6rem 1rem !important;
-      width: 100% !important;
-      font-size: 0.95rem !important;
-    }
-
-    .header h1 {
-      font-size: 1.6rem !important;
-    }
-
-    .header p {
-      font-size: 0.9rem !important;
-    }
-
-    #preview {
-      max-height: 80px !important;
-    }
-  }
-</style>
