@@ -762,6 +762,7 @@ skipButton.onclick = () => {
 
       const sliderLabel = document.createElement("div");
       sliderLabel.textContent = `$${slider.value}`;
+      sliderLabel.style.color = "white";
 
       slider.oninput = () => {
         sliderLabel.textContent = `$${slider.value}`;
@@ -931,7 +932,7 @@ function showSummary() {
   const summaryWrapper = document.createElement("div");
   summaryWrapper.className = "message bot";
   summaryWrapper.style.whiteSpace = "pre-wrap";
-  summaryWrapper.style.background = "rgba(255, 255, 255, 0.05)";
+  summaryWrapper.style.background = "rgba(255, 255, 255, 0.08)";
   summaryWrapper.style.border = "1px solid rgba(255, 255, 255, 0.1)";
   summaryWrapper.style.borderRadius = "10px";
   summaryWrapper.style.padding = "10px";
@@ -976,4 +977,3 @@ editBtn.style.cursor = "pointer";
 
 </body>
 </html>
-
