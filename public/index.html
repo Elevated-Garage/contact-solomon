@@ -918,7 +918,7 @@ fileUpload.addEventListener("change", () => {
       preview.src = reader.result;
       preview.style.display = "block";
       appendMessage("📷 Perfect — now we can better see how to elevate your space!", "user");
-responses.push({ step: steps[stepIndex], answer: "File uploaded" });
+responses.push({ step: steps[stepIndex], answer: "File uploaded", image: reader.result });
 stepIndex++;
 nextStep();
     };
@@ -948,7 +948,7 @@ function showSummary() {
   const editBtn = document.createElement("button");
   editBtn.textContent = "Edit";
   editBtn.className = "ai-style-change-1";
-editBtn.style.cursor = "pointer";
+  editBtn.style.cursor = "pointer";
   editBtn.onclick = () => {
     stepIndex = 0;
     chatBox.innerHTML = "";
@@ -960,14 +960,26 @@ editBtn.style.cursor = "pointer";
   const list = document.createElement("ul");
   list.style.paddingLeft = "16px";
   list.style.marginTop = "8px";
+
   responses.forEach((entry) => {
     const li = document.createElement("li");
     li.textContent = `${entry.step}: ${entry.answer}`;
     li.style.marginBottom = "4px";
+
+    if (entry.step.toLowerCase().includes("photo") && entry.image) {
+      const img = document.createElement("img");
+      img.src = entry.image;
+      img.style.width = "120px"; img.style.height = "auto";
+      img.style.borderRadius = "8px";
+      img.style.marginTop = "6px";
+      li.appendChild(document.createElement("br"));
+      li.appendChild(img);
+    }
+
     list.appendChild(li);
   });
-  summaryWrapper.appendChild(list);
 
+  summaryWrapper.appendChild(list);
   chatBox.appendChild(summaryWrapper);
   chatBox.scrollTop = chatBox.scrollHeight;
 }
