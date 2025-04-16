@@ -1072,5 +1072,60 @@ function showSummary() {
 
 </script>
 
+
+<script>
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  const input = document.getElementById("user-input");
+  const form = document.getElementById("chat-form");
+
+  if (form) {
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+    });
+  }
+
+  if (input) {
+    input.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        const message = input.value.trim();
+        const step = steps[stepIndex] || "";
+
+        let error = document.getElementById("email-error");
+        if (!error) {
+          error = document.createElement("div");
+          error.id = "email-error";
+          error.style.color = "red";
+          error.style.fontSize = "14px";
+          error.style.marginTop = "4px";
+          error.style.display = "none";
+          input.insertAdjacentElement("afterend", error);
+        }
+
+        if (step.toLowerCase().includes("email")) {
+          const valid = isValidEmail(message);
+          if (!valid) {
+            input.style.border = "2px solid red";
+            error.style.display = "block";
+            error.textContent = "Please enter a valid email address.";
+            return;
+          } else {
+            input.style.border = "";
+            error.style.display = "none";
+          }
+        }
+
+        handleSubmit(e);
+      }
+    });
+  }
+});
+</script>
+
 </body>
 </html>
+
