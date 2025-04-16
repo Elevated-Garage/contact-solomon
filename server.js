@@ -56,7 +56,6 @@ app.get('/api/oauth2callback', async (req, res) => {
   }
 });
 
-// ✅ NEW: FORM SUBMISSION TO GOOGLE DRIVE
 const upload = multer({ dest: 'uploads/' });
 
 app.post('/api/submit', upload.single('photo'), async (req, res) => {
@@ -177,11 +176,6 @@ Original Message: ${message}
       reply: "⚠️ Sorry, Solomon had trouble processing your request. Please try again shortly."
     });
   }
-});
-
-const PORT = process.env.PORT || 10000;
-app.listen(PORT, () => {
-  console.log(`✅ Contact Solomon backend running on port ${PORT}`);
 });
 
 const PORT = process.env.PORT || 10000;
