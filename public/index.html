@@ -312,9 +312,12 @@
 </script>
 
 <div class="input-container" style="display: flex; align-items: center; gap: 8px; padding: 12px; background: white; border-top: 1px solid #ccc; z-index: 10;">
-<label for="fileInput" style="font-size: 28px; cursor: pointer; user-select: none;">➕</label>
+    <label for="fileInput" style="font-size: 28px; cursor: pointer; user-select: none; color: #B91B21;">➕</label>
 <input accept="image/*,.pdf,.doc,.docx" id="fileInput" style="display: none;" type="file"/>
-<input placeholder="Type your message..." style="flex: 1; padding: 10px; font-size: 16px;" type="text"/>
+<input
+  placeholder="Type your message..."
+  style="flex: 1; padding: 10px; font-size: 16px; background: transparent; color: white; border: 1px solid #fff; border-radius: 8px; outline: none;"
+  type="text"/>
 </div>
 <div id="previewContainer" style="display: none; margin: 12px;">
 <img id="imagePreview" style="max-width: 100%; border-radius: 8px;"/>
