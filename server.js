@@ -76,6 +76,11 @@ try {
 } catch (err) {
   console.warn("⚠️ Failed to parse responses:", req.body.responses);
 }
+    const nameStep = responses.find(r => r.step.toLowerCase().includes("full name"));
+    const clientName = nameStep ? nameStep.answer.replace(/\s+/g, "_") : "Unknown";
+    const timestamp = new Date().toISOString().split("T")[0];
+    const filename = `${clientName}_Submission_${timestamp}.txt`;
+
     const formattedText = responses.map(r => `${r.step}: ${r.answer}`).join('\n');
     const buffer = Buffer.from(formattedText, 'utf-8');
 
@@ -85,7 +90,7 @@ try {
     // Upload summary
     await drive.files.create({
       requestBody: {
-        name: `Garage_Form_${Date.now()}.txt`,
+        name: filename,
         mimeType: 'text/plain',
         parents: [folderId]
       },
@@ -162,4 +167,5 @@ const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
   console.log(`✅ Contact Solomon backend running on port ${PORT}`);
 });
+
 
