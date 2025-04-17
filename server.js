@@ -119,7 +119,6 @@ try {
     const formattedText = responses.map(r => `${r.step}: ${r.answer}`).join('\n');
     const buffer = Buffer.from(formattedText, 'utf-8');
 
-    const clientName = nameStep ? nameStep.answer.replace(/\s+/g, "_") : "Unknown";
     const timestamp = new Date().toISOString().split("T")[0];
     const filename = `${clientName}_Submission_${timestamp}.txt`;
 
@@ -209,6 +208,5 @@ const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
   console.log(`✅ Contact Solomon backend running on port ${PORT}`);
 });
-
 
 
