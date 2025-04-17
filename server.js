@@ -11,7 +11,8 @@ require('dotenv').config();
 
 const app = express();
 app.use(cors());
-app.use(app.use(bodyParser.json({ limit: '10mb' })); app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' })););
+app.use(app.use(bodyParser.json({ limit: '10mb' })); 
+app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' })););
 app.use(express.static(path.join(__dirname, 'public')));
 
 const openai = new OpenAI({
