@@ -1,3 +1,4 @@
+
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
@@ -130,6 +131,8 @@ Name: ${name}
 Email: ${email}
 Phone: ${phone}
 Original Message: ${message}
+
+Note: If a photo was uploaded with this submission, it has been saved to your Google Drive.
 `.trim()
     };
 
