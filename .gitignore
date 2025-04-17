@@ -1,8 +1,3 @@
-# Ignore OAuth and token credentials
-credentials.json
-token.json
-client_secret_*.json
-
 # Node modules and build output
 node_modules/
 uploads/
@@ -12,3 +7,16 @@ uploads/
 
 # System files
 .DS_Store
+
+# Optional: logs or temp files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OAuth files — keep client_secret, ignore token after generation
+# Only ignore token.json, which is generated after auth
+token.json
+
+# Do NOT ignore the client_secret JSON file so it gets deployed
+# client_secret_*.json must be committed
+!client_secret_*.json
