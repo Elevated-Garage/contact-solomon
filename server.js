@@ -113,8 +113,6 @@ try {
       fields: "id"
     });
     const subFolderId = subFolderRes.data.id;
-
-    const formattedText = responses.map(r => `${r.step}: ${r.answer}`).join('\n');
     const buffer = Buffer.from(formattedText, 'utf-8');
 
     const filename = `${clientName}_Submission_${timestamp}.txt`;
