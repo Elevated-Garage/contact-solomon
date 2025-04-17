@@ -58,7 +58,7 @@ app.get('/api/oauth2callback', async (req, res) => {
 
 const upload = multer({ dest: 'uploads/' });
 
-app.post('/api/submit', upload.single('photo'), async (req, res) => {
+app.post('/submit', upload.single('photo'), async (req, res) => {
   const { responses } = req.body;
 
   try {
