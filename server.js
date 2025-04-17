@@ -76,7 +76,49 @@ try {
 } catch (err) {
   console.warn("⚠️ Failed to parse responses:", req.body.responses);
 }
+    
     const nameStep = responses.find(r => r.step.toLowerCase().includes("full name"));
+    const clientName = nameStep ? nameStep.answer.replace(/\s+/g, "_") : "Unknown";
+    const timestamp = new Date().toISOString().split("T")[0];
+    const submissionFolderName = `${clientName}_${timestamp}`;
+
+    const drive = google.drive({ version: 'v3', auth: oauth2Client });
+
+    // Get or create main folder
+    const mainFolderRes = await drive.files.list({
+      q: "mimeType='application/vnd.google-apps.folder' and name='Garage Submissions' and trashed=false",
+      fields: "files(id, name)"
+    });
+    let mainFolderId;
+    if (mainFolderRes.data.files.length > 0) {
+      mainFolderId = mainFolderRes.data.files[0].id;
+    } else {
+      const createdMain = await drive.files.create({
+        requestBody: {
+          name: "Garage Submissions",
+          mimeType: "application/vnd.google-apps.folder",
+        },
+        fields: "id"
+      });
+      mainFolderId = createdMain.data.id;
+    }
+
+    // Create subfolder
+    const subFolderRes = await drive.files.create({
+      requestBody: {
+        name: submissionFolderName,
+        mimeType: "application/vnd.google-apps.folder",
+        parents: [mainFolderId]
+      },
+      fields: "id"
+    });
+    const subFolderId = subFolderRes.data.id;
+
+    const filename = `${clientName}_Submission_${timestamp}.txt`;
+
+    const formattedText = responses.map(r => `${r.step}: ${r.answer}`).join('\n');
+    const buffer = Buffer.from(formattedText, 'utf-8');
+
     const clientName = nameStep ? nameStep.answer.replace(/\s+/g, "_") : "Unknown";
     const timestamp = new Date().toISOString().split("T")[0];
     const filename = `${clientName}_Submission_${timestamp}.txt`;
@@ -92,7 +134,7 @@ try {
       requestBody: {
         name: filename,
         mimeType: 'text/plain',
-        parents: [folderId]
+        parents: [subFolderId]
       },
       media: {
         mimeType: 'text/plain',
@@ -109,7 +151,7 @@ try {
           requestBody: {
             name: req.file.originalname,
             mimeType: req.file.mimetype,
-            parents: [folderId]
+            parents: [subFolderId]
           },
           media: {
             mimeType: req.file.mimetype,
@@ -167,5 +209,6 @@ const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
   console.log(`✅ Contact Solomon backend running on port ${PORT}`);
 });
+
 
 
