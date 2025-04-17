@@ -66,6 +66,8 @@ async function getOrCreateFolder(drive, folderName) {
 
 // Submit route
 app.post('/submit', upload.single('photo'), async (req, res) => {
+  const drive = google.drive({ version: 'v3', auth: oauth2Client });
+
   try {
     console.log("📥 /submit hit");
 
@@ -116,8 +118,7 @@ try {
     const formattedText = responses.map(r => `${r.step}: ${r.answer}`).join('\n');
     const buffer = Buffer.from(formattedText, 'utf-8');
 
-    const drive = google.drive({ version: 'v3', auth: oauth2Client });
-    const folderId = await getOrCreateFolder(drive, "Garage Submissions");
+        const folderId = await getOrCreateFolder(drive, "Garage Submissions");
 
     // Upload summary
     await drive.files.create({
@@ -199,6 +200,7 @@ const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
   console.log(`✅ Contact Solomon backend running on port ${PORT}`);
 });
+
 
 
 
