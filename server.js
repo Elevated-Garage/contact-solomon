@@ -7,6 +7,7 @@ const OpenAI = require('openai');
 const { google } = require('googleapis');
 const cors = require('cors');
 const multer = require('multer');
+const { Readable } = require('stream');
 require('dotenv').config();
 
 const app = express();
