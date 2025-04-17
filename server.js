@@ -69,7 +69,13 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
   try {
     console.log("📥 /submit hit");
 
-    const responses = req.body.responses ? JSON.parse(req.body.responses) : [];
+    let responses = [];
+try {
+  responses = JSON.parse(req.body.responses);
+  console.log("✅ Parsed responses:", responses);
+} catch (err) {
+  console.warn("⚠️ Failed to parse responses:", req.body.responses);
+}
     const formattedText = responses.map(r => `${r.step}: ${r.answer}`).join('\n');
     const buffer = Buffer.from(formattedText, 'utf-8');
 
