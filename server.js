@@ -23,6 +23,7 @@ const oauth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_REDIRECT_URI
 );
 
+// ✅ Load token if it exists
 if (fs.existsSync('token.json')) {
   try {
     const tokens = JSON.parse(fs.readFileSync('token.json', 'utf8'));
@@ -33,6 +34,7 @@ if (fs.existsSync('token.json')) {
   }
 }
 
+// Email config
 const transporter = nodemailer.createTransport({
   host: 'smtp.titan.email',
   port: 465,
@@ -43,6 +45,7 @@ const transporter = nodemailer.createTransport({
   }
 });
 
+// Helper: get or create Drive folder
 async function getOrCreateFolder(drive, folderName) {
   const query = `mimeType='application/vnd.google-apps.folder' and name='${folderName}' and trashed=false`;
   const res = await drive.files.list({ q: query });
@@ -61,6 +64,7 @@ async function getOrCreateFolder(drive, folderName) {
   return newFolder.data.id;
 }
 
+// Submit route
 app.post('/submit', upload.single('photo'), async (req, res) => {
   try {
     console.log("📥 /submit hit");
@@ -72,6 +76,7 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
     const drive = google.drive({ version: 'v3', auth: oauth2Client });
     const folderId = await getOrCreateFolder(drive, "Garage Submissions");
 
+    // Upload summary
     await drive.files.create({
       requestBody: {
         name: `Garage_Form_${Date.now()}.txt`,
@@ -83,8 +88,9 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
         body: Readable.from(buffer),
       }
     });
-    console.log("✅ Summary uploaded to Drive folder.");
+    console.log("✅ Summary uploaded to Drive.");
 
+    // Upload photo
     if (req.file && req.file.path) {
       const filePath = path.join(__dirname, req.file.path);
       if (fs.existsSync(filePath)) {
@@ -100,7 +106,7 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
           },
         });
         fs.unlinkSync(filePath);
-        console.log("✅ Photo uploaded to Drive folder.");
+        console.log("✅ Photo uploaded to Drive.");
       } else {
         console.log("ℹ️ Skipped photo upload (file not found).");
       }
@@ -108,11 +114,12 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
       console.log("ℹ️ No photo submitted.");
     }
 
+    // Send email
     await transporter.sendMail({
       from: process.env.LEAD_EMAIL_USER,
       to: 'nick@elevatedgarage.com',
       subject: '📥 New Garage Submission',
-      text: formattedText + '\n\nNote: Uploaded files were saved to Google Drive.'
+      text: formattedText + '\n\nNote: Files were saved to Google Drive.'
     });
     console.log("✅ Email sent.");
 
@@ -123,6 +130,7 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
   }
 });
 
+// Google OAuth endpoints
 app.get('/auth', (req, res) => {
   const authUrl = oauth2Client.generateAuthUrl({
     access_type: 'offline',
@@ -148,3 +156,4 @@ const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
   console.log(`✅ Contact Solomon backend running on port ${PORT}`);
 });
+
