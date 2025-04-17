@@ -78,20 +78,29 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
     });
 
     let imageFile = null;
-    if (req.file) {
-      const filePath = path.join(__dirname, req.file.path);
-      imageFile = await drive.files.create({
-        requestBody: {
-          name: req.file.originalname,
-          mimeType: req.file.mimetype,
-        },
-        media: {
-          mimeType: req.file.mimetype,
-          body: fs.createReadStream(filePath),
-        },
-      });
-      fs.unlinkSync(filePath);
+
+    if (req.file && req.file.path && req.file.originalname && req.file.mimetype) {
+      try {
+        const filePath = path.join(__dirname, req.file.path);
+        imageFile = await drive.files.create({
+          requestBody: {
+            name: req.file.originalname,
+            mimeType: req.file.mimetype,
+          },
+          media: {
+            mimeType: req.file.mimetype,
+            body: fs.createReadStream(filePath),
+          },
+        });
+        fs.unlinkSync(filePath);
+        console.log("✅ Image uploaded to Drive:", req.file.originalname);
+      } catch (imgErr) {
+        console.error("⚠️ Image upload failed:", imgErr.message);
+      }
+    } else {
+      console.log("ℹ️ No valid photo uploaded — skipping image upload.");
     }
+
 
     res.json({
       success: true,
