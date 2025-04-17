@@ -1,0 +1,14 @@
+# Ignore OAuth and token credentials
+credentials.json
+token.json
+client_secret_*.json
+
+# Node modules and build output
+node_modules/
+uploads/
+
+# Local environment variables
+.env
+
+# System files
+.DS_Store
