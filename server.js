@@ -114,8 +114,6 @@ try {
     });
     const subFolderId = subFolderRes.data.id;
 
-    const filename = `${clientName}_Submission_${timestamp}.txt`;
-
     const formattedText = responses.map(r => `${r.step}: ${r.answer}`).join('\n');
     const buffer = Buffer.from(formattedText, 'utf-8');
 
