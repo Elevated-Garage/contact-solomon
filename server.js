@@ -29,6 +29,18 @@ const transporter = nodemailer.createTransport({
   }
 });
 
+
+// ✅ Load token.json if it exists to restore Drive access
+if (fs.existsSync("token.json")) {
+  try {
+    const tokens = JSON.parse(fs.readFileSync("token.json", "utf8"));
+    oauth2Client.setCredentials(tokens);
+    console.log("✅ Google Drive token loaded from token.json");
+  } catch (err) {
+    console.error("❌ Failed to load token.json:", err.message);
+  }
+}
+
 const oauth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_CLIENT_ID,
   process.env.GOOGLE_CLIENT_SECRET,
