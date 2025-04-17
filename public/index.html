@@ -1107,18 +1107,8 @@ function showSummary() {
   submitBtn.className = "submit-button";
   submitBtn.textContent = "Submit My Info";
   submitBtn.onclick = async () => {
-    submitBtn.disabled = true;
-    submitBtn.textContent = "Submitting...";
-
-    const formData = new FormData();
-    formData.append("responses", JSON.stringify(responses));
-
-    const fileInput = document.getElementById("file-upload");
-    if (fileInput && fileInput.files.length > 0) {
-      formData.append("photo", fileInput.files[0]);
-    }
-
-    const response = await fetch("/submit", {
+    console.log("📨 Submit button clicked");
+    fetch("/submit", {
       method: "POST",
       body: formData
     });
