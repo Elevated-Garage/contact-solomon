@@ -178,6 +178,53 @@ Original Message: ${message}
   }
 });
 
+
+app.post('/submit', async (req, res) => {
+  const { responses } = req.body;
+
+  if (!responses || !Array.isArray(responses)) {
+    return res.status(400).json({ success: false, message: "Invalid submission data." });
+  }
+
+  try {
+    // Create formatted text content
+    const timestamp = new Date().toISOString();
+    const formattedText = responses.map(r => `${r.step}: ${r.answer}`).join("\n");
+    const filename = `Garage_Submission_${timestamp}.txt`;
+    const buffer = Buffer.from(formattedText, 'utf-8');
+
+    // Send summary to email
+    const mailOptions = {
+      from: process.env.LEAD_EMAIL_USER,
+      to: 'nick@elevatedgarage.com',
+      subject: '📥 New Garage Submission',
+      text: formattedText
+    };
+    await transporter.sendMail(mailOptions);
+
+    // Upload .txt file to Drive
+    const drive = google.drive({ version: 'v3', auth: oauth2Client });
+    const fileUpload = await drive.files.create({
+      requestBody: {
+        name: filename,
+        mimeType: 'text/plain',
+      },
+      media: {
+        mimeType: 'text/plain',
+        body: buffer
+      }
+    });
+
+    console.log("✅ Submission uploaded and emailed.");
+    res.json({ success: true, fileId: fileUpload.data.id });
+
+  } catch (err) {
+    console.error("❌ Submission error:", err.message);
+    res.status(500).json({ success: false, message: "Server error during submission." });
+  }
+});
+
+
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
   console.log(`✅ Contact Solomon backend running on port ${PORT}`);
