@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -799,17 +798,17 @@ skipButton.onclick = () => {
       slider.type = "range";
       slider.className = "range-slider";
       slider.min = 5000;
-      slider.max = 50000+;
+      slider.max = 50000;
       slider.step = 100;
       slider.value = 20000;
       slider.style.width = "100%";
 
       const sliderLabel = document.createElement("div");
-      sliderLabel.textContent = `$${slider.value}`;
+      sliderLabel.textContent = slider.value >= 50000 ? '$50,000+' : `$${Number(slider.value).toLocaleString()}`;
       sliderLabel.style.color = "white";
 
       slider.oninput = () => {
-        sliderLabel.textContent = `$${slider.value}`;
+        sliderLabel.textContent = slider.value >= 50000 ? '$50,000+' : `$${Number(slider.value).toLocaleString()}`;
       };
 
       const confirmButton = document.createElement("button");
@@ -1239,3 +1238,4 @@ document.addEventListener("DOMContentLoaded", function () {
 
 </body>
 </html>
+
