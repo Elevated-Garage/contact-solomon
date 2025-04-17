@@ -82,8 +82,6 @@ try {
     const timestamp = new Date().toISOString().split("T")[0];
     const submissionFolderName = `${clientName}_${timestamp}`;
 
-    const drive = google.drive({ version: 'v3', auth: oauth2Client });
-
     // Get or create main folder
     const mainFolderRes = await drive.files.list({
       q: "mimeType='application/vnd.google-apps.folder' and name='Garage Submissions' and trashed=false",
@@ -201,7 +199,6 @@ const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
   console.log(`✅ Contact Solomon backend running on port ${PORT}`);
 });
-
 
 
 
