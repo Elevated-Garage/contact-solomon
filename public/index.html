@@ -1266,6 +1266,94 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 </script>
   </div>
+
+<script>
+const chatBox = document.getElementById('chat-box');
+const form = document.getElementById('chat-form');
+const input = document.getElementById('user-input');
+const typingIndicator = document.getElementById('typing');
+
+const steps = [
+  { step: "Welcome", prompt: "👋 Welcome to Elevated Garage! What’s your full name?", validate: text => text.trim().length > 1 },
+  { step: "Email", prompt: "📧 What’s the best email to reach you?", validate: text => /.+@.+\..+/.test(text) },
+  { step: "Phone", prompt: "📞 And your phone number?", validate: text => /^[0-9\-\+\(\) ]{7,}$/.test(text) },
+  { step: "Garage Goals", prompt: "🧠 What are your goals for the garage? (e.g., gym, storage, workshop...)", validate: text => text.trim().length > 1 },
+  { step: "Brainstorm Goals", prompt: "Need help brainstorming? I can suggest ideas based on how you use the space.", aiAssist: true },
+  { step: "Must-Have Features", prompt: "✅ What features do you want to include? (e.g., cabinets, flooring, gym)", validate: text => text.trim().length > 1 },
+  { step: "Brainstorm Features", prompt: "Want suggestions based on your goals? I can help!", aiAssist: true },
+  { step: "Budget", prompt: "💸 What's your ideal budget range?", validate: text => text.trim().length > 1 },
+  { step: "Start Date", prompt: "📅 When are you hoping to get started?", validate: text => text.trim().length > 1 },
+  { step: "Final", prompt: "📝 Any additional notes or ideas?" }
+];
+
+let stepIndex = 0;
+let responses = [];
+
+function appendMessage(text, sender, imageUrl = null) {
+  const div = document.createElement('div');
+  div.className = 'message ' + sender;
+  if (imageUrl) {
+    const img = document.createElement('img');
+    img.src = imageUrl;
+    img.alt = "Generated design";
+    img.style.maxWidth = '100%';
+    div.appendChild(img);
+  } else {
+    div.textContent = text;
+  }
+  chatBox.appendChild(div);
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+async function sendToAI(message) {
+  const res = await fetch('/message', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message })
+  });
+  const data = await res.json();
+  appendMessage(data.reply, 'bot', data.image || null);
+}
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const message = input.value.trim();
+  if (!message) return;
+
+  appendMessage(message, 'user');
+  input.value = '';
+  typingIndicator.style.display = 'block';
+
+  const current = steps[stepIndex];
+
+  if (current.validate && !current.validate(message)) {
+    appendMessage(`⚠️ That doesn’t look valid. ${current.prompt}`, 'bot');
+    typingIndicator.style.display = 'none';
+    return;
+  }
+
+  if (!current.aiAssist) {
+    responses.push({ step: current.step, answer: message });
+    stepIndex++;
+  }
+
+  if (stepIndex < steps.length) {
+    const next = steps[stepIndex];
+    if (next.aiAssist) {
+      await sendToAI(responses.map(r => `${r.step}: ${r.answer}`).join("\n") + `\nUser: ${next.prompt}`);
+      stepIndex++;
+    } else {
+      appendMessage(next.prompt, 'bot');
+    }
+  } else {
+    appendMessage("🎯 Great! If you'd like a design, just say: *Generate a concept*.", 'bot');
+  }
+
+  typingIndicator.style.display = 'none';
+});
+</script>
+
 </body>
 </html>
+
 
