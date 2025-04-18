@@ -1,4 +1,3 @@
-
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
@@ -8,7 +7,7 @@ const { google } = require('googleapis');
 const cors = require('cors');
 const multer = require('multer');
 const { Readable } = require('stream');
-const { Configuration, OpenAIApi } = require('openai');
+const OpenAI = require("openai");
 require('dotenv').config();
 
 const app = express();
@@ -37,10 +36,9 @@ if (fs.existsSync('token.json')) {
 }
 
 // === OPENAI SETUP ===
-const configuration = new Configuration({
-  apiKey: process.env.OPENAI_API_KEY,
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY
 });
-const openai = new OpenAIApi(configuration);
 
 let conversationHistory = [];
 
@@ -51,16 +49,17 @@ app.post('/message', async (req, res) => {
   try {
     // Image generation logic
     if (userMessage.toLowerCase().includes('generate') && userMessage.toLowerCase().includes('design')) {
-      const dalleRes = await openai.createImage({
+      const dalleRes = await openai.images.generate({
+  model: "dall-e-3",
         prompt: `garage design: ${userMessage}`,
         n: 1,
         size: '512x512'
       });
-      const imageUrl = dalleRes.data.data[0].url;
+      const imageUrl = dalleRes.data[0].url;
       return res.json({ reply: "Here’s your generated design 👇", image: imageUrl });
     }
 
-    const completion = await openai.createChatCompletion({
+    const completion = await openai.chat.completions.create({
       model: 'gpt-4',
       messages: [
         { role: 'system', content: 'You are Solomon, a friendly, knowledgeable assistant helping users design their dream garage with Elevated Garage. Respond conversationally and help them brainstorm ideas.' },
@@ -212,3 +211,4 @@ const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
   console.log(`✅ Contact Solomon backend running on port ${PORT}`);
 });
+
