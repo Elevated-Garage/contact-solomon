@@ -47,10 +47,9 @@ app.post('/message', async (req, res) => {
   conversationHistory.push({ role: 'user', content: userMessage });
 
   try {
-    // Image generation logic
     if (userMessage.toLowerCase().includes('generate') && userMessage.toLowerCase().includes('design')) {
       const dalleRes = await openai.images.generate({
-  model: "dall-e-3",
+        model: "dall-e-3",
         prompt: `garage design: ${userMessage}`,
         n: 1,
         size: '512x512'
@@ -67,9 +66,10 @@ app.post('/message', async (req, res) => {
       ],
     });
 
-    const aiReply = completion.data.choices[0].message.content;
+    const aiReply = completion.choices?.[0]?.message?.content || "⚠️ Sorry, I couldn’t generate a response.";
     conversationHistory.push({ role: 'assistant', content: aiReply });
     res.json({ reply: aiReply });
+
   } catch (err) {
     console.error('Error in /message:', err.message);
     res.status(500).json({ reply: 'Something went wrong. Please try again shortly.' });
@@ -91,7 +91,7 @@ async function getOrCreateFolder(drive, folderName) {
   return newFolder.data.id;
 }
 
-// === /submit route (unchanged from original) ===
+// === /submit route ===
 app.post('/submit', upload.single('photo'), async (req, res) => {
   const drive = google.drive({ version: 'v3', auth: oauth2Client });
 
@@ -171,7 +171,13 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
       }
     }
 
-    await transporter.sendMail({
+    await nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.LEAD_EMAIL_USER,
+        pass: process.env.LEAD_EMAIL_PASS,
+      }
+    }).sendMail({
       from: process.env.LEAD_EMAIL_USER,
       to: 'nick@elevatedgarage.com',
       subject: '📥 New Garage Submission',
@@ -211,4 +217,3 @@ const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
   console.log(`✅ Contact Solomon backend running on port ${PORT}`);
 });
-
