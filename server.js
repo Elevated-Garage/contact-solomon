@@ -23,6 +23,7 @@ const oauth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_REDIRECT_URI
 );
 
+// ✅ Load token if it exists
 if (fs.existsSync('token.json')) {
   try {
     const tokens = JSON.parse(fs.readFileSync('token.json', 'utf8'));
@@ -33,6 +34,7 @@ if (fs.existsSync('token.json')) {
   }
 }
 
+// Email config
 const transporter = nodemailer.createTransport({
   host: 'smtp.titan.email',
   port: 465,
@@ -43,6 +45,7 @@ const transporter = nodemailer.createTransport({
   }
 });
 
+// Helper: get or create Drive folder
 async function getOrCreateFolder(drive, folderName) {
   const query = `mimeType='application/vnd.google-apps.folder' and name='${folderName}' and trashed=false`;
   const res = await drive.files.list({ q: query });
@@ -61,6 +64,7 @@ async function getOrCreateFolder(drive, folderName) {
   return newFolder.data.id;
 }
 
+// Submit route
 app.post('/submit', upload.single('photo'), async (req, res) => {
   const drive = google.drive({ version: 'v3', auth: oauth2Client });
 
@@ -68,21 +72,38 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
     console.log("📥 /submit hit");
 
     let responses = [];
-    try {
-      responses = JSON.parse(req.body.responses);
-      console.log("✅ Parsed responses:", responses);
-    } catch (err) {
-      console.warn("⚠️ Failed to parse responses:", req.body.responses);
-    }
-
+try {
+  responses = JSON.parse(req.body.responses);
+  console.log("✅ Parsed responses:", responses);
+} catch (err) {
+  console.warn("⚠️ Failed to parse responses:", req.body.responses);
+}
+    
     const nameStep = responses.find(r => r.step.toLowerCase().includes("full name"));
     const clientName = nameStep ? nameStep.answer.trim() : "Unknown";
     const timestamp = new Date().toISOString().split("T")[0];
-    const submissionFolderName = `${clientName} ${timestamp}`;
-    const filename = `${clientName} Submission ${timestamp}.txt`;
+    const submissionFolderName = `${clientName}_${timestamp}`;
 
-    const mainFolderId = await getOrCreateFolder(drive, "Garage Submissions");
+    // Get or create main folder
+    const mainFolderRes = await drive.files.list({
+      q: "mimeType='application/vnd.google-apps.folder' and name='Garage Submissions' and trashed=false",
+      fields: "files(id, name)"
+    });
+    let mainFolderId;
+    if (mainFolderRes.data.files.length > 0) {
+      mainFolderId = mainFolderRes.data.files[0].id;
+    } else {
+      const createdMain = await drive.files.create({
+        requestBody: {
+          name: "Garage Submissions",
+          mimeType: "application/vnd.google-apps.folder",
+        },
+        fields: "id"
+      });
+      mainFolderId = createdMain.data.id;
+    }
 
+    // Create subfolder
     const subFolderRes = await drive.files.create({
       requestBody: {
         name: submissionFolderName,
@@ -92,10 +113,14 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
       fields: "id"
     });
     const subFolderId = subFolderRes.data.id;
+    const filename = `${clientName} Submission ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}.txt`;
 
     const formattedText = responses.map(r => `${r.step}: ${r.answer}`).join('\n');
     const buffer = Buffer.from(formattedText, 'utf-8');
 
+        const folderId = await getOrCreateFolder(drive, "Garage Submissions");
+
+    // Upload summary
     await drive.files.create({
       requestBody: {
         name: filename,
@@ -109,6 +134,7 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
     });
     console.log("✅ Summary uploaded to Drive.");
 
+    // Upload photo
     if (req.file && req.file.path) {
       const filePath = path.join(__dirname, req.file.path);
       if (fs.existsSync(filePath)) {
@@ -132,6 +158,7 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
       console.log("ℹ️ No photo submitted.");
     }
 
+    // Send email
     await transporter.sendMail({
       from: process.env.LEAD_EMAIL_USER,
       to: 'nick@elevatedgarage.com',
@@ -147,6 +174,7 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
   }
 });
 
+// Google OAuth endpoints
 app.get('/auth', (req, res) => {
   const authUrl = oauth2Client.generateAuthUrl({
     access_type: 'offline',
