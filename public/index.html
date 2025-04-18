@@ -13,6 +13,66 @@
   transform: scale(1.2);
   fill: white;
 }
+
+.upload-card {
+  background: white;
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 14px;
+}
+.upload-label {
+  font-weight: 600;
+  font-size: 1rem;
+  color: #B91B21;
+}
+.upload-dropzone {
+  border: 2px dashed #B91B21;
+  border-radius: 12px;
+  padding: 24px;
+  text-align: center;
+  color: #999;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+.upload-dropzone:hover {
+  background: #fef3f3;
+}
+.upload-preview {
+  display: none;
+  max-width: 100%;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+.upload-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-start;
+}
+.upload-btn, .skip-btn {
+  background: #B91B21;
+  color: white;
+  padding: 8px 16px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+.upload-btn:disabled {
+  background: #aaa;
+  cursor: not-allowed;
+}
+.upload-btn:hover:not(:disabled),
+.skip-btn:hover {
+  background: #a3171d;
+}
+
 </style>
 <style>
 
@@ -657,7 +717,7 @@ body.solomon-embedded .form-wrapper {
 </div>
 <div id="typing" style="display:none;">Solomon is typing...</div>
 <input accept="image/*" id="file-upload" style="display: none;" type="file"/>
-<form class="form-col" id="chat-form" onsubmit="handleSubmit(event)">
+<form class="form-col" id="chat-form" >
 <div class="input-container" style="display: flex; align-items: center; gap: 6px; padding: 4px 6px; background: transparent; border-top: 1px solid #ccc; z-index: 10; position: sticky; bottom: 0; height: 40px;">
 <label class="upload-button" for="file-upload" style="font-size: 28px; cursor: pointer; user-select: none; color: #B91B21;"><span style="color: white;">+</span></label>
 <input accept="image/*,.pdf,.doc,.docx" id="file-upload" style="display: none;" type="file"/>
@@ -677,6 +737,9 @@ body.solomon-embedded .form-wrapper {
 
   </div>
 
+
+
+
 <script>
 const chatBox = document.getElementById('chat-box');
 const form = document.getElementById('chat-form');
@@ -693,6 +756,7 @@ const steps = [
   { step: "Brainstorm Features", prompt: "Want suggestions based on your goals? I can help!", aiAssist: true },
   { step: "Budget", prompt: "💸 What's your ideal budget range?", validate: text => text.trim().length > 1 },
   { step: "Start Date", prompt: "📅 When are you hoping to get started?", validate: text => text.trim().length > 1 },
+  { step: "Upload Photo", prompt: "📷 Upload a photo of your current garage or inspiration space." },
   { step: "Final", prompt: "📝 Any additional notes or ideas?" }
 ];
 
@@ -729,6 +793,178 @@ async function sendToAI(message) {
   }
 }
 
+
+
+async function nextStep() {
+  if (stepIndex >= steps.length) {
+    appendMessage("🎯 Great! If you'd like a design, just say: *Generate a concept*.", 'bot');
+    return;
+  }
+
+  const next = steps[stepIndex];
+
+  
+    if (next.step.includes("Upload Photo")) {
+      const container = document.createElement("div");
+      container.className = "message bot upload-card";
+
+      const label = document.createElement("label");
+      label.className = "upload-label";
+      label.textContent = next.prompt;
+
+      const dropzone = document.createElement("div");
+      dropzone.className = "upload-dropzone";
+      dropzone.textContent = "Click to select or drag & drop a photo";
+
+      const input = document.createElement("input");
+      input.type = "file";
+      input.accept = "image/*";
+      input.style.display = "none";
+
+      const previewImg = document.createElement("img");
+      previewImg.className = "upload-preview";
+      previewImg.style.display = "none";
+
+      const buttonWrapper = document.createElement("div");
+      buttonWrapper.className = "upload-buttons";
+
+      const uploadBtn = document.createElement("button");
+      uploadBtn.textContent = "Upload Photo";
+      uploadBtn.className = "upload-btn";
+      uploadBtn.disabled = true;
+
+      const skipBtn = document.createElement("button");
+      skipBtn.textContent = "Skip Upload";
+      skipBtn.className = "skip-btn";
+
+      dropzone.addEventListener("click", () => input.click());
+
+      dropzone.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        dropzone.style.background = "#fef3f3";
+      });
+
+      dropzone.addEventListener("dragleave", () => {
+        dropzone.style.background = "transparent";
+      });
+
+      dropzone.addEventListener("drop", (e) => {
+        e.preventDefault();
+        dropzone.style.background = "transparent";
+        const file = e.dataTransfer.files[0];
+        if (file && file.type.startsWith("image/")) {
+          input.files = e.dataTransfer.files;
+          const reader = new FileReader();
+          reader.onload = () => {
+            previewImg.src = reader.result;
+            previewImg.style.display = "block";
+            uploadBtn.disabled = false;
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+
+      input.addEventListener("change", () => {
+        const file = input.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = () => {
+            previewImg.src = reader.result;
+            previewImg.style.display = "block";
+            uploadBtn.disabled = false;
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+
+      uploadBtn.onclick = () => {
+        responses.push({ step: next.step, answer: "Garage image uploaded", image: previewImg.src });
+        stepIndex++;
+        nextStep();
+      };
+
+      skipBtn.onclick = () => {
+        responses.push({ step: next.step, answer: "Skipped photo upload" });
+        stepIndex++;
+        nextStep();
+      };
+
+      buttonWrapper.appendChild(uploadBtn);
+      buttonWrapper.appendChild(skipBtn);
+
+      container.appendChild(label);
+      container.appendChild(dropzone);
+      container.appendChild(input);
+      container.appendChild(previewImg);
+      container.appendChild(buttonWrapper);
+
+      chatBox.appendChild(container);
+      chatBox.scrollTop = chatBox.scrollHeight;
+      return;
+    }
+
+
+  if (next.step.includes("Budget")) {
+    const container = document.createElement("div");
+    container.className = "message bot";
+    container.style.display = "flex";
+    container.style.flexDirection = "column";
+    container.style.alignItems = "flex-start";
+    container.style.gap = "10px";
+
+    const label = document.createElement("label");
+    label.textContent = "💸 Select your ideal budget range:";
+    label.style.fontWeight = "bold";
+    label.style.color = "#B91B21";
+
+    const slider = document.createElement("input");
+    slider.type = "range";
+    slider.min = 5000;
+    slider.max = 100000;
+    slider.step = 1000;
+    slider.value = 20000;
+    slider.className = "range-slider";
+
+    const valueDisplay = document.createElement("div");
+    valueDisplay.textContent = `$${slider.value}`;
+    valueDisplay.style.color = "white";
+    valueDisplay.style.fontSize = "16px";
+
+    slider.oninput = () => {
+      valueDisplay.textContent = `$${Number(slider.value).toLocaleString()}`;
+    };
+
+    const confirmBtn = document.createElement("button");
+    confirmBtn.textContent = "Confirm Budget";
+    confirmBtn.onclick = () => {
+      responses.push({ step: next.step, answer: `$${Number(slider.value).toLocaleString()}` });
+      stepIndex++;
+      nextStep();
+    };
+
+    container.appendChild(label);
+    container.appendChild(slider);
+    container.appendChild(valueDisplay);
+    container.appendChild(confirmBtn);
+    chatBox.appendChild(container);
+    chatBox.scrollTop = chatBox.scrollHeight;
+    return;
+  }
+
+  if (next.aiAssist) {
+    const context = responses.map(r => `${r.step}: ${r.answer}`).join("
+");
+    await sendToAI(`${context}
+User: ${next.prompt}`);
+    stepIndex++;
+    nextStep();
+  } else {
+    appendMessage(next.prompt, 'bot');
+  }
+}
+
+
+
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
   const message = input.value.trim();
@@ -739,7 +975,6 @@ form.addEventListener('submit', async (e) => {
   typingIndicator.style.display = 'block';
 
   const current = steps[stepIndex];
-
   if (current.validate && !current.validate(message)) {
     appendMessage(`⚠️ That doesn’t look valid. ${current.prompt}`, 'bot');
     typingIndicator.style.display = 'none';
@@ -751,22 +986,265 @@ form.addEventListener('submit', async (e) => {
     stepIndex++;
   }
 
-  if (stepIndex < steps.length) {
+  await nextStep();
+  typingIndicator.style.display = 'none';
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  nextStep();
+});
+</script>
+
+
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const chatBox = document.getElementById('chat-box');
+  const form = document.getElementById('chat-form');
+  const input = document.getElementById('user-input');
+  const typingIndicator = document.getElementById('typing');
+
+  const steps = [
+    { step: "Welcome", prompt: "👋 Welcome to Elevated Garage! What’s your full name?", validate: text => text.trim().length > 1 },
+    { step: "Email", prompt: "📧 What’s the best email to reach you?", validate: text => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(text) },
+    { step: "Phone", prompt: "📞 And your phone number?", validate: text => /^\+?1?[\s.-]?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/.test(text) },
+    { step: "Garage Goals", prompt: "🧠 What are your goals for the garage? (e.g., gym, storage, workshop...)", validate: text => text.trim().length > 1 },
+    { step: "Brainstorm Goals", prompt: "Need help brainstorming? I can suggest ideas based on how you use the space.", aiAssist: true },
+    { step: "Must-Have Features", prompt: "✅ What features do you want to include? (e.g., cabinets, flooring, gym)", validate: text => text.trim().length > 1 },
+    { step: "Brainstorm Features", prompt: "Want suggestions based on your goals? I can help!", aiAssist: true },
+    { step: "Budget", prompt: "💸 What's your ideal budget range?", validate: text => text.trim().length > 1 },
+    { step: "Start Date", prompt: "📅 When are you hoping to get started?", validate: text => text.trim().length > 1 },
+    { step: "Upload Photo", prompt: "📷 Upload a photo of your current garage or inspiration space." },
+    { step: "Final", prompt: "📝 Any additional notes or ideas?" }
+  ];
+
+  let stepIndex = 0;
+  let responses = [];
+
+  function appendMessage(text, sender, imageUrl = null) {
+    const div = document.createElement('div');
+    div.className = 'message ' + sender;
+    if (imageUrl) {
+      const img = document.createElement('img');
+      img.src = imageUrl;
+      img.alt = "Generated design";
+      img.style.maxWidth = '100%';
+      div.appendChild(img);
+    } else {
+      div.textContent = text;
+    }
+    chatBox.appendChild(div);
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
+
+  async function sendToAI(message) {
+    try {
+      const res = await fetch('/message', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message })
+      });
+      const data = await res.json();
+      appendMessage(data.reply, 'bot', data.image || null);
+    } catch (err) {
+      appendMessage("❌ There was an issue reaching Solomon. Please try again later.", "bot");
+    }
+  }
+
+  async function nextStep() {
+    if (stepIndex >= steps.length) {
+      appendMessage("🎯 Great! If you'd like a design, just say: *Generate a concept*.", 'bot');
+      return;
+    }
+
     const next = steps[stepIndex];
+
+    
+    if (next.step.includes("Upload Photo")) {
+      const container = document.createElement("div");
+      container.className = "message bot upload-card";
+
+      const label = document.createElement("label");
+      label.className = "upload-label";
+      label.textContent = next.prompt;
+
+      const dropzone = document.createElement("div");
+      dropzone.className = "upload-dropzone";
+      dropzone.textContent = "Click to select or drag & drop a photo";
+
+      const input = document.createElement("input");
+      input.type = "file";
+      input.accept = "image/*";
+      input.style.display = "none";
+
+      const previewImg = document.createElement("img");
+      previewImg.className = "upload-preview";
+      previewImg.style.display = "none";
+
+      const buttonWrapper = document.createElement("div");
+      buttonWrapper.className = "upload-buttons";
+
+      const uploadBtn = document.createElement("button");
+      uploadBtn.textContent = "Upload Photo";
+      uploadBtn.className = "upload-btn";
+      uploadBtn.disabled = true;
+
+      const skipBtn = document.createElement("button");
+      skipBtn.textContent = "Skip Upload";
+      skipBtn.className = "skip-btn";
+
+      dropzone.addEventListener("click", () => input.click());
+
+      dropzone.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        dropzone.style.background = "#fef3f3";
+      });
+
+      dropzone.addEventListener("dragleave", () => {
+        dropzone.style.background = "transparent";
+      });
+
+      dropzone.addEventListener("drop", (e) => {
+        e.preventDefault();
+        dropzone.style.background = "transparent";
+        const file = e.dataTransfer.files[0];
+        if (file && file.type.startsWith("image/")) {
+          input.files = e.dataTransfer.files;
+          const reader = new FileReader();
+          reader.onload = () => {
+            previewImg.src = reader.result;
+            previewImg.style.display = "block";
+            uploadBtn.disabled = false;
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+
+      input.addEventListener("change", () => {
+        const file = input.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = () => {
+            previewImg.src = reader.result;
+            previewImg.style.display = "block";
+            uploadBtn.disabled = false;
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+
+      uploadBtn.onclick = () => {
+        responses.push({ step: next.step, answer: "Garage image uploaded", image: previewImg.src });
+        stepIndex++;
+        nextStep();
+      };
+
+      skipBtn.onclick = () => {
+        responses.push({ step: next.step, answer: "Skipped photo upload" });
+        stepIndex++;
+        nextStep();
+      };
+
+      buttonWrapper.appendChild(uploadBtn);
+      buttonWrapper.appendChild(skipBtn);
+
+      container.appendChild(label);
+      container.appendChild(dropzone);
+      container.appendChild(input);
+      container.appendChild(previewImg);
+      container.appendChild(buttonWrapper);
+
+      chatBox.appendChild(container);
+      chatBox.scrollTop = chatBox.scrollHeight;
+      return;
+    }
+
+
+    if (next.step.includes("Budget")) {
+      const container = document.createElement("div");
+      container.className = "message bot";
+      container.style.display = "flex";
+      container.style.flexDirection = "column";
+      container.style.alignItems = "flex-start";
+      container.style.gap = "10px";
+
+      const label = document.createElement("label");
+      label.textContent = "💸 Select your ideal budget range:";
+      label.style.fontWeight = "bold";
+      label.style.color = "#B91B21";
+
+      const slider = document.createElement("input");
+      slider.type = "range";
+      slider.min = 5000;
+      slider.max = 100000;
+      slider.step = 1000;
+      slider.value = 20000;
+      slider.className = "range-slider";
+
+      const valueDisplay = document.createElement("div");
+      valueDisplay.textContent = `$${slider.value}`;
+      valueDisplay.style.color = "white";
+      valueDisplay.style.fontSize = "16px";
+
+      slider.oninput = () => {
+        valueDisplay.textContent = `$${Number(slider.value).toLocaleString()}`;
+      };
+
+      const confirmBtn = document.createElement("button");
+      confirmBtn.textContent = "Confirm Budget";
+      confirmBtn.onclick = () => {
+        responses.push({ step: next.step, answer: `$${Number(slider.value).toLocaleString()}` });
+        stepIndex++;
+        nextStep();
+      };
+
+      container.appendChild(label);
+      container.appendChild(slider);
+      container.appendChild(valueDisplay);
+      container.appendChild(confirmBtn);
+      chatBox.appendChild(container);
+      chatBox.scrollTop = chatBox.scrollHeight;
+      return;
+    }
+
     if (next.aiAssist) {
-      await sendToAI(responses.map(r => `${r.step}: ${r.answer}`).join("\n") + `\nUser: ${next.prompt}`);
+      const context = responses.map(r => `${r.step}: ${r.answer}`).join("\n");
+      await sendToAI(`${context}\nUser: ${next.prompt}`);
       stepIndex++;
+      nextStep();
     } else {
       appendMessage(next.prompt, 'bot');
     }
-  } else {
-    appendMessage("🎯 Great! If you'd like a design, just say: *Generate a concept*.", 'bot');
   }
 
-  typingIndicator.style.display = 'none';
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const message = input.value.trim();
+    if (!message) return;
+
+    appendMessage(message, 'user');
+    input.value = '';
+    typingIndicator.style.display = 'block';
+
+    const current = steps[stepIndex];
+    if (current.validate && !current.validate(message)) {
+      appendMessage(`⚠️ That doesn’t look valid. ${current.prompt}`, 'bot');
+      typingIndicator.style.display = 'none';
+      return;
+    }
+
+    if (!current.aiAssist) {
+      responses.push({ step: current.step, answer: message });
+      stepIndex++;
+    }
+
+    await nextStep();
+    typingIndicator.style.display = 'none';
+  });
+
+  nextStep(); // Trigger the conversation start once DOM is ready
 });
 </script>
 
 </body>
 </html>
-
