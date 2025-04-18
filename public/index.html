@@ -752,23 +752,13 @@ const chatBox = document.getElementById('chat-box');
 const form = document.getElementById('chat-form');
 const input = document.getElementById('user-input');
 const typingIndicator = document.getElementById('typing');
-let step = 0;
-let followupIndex = 0;
+
+
 let responses = [];
 
-const prompts = [
-  { key: "Full Name", prompt: "👋 What’s your full name?", validate: t => t.trim().split(" ").length >= 2 },
-  { key: "Email", prompt: "📧 What’s the best email to reach you?", validate: t => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(t) },
-  { key: "Phone", prompt: "📞 And your phone number?", validate: t => /^\+?1?[\s.-]?(\(?\d{3}\)?)[\s.-]?\d{3}[\s.-]?\d{4}$/.test(t) },
-  { key: "Garage Goals", prompt: "🧠 What are your goals for the garage?" }
-];
+// removed prompts — now handled by AI
 
-const aiFollowups = [
-  "What’s your ideal budget range?",
-  "When would you like to get started?",
-  "Would you like to upload a photo of your garage?",
-  "Any final notes you’d like to share?"
-];
+// removed followups — now handled by AI
 
 function appendMessage(text, sender = "bot") {
   const msg = document.createElement("div");
@@ -778,58 +768,27 @@ function appendMessage(text, sender = "bot") {
   chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-function nextPrompt() {
-  if (step < prompts.length) {
-    appendMessage(prompts[step].prompt);
-  } else {
-    const context = responses.map(r => r.key + ": " + r.value).join("\n");
-    fetch("/message", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: context + "\nUser: Help me explore garage design ideas." })
-    })
-    .then(res => res.json())
-    .then(data => {
-      appendMessage(data.reply, "bot");
-      askFollowup();
-    });
-  }
-}
+// removed nextPrompt — AI is in control
 
-function askFollowup() {
-  if (followupIndex < aiFollowups.length) {
-    appendMessage(aiFollowups[followupIndex]);
-  } else {
-    appendMessage("✅ Looks like we’ve got everything I need. Click below to submit.");
-    const btn = document.createElement("button");
-    btn.className = "submit-button";
-    btn.textContent = "Submit Project";
-    btn.onclick = () => {
-      fetch("/submit", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ responses })
-      }).then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          appendMessage("✅ Your submission was received! We'll be in touch soon.");
-        } else {
-          appendMessage("❌ Something went wrong submitting your info.");
-        }
-      });
-    };
-    chatBox.appendChild(btn);
-  }
-}
+// removed askFollowup — handled by AI now
 
-form.addEventListener("submit", e => {
+
+form.addEventListener("submit", async (e) => {
   e.preventDefault();
   const message = input.value.trim();
   if (!message) return;
   appendMessage(message, "user");
   input.value = "";
 
-  if (step < prompts.length) {
+  const res = await fetch("/message", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message })
+  });
+  const data = await res.json();
+  appendMessage(data.reply, "bot");
+});
+if (step < prompts.length) {
     const current = prompts[step];
     if (current.validate && !current.validate(message)) {
       appendMessage("⚠️ That doesn’t look valid. " + current.prompt);
@@ -851,4 +810,6 @@ document.addEventListener("DOMContentLoaded", () => {
 </script>
 </body>
 </html>
+
+
 
