@@ -1,3 +1,4 @@
+
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
@@ -7,6 +8,7 @@ const { google } = require('googleapis');
 const cors = require('cors');
 const multer = require('multer');
 const { Readable } = require('stream');
+const { Configuration, OpenAIApi } = require('openai');
 require('dotenv').config();
 
 const app = express();
@@ -17,13 +19,13 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 const upload = multer({ dest: 'uploads/' });
 
+// === GOOGLE OAUTH SETUP ===
 const oauth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_CLIENT_ID,
   process.env.GOOGLE_CLIENT_SECRET,
   process.env.GOOGLE_REDIRECT_URI
 );
 
-// ✅ Load token if it exists
 if (fs.existsSync('token.json')) {
   try {
     const tokens = JSON.parse(fs.readFileSync('token.json', 'utf8'));
@@ -34,25 +36,52 @@ if (fs.existsSync('token.json')) {
   }
 }
 
-// Email config
-const transporter = nodemailer.createTransport({
-  host: 'smtp.titan.email',
-  port: 465,
-  secure: true,
-  auth: {
-    user: process.env.LEAD_EMAIL_USER,
-    pass: process.env.LEAD_EMAIL_PASS,
+// === OPENAI SETUP ===
+const configuration = new Configuration({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+const openai = new OpenAIApi(configuration);
+
+let conversationHistory = [];
+
+app.post('/message', async (req, res) => {
+  const userMessage = req.body.message;
+  conversationHistory.push({ role: 'user', content: userMessage });
+
+  try {
+    // Image generation logic
+    if (userMessage.toLowerCase().includes('generate') && userMessage.toLowerCase().includes('design')) {
+      const dalleRes = await openai.createImage({
+        prompt: `garage design: ${userMessage}`,
+        n: 1,
+        size: '512x512'
+      });
+      const imageUrl = dalleRes.data.data[0].url;
+      return res.json({ reply: "Here’s your generated design 👇", image: imageUrl });
+    }
+
+    const completion = await openai.createChatCompletion({
+      model: 'gpt-4',
+      messages: [
+        { role: 'system', content: 'You are Solomon, a friendly, knowledgeable assistant helping users design their dream garage with Elevated Garage. Respond conversationally and help them brainstorm ideas.' },
+        ...conversationHistory
+      ],
+    });
+
+    const aiReply = completion.data.choices[0].message.content;
+    conversationHistory.push({ role: 'assistant', content: aiReply });
+    res.json({ reply: aiReply });
+  } catch (err) {
+    console.error('Error in /message:', err.message);
+    res.status(500).json({ reply: 'Something went wrong. Please try again shortly.' });
   }
 });
 
-// Helper: get or create Drive folder
+// === Helper: Google Drive folder setup ===
 async function getOrCreateFolder(drive, folderName) {
   const query = `mimeType='application/vnd.google-apps.folder' and name='${folderName}' and trashed=false`;
   const res = await drive.files.list({ q: query });
-  if (res.data.files.length > 0) {
-    console.log("📁 Found existing folder:", folderName);
-    return res.data.files[0].id;
-  }
+  if (res.data.files.length > 0) return res.data.files[0].id;
 
   const newFolder = await drive.files.create({
     requestBody: {
@@ -60,31 +89,27 @@ async function getOrCreateFolder(drive, folderName) {
       mimeType: 'application/vnd.google-apps.folder',
     }
   });
-  console.log("📁 Created new folder:", folderName);
   return newFolder.data.id;
 }
 
-// Submit route
+// === /submit route (unchanged from original) ===
 app.post('/submit', upload.single('photo'), async (req, res) => {
   const drive = google.drive({ version: 'v3', auth: oauth2Client });
 
   try {
     console.log("📥 /submit hit");
-
     let responses = [];
-try {
-  responses = JSON.parse(req.body.responses);
-  console.log("✅ Parsed responses:", responses);
-} catch (err) {
-  console.warn("⚠️ Failed to parse responses:", req.body.responses);
-}
-    
+    try {
+      responses = JSON.parse(req.body.responses);
+    } catch (err) {
+      console.warn("⚠️ Failed to parse responses:", req.body.responses);
+    }
+
     const nameStep = responses.find(r => r.step.toLowerCase().includes("full name"));
     const clientName = nameStep ? nameStep.answer.trim() : "Unknown";
     const timestamp = new Date().toISOString().split("T")[0];
     const submissionFolderName = `${clientName}_${timestamp}`;
 
-    // Get or create main folder
     const mainFolderRes = await drive.files.list({
       q: "mimeType='application/vnd.google-apps.folder' and name='Garage Submissions' and trashed=false",
       fields: "files(id, name)"
@@ -103,7 +128,6 @@ try {
       mainFolderId = createdMain.data.id;
     }
 
-    // Create subfolder
     const subFolderRes = await drive.files.create({
       requestBody: {
         name: submissionFolderName,
@@ -113,14 +137,11 @@ try {
       fields: "id"
     });
     const subFolderId = subFolderRes.data.id;
-    const filename = `${clientName} Submission ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}.txt`;
 
+    const filename = `${clientName} Submission ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}.txt`;
     const formattedText = responses.map(r => `${r.step}: ${r.answer}`).join('\n');
     const buffer = Buffer.from(formattedText, 'utf-8');
 
-        const folderId = await getOrCreateFolder(drive, "Garage Submissions");
-
-    // Upload summary
     await drive.files.create({
       requestBody: {
         name: filename,
@@ -132,9 +153,7 @@ try {
         body: Readable.from(buffer),
       }
     });
-    console.log("✅ Summary uploaded to Drive.");
 
-    // Upload photo
     if (req.file && req.file.path) {
       const filePath = path.join(__dirname, req.file.path);
       if (fs.existsSync(filePath)) {
@@ -150,22 +169,15 @@ try {
           },
         });
         fs.unlinkSync(filePath);
-        console.log("✅ Photo uploaded to Drive.");
-      } else {
-        console.log("ℹ️ Skipped photo upload (file not found).");
       }
-    } else {
-      console.log("ℹ️ No photo submitted.");
     }
 
-    // Send email
     await transporter.sendMail({
       from: process.env.LEAD_EMAIL_USER,
       to: 'nick@elevatedgarage.com',
       subject: '📥 New Garage Submission',
       text: formattedText + '\n\nNote: Files were saved to Google Drive.'
     });
-    console.log("✅ Email sent.");
 
     res.json({ success: true });
   } catch (err) {
@@ -174,7 +186,7 @@ try {
   }
 });
 
-// Google OAuth endpoints
+// === Google OAuth endpoints ===
 app.get('/auth', (req, res) => {
   const authUrl = oauth2Client.generateAuthUrl({
     access_type: 'offline',
@@ -200,7 +212,3 @@ const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
   console.log(`✅ Contact Solomon backend running on port ${PORT}`);
 });
-
-
-
-
