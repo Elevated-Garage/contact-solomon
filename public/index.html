@@ -779,8 +779,15 @@ function appendMessage(text, sender, imageUrl = null) {
   chatBox.scrollTop = chatBox.scrollHeight;
 }
 
+
 async function sendToAI(message) {
   try {
+    const loadingBubble = document.createElement("div");
+    loadingBubble.className = "message bot";
+    loadingBubble.textContent = "🧠 Generating your garage design... Please hold tight.";
+    chatBox.appendChild(loadingBubble);
+    chatBox.scrollTop = chatBox.scrollHeight;
+
     const res = await fetch('/message', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -1037,8 +1044,15 @@ document.addEventListener("DOMContentLoaded", () => {
     chatBox.scrollTop = chatBox.scrollHeight;
   }
 
-  async function sendToAI(message) {
-    try {
+  
+async function sendToAI(message) {
+  try {
+    const loadingBubble = document.createElement("div");
+    loadingBubble.className = "message bot";
+    loadingBubble.textContent = "🧠 Generating your garage design... Please hold tight.";
+    chatBox.appendChild(loadingBubble);
+    chatBox.scrollTop = chatBox.scrollHeight;
+
       const res = await fetch('/message', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
