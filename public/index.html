@@ -788,28 +788,27 @@ form.addEventListener("submit", async (e) => {
   const data = await res.json();
   appendMessage(data.reply, "bot");
 });
-if (step < prompts.length) {
-    const current = prompts[step];
-    if (current.validate && !current.validate(message)) {
-      appendMessage("⚠️ That doesn’t look valid. " + current.prompt);
-      return;
-    }
-    responses.push({ key: current.key, value: message });
-    step++;
-    setTimeout(nextPrompt, 300);
-  } else {
-    responses.push({ key: aiFollowups[followupIndex], value: message });
-    followupIndex++;
-    setTimeout(askFollowup, 300);
-  }
+
 });
 
-document.addEventListener("DOMContentLoaded", () => {
-  nextPrompt();
+
+
+document.addEventListener("DOMContentLoaded", async () => {
+  const res = await fetch("/message", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message: "Solomon, can you help me design my garage?" })
+  });
+  const data = await res.json();
+  appendMessage(data.reply, "bot");
 });
+
 </script>
 </body>
 </html>
+
+
+
 
 
 
