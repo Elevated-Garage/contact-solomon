@@ -80,7 +80,7 @@ try {
 }
     
     const nameStep = responses.find(r => r.step.toLowerCase().includes("full name"));
-    const clientName = nameStep ? nameStep.answer.replace(/\s+/g, "_") : "Unknown";
+    const clientName = nameStep ? nameStep.answer.trim() : "Unknown";
     const timestamp = new Date().toISOString().split("T")[0];
     const submissionFolderName = `${clientName}_${timestamp}`;
 
