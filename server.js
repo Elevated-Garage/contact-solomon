@@ -1,4 +1,3 @@
-
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
@@ -44,77 +43,65 @@ app.get('/auth', (req, res) => {
 });
 
 app.get('/api/oauth2callback', async (req, res) => {
-  const code = req.query.code;
   try {
-    const { tokens } = await oauth2Client.getToken(code);
+    const { tokens } = await oauth2Client.getToken(req.query.code);
     oauth2Client.setCredentials(tokens);
     fs.writeFileSync('token.json', JSON.stringify(tokens, null, 2));
     res.send("✅ Authorization successful! You may close this window.");
   } catch (err) {
-    console.error('❌ Error retrieving access token:', err.message);
-    res.status(500).send('Failed to authorize. Please try again.');
+    console.error('❌ Auth callback error:', err.message);
+    res.status(500).send('OAuth Error');
   }
 });
 
 const upload = multer({ dest: 'uploads/' });
 
 app.post('/submit', upload.single('photo'), async (req, res) => {
-  console.log("📥 /submit hit");
+  console.log('📥 /submit hit');
 
   try {
-    const parsed = JSON.parse(req.body.responses);
-    console.log("✅ Parsed responses:", parsed);
+    const responses = JSON.parse(req.body.responses);
+    console.log("✅ Parsed responses:", responses);
 
-    const nameStep = parsed.find(r => r.step.includes("full name"));
-    const clientName = nameStep ? nameStep.answer.trim() : "Unknown";
-    const timestamp = new Date().toISOString().split("T")[0];
-    const folderName = `${clientName} Submission ${timestamp}`;
-    const filename = `${clientName} Submission ${timestamp}.txt`;
+    const nameStep = responses.find(r => r.step.includes('full name'));
+    const clientName = nameStep ? nameStep.answer : "Unknown";
+    const timestamp = new Date().toLocaleDateString('en-US');
 
-    const formattedText = parsed.map(r => `${r.step}: ${r.answer}`).join('\n');
-    const buffer = Buffer.from(formattedText, 'utf-8');
-
+    const folderName = `${clientName} ${timestamp}`;
     const drive = google.drive({ version: 'v3', auth: oauth2Client });
 
-    const folderMetadata = {
-      name: folderName,
-      mimeType: 'application/vnd.google-apps.folder',
-    };
-
     const folder = await drive.files.create({
-      requestBody: folderMetadata,
-      fields: 'id',
-    });
-
-    const folderId = folder.data.id;
-
-    const formFile = await drive.files.create({
       requestBody: {
-        name: filename,
-        mimeType: 'text/plain',
-        parents: [folderId]
+        name: folderName,
+        mimeType: 'application/vnd.google-apps.folder'
       },
-      media: {
-        mimeType: 'text/plain',
-        body: buffer
-      }
+      fields: 'id'
     });
 
-    let imageFile = null;
+    const formattedText = responses.map(r => `${r.step}: ${r.answer}`).join('\n');
+    const fileMetadata = {
+      name: `${clientName} Submission ${timestamp}.txt`,
+      parents: [folder.data.id]
+    };
+    const media = {
+      mimeType: 'text/plain',
+      body: Buffer.from(formattedText, 'utf-8')
+    };
+    await drive.files.create({ requestBody: fileMetadata, media });
+
     if (req.file) {
-      const filePath = path.join(__dirname, req.file.path);
-      imageFile = await drive.files.create({
-        requestBody: {
-          name: req.file.originalname,
-          mimeType: req.file.mimetype,
-          parents: [folderId]
-        },
+      const photoMetadata = {
+        name: req.file.originalname,
+        parents: [folder.data.id]
+      };
+      await drive.files.create({
+        requestBody: photoMetadata,
         media: {
           mimeType: req.file.mimetype,
-          body: fs.createReadStream(filePath)
+          body: fs.createReadStream(req.file.path)
         }
       });
-      fs.unlinkSync(filePath);
+      fs.unlinkSync(req.file.path);
     }
 
     const mailOptions = {
@@ -125,15 +112,10 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
     };
     await transporter.sendMail(mailOptions);
 
-    res.json({
-      success: true,
-      formFileId: formFile.data.id,
-      photoFileId: imageFile?.data.id || null,
-    });
-
+    res.json({ success: true });
   } catch (err) {
     console.error("❌ Submit error:", err.message);
-    res.status(500).json({ success: false, message: "Upload failed." });
+    res.status(500).json({ success: false, message: "Submit Failed" });
   }
 });
 
