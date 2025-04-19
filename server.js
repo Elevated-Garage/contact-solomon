@@ -10,6 +10,15 @@ const { Readable } = require('stream');
 const OpenAI = require("openai");
 require('dotenv').config();
 
+// === Intake Summary Submission ===
+// Once the conversation reaches a natural conclusion and all required fields are answered,
+// this server will:
+// 1. Format the user's responses into a structured summary
+// 2. Email the summary to nick@elevatedgarage.com using nodemailer
+// 3. Upload the summary (and any attached photos) to Google Drive using your OAuth token
+//
+// This logic will be handled in the /submit route (or triggered from /message when intake is complete).
+
 const app = express();
 app.use(cors());
 app.use(bodyParser.json({ limit: '50mb' }));
@@ -64,37 +73,16 @@ app.post('/message', async (req, res) => {
         { role: 'system', content: `
 You are Solomon, a professional and friendly garage design assistant for Elevated Garage.
 
-Start the conversation with warmth and simplicity.
+Start the conversation warmly. Your first priority is to get contact information early in the conversation — ideally right after your opening.
 
-When a user first asks for help, your entire reply should be no more than two short sentences.
-Example:
-"Absolutely! I’d love to help you design your garage. What’s your vision for how you want to use the space?"
+Ask for:
+- Full Name
+- Email Address
+- Phone Number
 
-DO NOT include multiple questions.
-DO NOT mention layout, budget, storage, aesthetic, or size in your first message.
-DO NOT present a numbered list or suggestions until the user shares more.
+Only after collecting that, begin learning about garage goals, layout, and features.
 
-Wait for the user to reply before continuing the conversation.
-
-When you do move into recommendations:
-- Use a hierarchical format:
-  - Numbered sections for major areas (e.g., 1. Storage, 2. Lighting)
-  - Indented subpoints using line breaks for clarity
-  - Avoid markdown (no bold/italics) and do not use emojis
-
-When discussing budget:
-- First, offer a general ballpark price range based on what the user has asked for (e.g., "$3,000–$6,000")
-- Clearly state that this is for materials only — labor and customization are separate
-- Then, ask the user if that range feels comfortable for their goals
-- Only after that, invite them to share their target budget range
-Never suggest DIY
-- Emphasize that Elevated Garage provides professional design and install services
-
-Ask follow-up questions naturally and conversationally — no rapid-fire intake forms.
-
-
-
-You must ensure that the following key topics are covered before ending the conversation:
+You must ensure the following key topics are covered before ending the conversation:
 
 1. Full Name  
 2. Email Address  
@@ -110,7 +98,19 @@ Do not ask all of these at once.
 Weave them into the conversation naturally — one at a time — based on where the discussion is heading.  
 Treat them as checkpoints, not a list.
 
-Only when all of these have been addressed should you transition to summarizing or closing the interaction.
+When discussing budget:
+- First, offer a general ballpark price range based on what the user has asked for (e.g., "$3,000–$6,000")
+- Clearly state that this is for materials only — labor and customization are separate
+- Then, ask the user if that range feels comfortable for their goals
+- Only after that, invite them to share their target budget range
+
+Never suggest DIY.
+
+When all 9 topics have been addressed, wrap up the conversation with a natural closing message like:
+
+"Thanks for sharing everything — this gives us a great foundation to begin planning your garage. We'll follow up with next steps soon!"
+
+Optionally ask: “Is there anything else you'd like to add before we wrap up?”
 ` },
         ...conversationHistory
       ],
@@ -122,6 +122,11 @@ Only when all of these have been addressed should you transition to summarizing 
 
   } catch (err) {
     console.error('Error in /message:', err.message);
+
+  if (!intakeSummarySent && hasAnsweredAllIntakeQuestions(conversationHistory)) {
+    await submitFinalIntakeSummary(conversationHistory);
+    intakeSummarySent = true;
+  }
     res.status(500).json({ reply: 'Something went wrong. Please try again shortly.' });
   }
 });
@@ -262,6 +267,62 @@ app.get('/api/oauth2callback', async (req, res) => {
     res.status(500).send("Authorization failed.");
   }
 });
+
+let intakeSummarySent = false;
+
+function hasAnsweredAllIntakeQuestions(history) {
+  const checklist = [
+    "full name",
+    "email",
+    "phone",
+    "garage goals",
+    "must-have features",
+    "budget",
+    "start date",
+    "photo",
+    "final notes"
+  ];
+  const combined = history.map(entry => entry.content.toLowerCase()).join(" ");
+  return checklist.every(item => combined.includes(item));
+}
+
+async function submitFinalIntakeSummary(conversationHistory) {
+  const formattedText = conversationHistory
+    .filter(m => m.role === 'user' || m.role === 'assistant')
+    .map(m => `${m.role.toUpperCase()}: ${m.content}`)
+    .join("
+
+");
+
+  const timestamp = new Date().toISOString().split("T")[0];
+  const filename = `Garage_Intake_Summary_${timestamp}.txt`;
+  const buffer = Buffer.from(formattedText, "utf-8");
+
+  // Email the summary
+  await transporter.sendMail({
+    from: process.env.LEAD_EMAIL_USER,
+    to: "nick@elevatedgarage.com",
+    subject: "📥 New Garage Intake Submission",
+    text: formattedText
+  });
+
+  // Upload to Drive
+  const drive = google.drive({ version: "v3", auth: oauth2Client });
+  const parentFolder = await getOrCreateFolder(drive, "Garage Submissions");
+  await drive.files.create({
+    requestBody: {
+      name: filename,
+      mimeType: "text/plain",
+      parents: [parentFolder]
+    },
+    media: {
+      mimeType: "text/plain",
+      body: Readable.from(buffer)
+    }
+  });
+
+  console.log("✅ Intake summary sent to email and Google Drive.");
+}
 
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
