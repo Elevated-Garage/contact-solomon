@@ -790,6 +790,13 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 </script><script>
+document.getElementById("user-input").addEventListener("keydown", function (e) {
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault();
+    document.getElementById("chat-form").dispatchEvent(new Event("submit"));
+  }
+});
+</script><script>
 document.addEventListener("input", function (event) {
   const el = event.target;
   if (el.id === "user-input") {
@@ -830,5 +837,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
-</script></body>
+</script><div id="summary-download" style="display: none; margin-top: 20px; text-align: center;"><button id="download-summary" type="button">📄 Download My Submission</button></div></body>
 </html>
+
