@@ -290,8 +290,7 @@ async function submitFinalIntakeSummary(conversationHistory) {
   const formattedText = conversationHistory
     .filter(m => m.role === 'user' || m.role === 'assistant')
     .map(m => `${m.role.toUpperCase()}: ${m.content}`)
-    .join("
-
+  .join("\n\n");
 ");
 
   const timestamp = new Date().toISOString().split("T")[0];
