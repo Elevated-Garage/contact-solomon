@@ -841,6 +841,44 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
-</script><div id="summary-download" style="display: none; margin-top: 20px; text-align: center;"><button id="download-summary" type="button">📄 Download My Submission</button></div></body>
+</script><div id="summary-download" style="display: none; margin-top: 20px; text-align: center;"><button id="download-summary" type="button">📄 Download My Submission</button></div><script>
+document.addEventListener("DOMContentLoaded", () => {
+  const uploadBtn = document.getElementById("uploadPhoto");
+  const fileInput = document.getElementById("fileInput");
+  const preview = document.getElementById("imagePreview");
+
+  if (uploadBtn && fileInput) {
+    uploadBtn.addEventListener("click", async () => {
+      const file = fileInput.files[0];
+      if (!file) return alert("Please select a file first.");
+
+      const formData = new FormData();
+      formData.append("photo", file);
+      formData.append("responses", JSON.stringify([])); // Include intake if needed
+
+      try {
+        await fetch("/submit", { method: "POST", body: formData });
+        appendMessage("Thanks! The photo has been uploaded.", "user");
+
+        fetch("/message", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: "I uploaded a photo of my garage." })
+        })
+          .then(res => res.json())
+          .then(data => {
+            appendMessage(data.reply, "bot");
+            if (data.show_summary) {
+              document.getElementById("summary-download").style.display = "block";
+            }
+          });
+      } catch (err) {
+        alert("Upload failed.");
+      }
+    });
+  }
+});
+</script></body>
 </html>
+
 
