@@ -270,6 +270,7 @@ app.get('/api/oauth2callback', async (req, res) => {
 
 let intakeSummarySent = false;
 
+
 function hasAnsweredAllIntakeQuestions(history) {
   const checklist = [
     "full name",
@@ -282,8 +283,10 @@ function hasAnsweredAllIntakeQuestions(history) {
     "photo",
     "final notes"
   ];
-  .join("\n\n");
+  const combined = history.map(entry => entry.content.toLowerCase()).join(" ");
+  return checklist.every(item => combined.includes(item));
 }
+
 
 async function submitFinalIntakeSummary(conversationHistory) {
   const formattedText = conversationHistory
