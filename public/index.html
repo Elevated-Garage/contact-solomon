@@ -733,7 +733,7 @@ body.solomon-embedded .form-wrapper {
 </button>
 </div>
 </form>
-<div id="previewContainer" style="display: none; margin: 12px;">
+<div id="previewContainer" style="display: none;">
 <img id="preview" style="max-width: 100%; border-radius: 8px;"/>
 </div>
 </div>
@@ -798,6 +798,37 @@ document.addEventListener("input", function (event) {
   }
 });
 </script>
-</body>
-</html>
+<script>
+function showPhotoUploader() {
+  const container = document.getElementById("previewContainer");
+  if (container) container.style.display = "block";
+}
 
+function hidePhotoUploader() {
+  const container = document.getElementById("previewContainer");
+  if (container) container.style.display = "none";
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const skipBtn = document.getElementById("skipUpload");
+  if (skipBtn) {
+    skipBtn.addEventListener("click", () => {
+      hidePhotoUploader();
+      appendMessage("I’ll skip the upload for now.", "user");
+      fetch("/message", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: "I’ll skip the upload for now." })
+      })
+        .then(res => res.json())
+        .then(data => {
+          appendMessage(data.reply, "bot");
+          if (data.photo_request) {
+            showPhotoUploader();
+          }
+        });
+    });
+  }
+});
+</script></body>
+</html>
