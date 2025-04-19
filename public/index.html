@@ -722,7 +722,7 @@ body.solomon-embedded .form-wrapper {
 <div id="typing" style="display:none;">Solomon is typing...</div>
 <input accept="image/*" id="file-upload" style="display: none;" type="file"/>
 <form class="form-col" id="chat-form">
-<div class="input-container" style="display: flex; align-items: center; gap: 6px; padding: 4px 6px; background: transparent; z-index: 10; position: sticky; bottom: 0; height: 40px;">
+<div id="previewContainer" style="display: none; position: relative; z-index: 10; margin-top: 12px;"><label class="upload-label">📷 Upload a photo of your garage</label><input accept="image/*" class="upload-dropzone" id="fileInput" type="file"/><img class="upload-preview" id="imagePreview" style="display: none; max-width: 100%; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.15);"/><div class="upload-buttons"><button class="upload-btn" id="uploadPhoto">Upload Photo</button><button class="skip-btn" id="skipUpload">Skip Upload</button></div></div><div class="input-container" style="display: flex; align-items: center; gap: 6px; padding: 4px 6px; background: transparent; z-index: 10; position: sticky; bottom: 0; height: 40px;">
 <label class="upload-button" for="file-upload" style="font-size: 28px; cursor: pointer; user-select: none; color: #B91B21;"><span style="color: white;">+</span></label>
 <input accept="image/*,.pdf,.doc,.docx" id="file-upload" style="display: none;" type="file"/>
 <textarea id="user-input" placeholder="Type your message..." required="True" style="flex: 1; padding: 10px; font-size: 16px; background: white; color: #111; border: 1px solid #ccc; border-radius: 8px; outline: none; flex: 1.2; width: 100%; resize: none; overflow-y: auto; font-family: inherit; line-height: 1.4;">Solomon, can you help me design my garage?</textarea>
@@ -733,7 +733,7 @@ body.solomon-embedded .form-wrapper {
 </button>
 </div>
 </form>
-<div id="previewContainer" style="display: none; position: relative; z-index: 10; margin-bottom: 12px;"><label class="upload-label">📷 Upload a photo of your garage</label><input accept="image/*" class="upload-dropzone" id="fileInput" type="file"/><img class="upload-preview" id="imagePreview" style="display: none; max-width: 100%; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.15);"/><div class="upload-buttons"><button class="upload-btn" id="uploadPhoto">Upload Photo</button><button class="skip-btn" id="skipUpload">Skip Upload</button></div></div>
+
 </div>
 <script>
 /* chatBox declared once */
