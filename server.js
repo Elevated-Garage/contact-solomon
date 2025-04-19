@@ -282,8 +282,7 @@ function hasAnsweredAllIntakeQuestions(history) {
     "photo",
     "final notes"
   ];
-  const combined = history.map(entry => entry.content.toLowerCase()).join("\\n");
-  return checklist.every(item => combined.includes(item));
+  .join("\n\n");
 }
 
 async function submitFinalIntakeSummary(conversationHistory) {
@@ -291,7 +290,6 @@ async function submitFinalIntakeSummary(conversationHistory) {
     .filter(m => m.role === 'user' || m.role === 'assistant')
     .map(m => `${m.role.toUpperCase()}: ${m.content}`)
   .join("\n\n");
-");
 
   const timestamp = new Date().toISOString().split("T")[0];
   const filename = `Garage_Intake_Summary_${timestamp}.txt`;
