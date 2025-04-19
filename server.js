@@ -282,7 +282,7 @@ function hasAnsweredAllIntakeQuestions(history) {
     "photo",
     "final notes"
   ];
-  const combined = history.map(entry => entry.content.toLowerCase()).join(" ");
+  const combined = history.map(entry => entry.content.toLowerCase()).join("\\n");
   return checklist.every(item => combined.includes(item));
 }
 
