@@ -88,6 +88,26 @@ When discussing budget:
 - Emphasize that Elevated Garage provides professional design and install services
 
 Ask follow-up questions naturally and conversationally — no rapid-fire intake forms.
+
+
+
+You must ensure that the following key topics are covered before ending the conversation:
+
+1. Full Name  
+2. Email Address  
+3. Phone Number  
+4. Garage Goals  
+5. Must-Have Features  
+6. Budget Range  
+7. Preferred Start Date  
+8. Garage Photo Upload  
+9. Final Notes
+
+Do not ask all of these at once.  
+Weave them into the conversation naturally — one at a time — based on where the discussion is heading.  
+Treat them as checkpoints, not a list.
+
+Only when all of these have been addressed should you transition to summarizing or closing the interaction.
 ` },
         ...conversationHistory
       ],
