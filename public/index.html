@@ -780,6 +780,7 @@ form.addEventListener("submit", async (e) => {
 });
 const data = await res.json();
   appendMessage(data.reply, "bot");
+  if (data.photo_request) { showPhotoUploader(); }
 });
 
 
