@@ -193,7 +193,16 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
     if (mainFolderRes.data.files.length > 0) {
       mainFolderId = mainFolderRes.data.files[0].id;
     } else {
-      const createdMain = await drive.files.create({
+
+    if (req.file && req.file.path) {
+      const photoMeta = {
+        path: req.file.path,
+        originalName: req.file.originalname,
+        mimeType: req.file.mimetype
+      };
+      if (!global.photoQueue) global.photoQueue = [];
+      global.photoQueue.push(photoMeta);
+    }
         requestBody: {
           name: "Garage Submissions",
           mimeType: "application/vnd.google-apps.folder",
@@ -203,7 +212,6 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
       mainFolderId = createdMain.data.id;
     }
 
-    const subFolderRes = await drive.files.create({
       requestBody: {
         name: submissionFolderName,
         mimeType: "application/vnd.google-apps.folder",
@@ -217,7 +225,6 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
     const formattedText = responses.map(r => `${r.step}: ${r.answer}`).join('\n');
     const buffer = Buffer.from(formattedText, 'utf-8');
 
-    await drive.files.create({
       requestBody: {
         name: filename,
         mimeType: 'text/plain',
@@ -229,10 +236,30 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
       }
     });
 
+  if (global.photoQueue && global.photoQueue.length > 0) {
+    for (const photo of global.photoQueue) {
+      const filePath = path.join(__dirname, photo.path);
+      if (fs.existsSync(filePath)) {
+        await drive.files.create({
+          requestBody: {
+            name: photo.originalName,
+            mimeType: photo.mimeType,
+            parents: [subFolderId]
+          },
+          media: {
+            mimeType: photo.mimeType,
+            body: fs.createReadStream(filePath),
+          },
+        });
+        fs.unlinkSync(filePath);
+      }
+    }
+    global.photoQueue = [];
+  }
+
     if (req.file && req.file.path) {
       const filePath = path.join(__dirname, req.file.path);
       if (fs.existsSync(filePath)) {
-        await drive.files.create({
           requestBody: {
             name: req.file.originalname,
             mimeType: req.file.mimetype,
@@ -330,7 +357,6 @@ async function submitFinalIntakeSummary(conversationHistory) {
   // Upload to Drive
   const drive = google.drive({ version: "v3", auth: oauth2Client });
   const parentFolder = await getOrCreateFolder(drive, "Garage Submissions");
-  await drive.files.create({
     requestBody: {
       name: filename,
       mimeType: "text/plain",
@@ -341,6 +367,27 @@ async function submitFinalIntakeSummary(conversationHistory) {
       body: Readable.from(buffer)
     }
   });
+
+  if (global.photoQueue && global.photoQueue.length > 0) {
+    for (const photo of global.photoQueue) {
+      const filePath = path.join(__dirname, photo.path);
+      if (fs.existsSync(filePath)) {
+        await drive.files.create({
+          requestBody: {
+            name: photo.originalName,
+            mimeType: photo.mimeType,
+            parents: [subFolderId]
+          },
+          media: {
+            mimeType: photo.mimeType,
+            body: fs.createReadStream(filePath),
+          },
+        });
+        fs.unlinkSync(filePath);
+      }
+    }
+    global.photoQueue = [];
+  }
 
   console.log("✅ Intake summary sent to email and Google Drive.");
 }
