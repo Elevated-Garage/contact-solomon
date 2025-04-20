@@ -3,6 +3,16 @@ const fs = require('fs');
 const path = require('path');
 const bodyParser = require('body-parser');
 const nodemailer = require('nodemailer');
+
+const transporter = nodemailer.createTransport({
+  host: 'smtp.titan.email',
+  port: 465,
+  secure: true,
+  auth: {
+    user: process.env.LEAD_EMAIL_USER,
+    pass: process.env.LEAD_EMAIL_PASS
+  }
+});
 const { google } = require('googleapis');
 const cors = require('cors');
 const multer = require('multer');
