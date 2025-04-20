@@ -194,8 +194,8 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
       mainFolderId = mainFolderRes.data.files[0].id;
     } else {
         requestBody: {
-          name: "Garage Submissions",
-          mimeType: "application/vnd.google-apps.folder",
+      requestBody: {
+        mimeType: "application/vnd.google-apps.folder",
         },
         fields: "id"
       });
@@ -203,7 +203,7 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
     }
 
       requestBody: {
-        name: submissionFolderName,
+      requestBody: {
         mimeType: "application/vnd.google-apps.folder",
         parents: [mainFolderId]
       },
@@ -395,3 +395,4 @@ const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
   console.log(`✅ Contact Solomon backend running on port ${PORT}`);
 });
+
