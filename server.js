@@ -205,7 +205,6 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
     }
         requestBody: {
           name: "Garage Submissions",
-      const folder = await drive.files.create({
         requestBody: {
           name: "Garage Submissions",
           mimeType: "application/vnd.google-apps.folder"
@@ -218,7 +217,6 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
 
       requestBody: {
         name: submissionFolderName,
-      const folder = await drive.files.create({
         requestBody: {
           name: "Garage Submissions",
           mimeType: "application/vnd.google-apps.folder"
