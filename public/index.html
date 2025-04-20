@@ -870,9 +870,13 @@ function showPhotoUploader() {
 </script><script>
 document.addEventListener("DOMContentLoaded", () => {
   const skipBtn = document.getElementById("skipUpload");
+  const uploadBtn = document.getElementById("uploadBtn");
+  const fileInput = document.getElementById("fileInput");
+
   if (skipBtn) {
     skipBtn.addEventListener("click", () => {
       document.getElementById("uploadCardContainer").style.display = "none";
+      appendMessage("I’d prefer not to upload a photo right now.", "user");
 
       fetch("/message", {
         method: "POST",
@@ -888,7 +892,39 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
   }
+
+  if (uploadBtn) {
+    uploadBtn.addEventListener("click", () => {
+      const file = fileInput.files[0];
+      if (!file) return;
+
+      // Show message in chat
+      appendMessage("📸 Uploaded a photo of my garage.", "user");
+
+      const formData = new FormData();
+      formData.append("photo", file);
+
+      fetch("/submit", {
+        method: "POST",
+        body: formData
+      }).then(() => {
+        document.getElementById("uploadCardContainer").style.display = "none";
+
+        fetch("/message", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: "I uploaded a photo of my garage." })
+        })
+        .then(res => res.json())
+        .then(data => {
+          appendMessage(data.reply, "bot");
+          if (data.show_summary) {
+            document.getElementById("summary-download").style.display = "block";
+          }
+        });
+      });
+    });
+  }
 });
 </script></body>
 </html>
-
