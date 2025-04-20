@@ -791,8 +791,6 @@ form.addEventListener("submit", async (e) => {
   input.value = "";
 
   const res = await appendTypingIndicator();
-
-appendTypingIndicator();
 fetch("/message", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
@@ -800,7 +798,6 @@ fetch("/message", {
 });
 const data = await res.json();
   removeTypingIndicator();
-      removeTypingIndicator();
       appendMessage(data.reply, "bot");
   if (data.photo_request) { showPhotoUploader(); }
   if (data.show_summary) {
@@ -817,7 +814,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 .catch(err => {
-  console.error("Error during AI response:", err);
+  console.error("Fetch failed:", err);
   removeTypingIndicator();
   appendMessage("⚠️ Something went wrong. Please try again.", "bot");
 });
@@ -912,8 +909,6 @@ document.addEventListener("DOMContentLoaded", () => {
       .then(() => {
         document.getElementById("uploadCardContainer").style.display = "none";
         return appendTypingIndicator();
-
-appendTypingIndicator();
 fetch("/message", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -923,7 +918,6 @@ fetch("/message", {
       .then(res => res.json())
       .then(data => {
         removeTypingIndicator();
-      removeTypingIndicator();
       appendMessage(data.reply, "bot");
         if (data.show_summary) {
           document.getElementById("summary-download").style.display = "block";
@@ -937,6 +931,21 @@ fetch("/message", {
 });
 </script><script>
 function appendTypingIndicator() {
+  const msg = document.createElement("div");
+  msg.className = "message bot typing-indicator";
+  msg.id = "typing-indicator";
+  msg.textContent = "Solomon is typing...";
+  chatBox.appendChild(msg);
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+function removeTypingIndicator() {
+  const typing = document.getElementById("typing-indicator");
+  if (typing) typing.remove();
+}
+</script><script>
+function appendTypingIndicator() {
+  const chatBox = document.getElementById("chatBox");
   const msg = document.createElement("div");
   msg.className = "message bot typing-indicator";
   msg.id = "typing-indicator";
