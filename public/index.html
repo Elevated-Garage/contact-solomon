@@ -875,7 +875,7 @@ dropzone.addEventListener('drop', (e) => {
   }
 });
 uploadBtn.onclick = () => {
-  appendMessage('📸 Photo uploaded successfully!', 'user');
+  appendMessage('📸 Photo uploaded successfully, thank you!', 'user');
 };
 </script>
 <script>
@@ -892,8 +892,6 @@ document.addEventListener("DOMContentLoaded", () => {
     uploadBtn.addEventListener("click", () => {
       const file = fileInput.files[0];
       if (!file) return;
-
-      appendMessage("📸 Uploaded a photo of my garage.", "user");
 
       const formData = new FormData();
       formData.append("photo", file);
@@ -934,6 +932,5 @@ function removeTypingIndicator() {
 }
 </script></body>
 </html>
-
 
 
