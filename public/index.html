@@ -639,7 +639,6 @@ body.solomon-embedded .form-wrapper {
   flex-direction: column;
 }
 </style>
-
 <style>
 .upload-card {
   background: white;
@@ -719,7 +718,6 @@ input[type="file"] {
 <div id="typing" style="display:none;">Solomon is typing...</div>
 <input accept="image/*" id="file-upload" style="display: none;" type="file"/>
 <form class="form-col" id="chat-form">
-
 <div id="uploadCardContainer" style="display: none; margin-bottom: 24px;">
 <div class="upload-card">
 <label class="upload-label">📷 Upload a photo of your current garage or inspiration space</label>
@@ -864,6 +862,11 @@ uploadBtn.onclick = () => {
   alert('Photo uploaded!');
 };
 </script>
-</body>
+<script>
+function showPhotoUploader() {
+  const uploader = document.getElementById('uploadCardContainer');
+  if (uploader) uploader.style.display = 'block';
+}
+</script></body>
 </html>
 
