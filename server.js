@@ -177,7 +177,6 @@ async function getOrCreateFolder(drive, folderName) {
 
 // === /submit route ===
 app.post('/submit', upload.single('photo'), async (req, res) => {
-  const drive = google.drive({ version: 'v3', auth: oauth2Client });
 
   try {
     console.log("📥 /submit hit");
@@ -258,7 +257,6 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
 
     await nodemailer.createTransport({
       service: 'gmail',
-      auth: {
         user: process.env.LEAD_EMAIL_USER,
         pass: process.env.LEAD_EMAIL_PASS,
       }
@@ -337,7 +335,6 @@ async function submitFinalIntakeSummary(conversationHistory) {
   });
 
   // Upload to Drive
-  const drive = google.drive({ version: "v3", auth: oauth2Client });
   const parentFolder = await getOrCreateFolder(drive, "Garage Submissions");
   await drive.files.create({
     requestBody: {
