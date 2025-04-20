@@ -124,6 +124,12 @@ Optionally ask: “Is there anything else you'd like to add before we wrap up?�
 
     const aiReply = completion.choices?.[0]?.message?.content || "⚠️ Sorry, I couldn’t generate a response.";
     conversationHistory.push({ role: 'assistant', content: aiReply });
+
+    if (!skipSummary && !intakeSummarySent && hasAnsweredAllIntakeQuestions(conversationHistory)) {
+      await submitFinalIntakeSummary(conversationHistory);
+      intakeSummarySent = true;
+      responseData.show_summary = true;
+    }
     
   const lowerReply = aiReply.toLowerCase();
   const isPhotoPrompt = [
