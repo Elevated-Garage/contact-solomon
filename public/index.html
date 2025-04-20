@@ -778,13 +778,15 @@ form.addEventListener("submit", async (e) => {
   appendMessage(message, "user");
   input.value = "";
 
-  const res = await fetch("/message", {
+  const res = await appendTypingIndicator();
+fetch("/message", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({ message })
 });
 const data = await res.json();
-  appendMessage(data.reply, "bot");
+  removeTypingIndicator();
+      appendMessage(data.reply, "bot");
   if (data.photo_request) { showPhotoUploader(); }
   if (data.show_summary) {
     document.getElementById("summary-download").style.display = "block";
@@ -888,7 +890,8 @@ document.addEventListener("DOMContentLoaded", () => {
       })
       .then(() => {
         document.getElementById("uploadCardContainer").style.display = "none";
-        return fetch("/message", {
+        return appendTypingIndicator();
+fetch("/message", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ message: "I uploaded a photo of my garage." })
@@ -896,7 +899,8 @@ document.addEventListener("DOMContentLoaded", () => {
       })
       .then(res => res.json())
       .then(data => {
-        appendMessage(data.reply, "bot");
+        removeTypingIndicator();
+      appendMessage(data.reply, "bot");
         if (data.show_summary) {
           document.getElementById("summary-download").style.display = "block";
         }
@@ -907,5 +911,19 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+</script><script>
+function appendTypingIndicator() {
+  const msg = document.createElement("div");
+  msg.className = "message bot typing-indicator";
+  msg.id = "typing-indicator";
+  msg.textContent = "Solomon is typing...";
+  chatBox.appendChild(msg);
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+function removeTypingIndicator() {
+  const typing = document.getElementById("typing-indicator");
+  if (typing) typing.remove();
+}
 </script></body>
 </html>
