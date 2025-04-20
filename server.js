@@ -205,7 +205,7 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
     }
         requestBody: {
           name: "Garage Submissions",
-      const mainFolderId = (
+      const folder = await drive.files.create({
         await drive.files.create({
         requestBody: {
           name: "Garage Submissions",
