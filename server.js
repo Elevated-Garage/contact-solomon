@@ -205,11 +205,7 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
     }
         requestBody: {
           name: "Garage Submissions",
-      const folder = await drive.files.create({
-        await drive.files.create({
-        requestBody: {
-          name: "Garage Submissions",
-          mimeType: "application/vnd.google-apps.folder"
+          mimeType: "application/vnd.google-apps.folder",
         },
         fields: "id"
       });
@@ -240,10 +236,11 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
       }
     });
 
+  // Upload any queued photos to the same Drive folder
   if (global.photoQueue && global.photoQueue.length > 0) {
     for (const photo of global.photoQueue) {
-      const filePath = path.join(__dirname, photo.path);
-      if (fs.existsSync(filePath)) {
+      const photoPath = path.join(__dirname, photo.path);
+      if (fs.existsSync(photoPath)) {
         await drive.files.create({
           requestBody: {
             name: photo.originalName,
@@ -252,10 +249,10 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
           },
           media: {
             mimeType: photo.mimeType,
-            body: fs.createReadStream(filePath),
-          },
+            body: fs.createReadStream(photoPath)
+          }
         });
-        fs.unlinkSync(filePath);
+        fs.unlinkSync(photoPath);
       }
     }
     global.photoQueue = [];
@@ -372,10 +369,11 @@ async function submitFinalIntakeSummary(conversationHistory) {
     }
   });
 
+  // Upload any queued photos to the same Drive folder
   if (global.photoQueue && global.photoQueue.length > 0) {
     for (const photo of global.photoQueue) {
-      const filePath = path.join(__dirname, photo.path);
-      if (fs.existsSync(filePath)) {
+      const photoPath = path.join(__dirname, photo.path);
+      if (fs.existsSync(photoPath)) {
         await drive.files.create({
           requestBody: {
             name: photo.originalName,
@@ -384,10 +382,10 @@ async function submitFinalIntakeSummary(conversationHistory) {
           },
           media: {
             mimeType: photo.mimeType,
-            body: fs.createReadStream(filePath),
-          },
+            body: fs.createReadStream(photoPath)
+          }
         });
-        fs.unlinkSync(filePath);
+        fs.unlinkSync(photoPath);
       }
     }
     global.photoQueue = [];
