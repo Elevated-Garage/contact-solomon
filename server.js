@@ -255,12 +255,12 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
       }
     }
 
-    await nodemailer.createTransport({
-      service: 'gmail',
-        user: process.env.LEAD_EMAIL_USER,
-        pass: process.env.LEAD_EMAIL_PASS,
-      }
-    }).sendMail({
+await transporter.sendMail({
+  from: process.env.LEAD_EMAIL_USER,
+  to: 'nick@elevatedgarage.com',
+  subject: '📥 New Garage Submission',
+  text: formattedText + '\n\nNote: Files were saved to Google Drive.'
+});
       from: process.env.LEAD_EMAIL_USER,
       to: 'nick@elevatedgarage.com',
       subject: '📥 New Garage Submission',
