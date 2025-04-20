@@ -504,14 +504,12 @@ input[type="range"]::-moz-range-thumb {
 }
 
 
-.typing-indicator {
-  font-style: italic;
-  color: #555;
-  background: transparent;
-  text-align: left;
-  padding: 4px 8px;
-  font-size: 14px;
-  display: none;
+#user-input {
+  overflow-y: auto;
+  min-height: 36px;
+  max-height: 120px;
+  height: 36px;
+  resize: none;
 }
 </style>
 <style>
@@ -715,7 +713,9 @@ input[type="file"] {
   display: none;
 }
 </style>
-</head>
+<style>#user-input {
+  overflow-y: auto;
+}</style></head>
 <body>
 <div id="app">
 <div class="header">
@@ -725,6 +725,7 @@ input[type="file"] {
 <div class="chat-box" id="chat-box">
 <div class="message bot">👋 Hey there! Before we get started, I have a few quick questions to help design your perfect garage.</div>
 </div>
+<div id="typing" style="display:none;">Solomon is typing...</div>
 <input accept="image/*" id="file-upload" style="display: none;" type="file"/>
 <form class="form-col" id="chat-form">
 <div id="uploadCardContainer" style="display: none; margin-bottom: 24px;">
@@ -739,7 +740,7 @@ input[type="file"] {
 </div>
 </div>
 </div>
-<div class="input-container" style="display: flex; align-items: center; gap: 6px; padding: 4px 6px; background: transparent; z-index: 10; position: sticky; bottom: 0; height: 40px;"><div id="typing" style="display:none;">Solomon is typing...</div>
+<div class="input-container" style="display: flex; align-items: center; gap: 6px; padding: 4px 6px; background: transparent; z-index: 10; position: sticky; bottom: 0; height: 40px;">
 <label class="upload-button" for="file-upload" style="font-size: 28px; cursor: pointer; user-select: none; color: #B91B21;"><span style="color: white;">+</span></label>
 <input accept="image/*,.pdf,.doc,.docx" id="file-upload" style="display: none;" type="file"/>
 <textarea id="user-input" placeholder="Type your message..." required="True" style="flex: 1; padding: 10px; font-size: 16px; background: white; color: #111; border: 1px solid #ccc; border-radius: 8px; outline: none; flex: 1.2; width: 100%; resize: none; overflow-y: auto; font-family: inherit; line-height: 1.4;">Solomon, can you help me design my garage?</textarea>
@@ -821,7 +822,11 @@ document.addEventListener("input", function (event) {
   const el = event.target;
   if (el.id === "user-input") {
     el.style.height = "auto";
-    el.style.height = el.scrollHeight + "px";
+    const maxHeight = 120;
+    const initialHeight = 36;
+    const maxHeight = 120;
+    el.style.height = initialHeight + "px";
+    el.style.height = Math.min(el.scrollHeight, maxHeight) + "px";
   }
 });
 </script>
@@ -888,7 +893,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const file = fileInput.files[0];
       if (!file) return;
 
-      appendMessage("📸 Garage photo uploaded! We’ll use this to help guide your design.", "user");
+      appendMessage("📸 Uploaded a photo of my garage.", "user");
 
       const formData = new FormData();
       formData.append("photo", file);
@@ -929,5 +934,6 @@ function removeTypingIndicator() {
 }
 </script></body>
 </html>
+
 
 
