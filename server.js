@@ -3,16 +3,6 @@ const fs = require('fs');
 const path = require('path');
 const bodyParser = require('body-parser');
 const nodemailer = require('nodemailer');
-
-const transporter = nodemailer.createTransport({
-  host: 'smtp.titan.email',
-  port: 465,
-  secure: true,
-  auth: {
-    user: process.env.LEAD_EMAIL_USER,
-    pass: process.env.LEAD_EMAIL_PASS
-  }
-});
 const { google } = require('googleapis');
 const cors = require('cors');
 const multer = require('multer');
@@ -187,6 +177,7 @@ async function getOrCreateFolder(drive, folderName) {
 
 // === /submit route ===
 app.post('/submit', upload.single('photo'), async (req, res) => {
+  const drive = google.drive({ version: 'v3', auth: oauth2Client });
 
   try {
     console.log("📥 /submit hit");
@@ -262,27 +253,20 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
           },
         });
         fs.unlinkSync(filePath);
-  
-await transporter.sendMail({
-  from: process.env.LEAD_EMAIL_USER,
-  to: 'nick@elevatedgarage.com',
-  subject: '📥 New Garage Submission',
-  text: formattedText + '
-
-Note: Files were saved to Google Drive.'
-});
-
-}
+      }
     }
 
-await (async () => {
-  })();
-  subject: '📥 New Garage Submission',
-  text: formattedText + "\n\nNote: Files were saved to Google Drive."
-});
+    await nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.LEAD_EMAIL_USER,
+        pass: process.env.LEAD_EMAIL_PASS,
+      }
+    }).sendMail({
+      from: process.env.LEAD_EMAIL_USER,
       to: 'nick@elevatedgarage.com',
       subject: '📥 New Garage Submission',
-      text: formattedText + "\n\nNote: Files were saved to Google Drive."
+      text: formattedText + '\n\nNote: Files were saved to Google Drive.'
     });
 
     res.json({ success: true });
@@ -335,7 +319,6 @@ function hasAnsweredAllIntakeQuestions(history) {
 
 
 async function submitFinalIntakeSummary(conversationHistory) {
-  const drive = google.drive({ version: 'v3', auth: oauth2Client });
   const formattedText = conversationHistory
     .filter(m => m.role === 'user' || m.role === 'assistant')
     .map(m => `${m.role.toUpperCase()}: ${m.content}`)
@@ -346,13 +329,15 @@ async function submitFinalIntakeSummary(conversationHistory) {
   const buffer = Buffer.from(formattedText, "utf-8");
 
   // Email the summary
-await transporter.sendMail({
-  to: 'nick@elevatedgarage.com',
-  subject: '📥 New Garage Submission',
-  text: formattedText + "\n\nNote: Files were saved to Google Drive."
-});
+  await transporter.sendMail({
+    from: process.env.LEAD_EMAIL_USER,
+    to: "nick@elevatedgarage.com",
+    subject: "📥 New Garage Intake Submission",
+    text: formattedText
+  });
 
   // Upload to Drive
+  const drive = google.drive({ version: "v3", auth: oauth2Client });
   const parentFolder = await getOrCreateFolder(drive, "Garage Submissions");
   await drive.files.create({
     requestBody: {
