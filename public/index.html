@@ -929,5 +929,28 @@ function removeTypingIndicator() {
   const typing = document.getElementById("typing");
   typing.style.display = "none";
 }
+</script><script>
+document.getElementById("download-summary").addEventListener("click", () => {
+  const messages = document.querySelectorAll(".message");
+  let summary = "";
+
+  messages.forEach(msg => {
+    if (msg.classList.contains("user")) {
+      summary += "User: " + msg.textContent + "\n";
+    } else if (msg.classList.contains("bot")) {
+      summary += "Solomon: " + msg.textContent + "\n";
+    }
+  });
+
+  const blob = new Blob([summary], { type: "text/plain" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "Garage-Project-Summary.txt";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+});
 </script></body>
 </html>
