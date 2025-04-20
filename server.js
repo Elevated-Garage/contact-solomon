@@ -126,7 +126,13 @@ Optionally ask: â€œIs there anything else you'd like to add before we wrap up?â€
     conversationHistory.push({ role: 'assistant', content: aiReply });
     
   const lowerReply = aiReply.toLowerCase();
-  const isPhotoPrompt = lowerReply.includes("upload a photo") || lowerReply.includes("photo of your garage");
+  const isPhotoPrompt = [
+  "upload a photo",
+  "photo of your garage",
+  "photo of the current space",
+  "do you have a photo",
+  "can you upload an image"
+].some(phrase => lowerReply.includes(phrase));
 
   let responseData = { reply: aiReply, photo_request: isPhotoPrompt };
 
