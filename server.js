@@ -205,20 +205,27 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
     }
         requestBody: {
           name: "Garage Submissions",
-          mimeType: "application/vnd.google-apps.folder",
+      const folder = await drive.files.create({
+        requestBody: {
+          name: "Garage Submissions",
+          mimeType: "application/vnd.google-apps.folder"
         },
         fields: "id"
       });
+      const mainFolderId = folder.data.id;
       mainFolderId = createdMain.data.id;
     }
 
       requestBody: {
         name: submissionFolderName,
-        mimeType: "application/vnd.google-apps.folder",
-        parents: [mainFolderId]
-      },
-      fields: "id"
-    });
+      const folder = await drive.files.create({
+        requestBody: {
+          name: "Garage Submissions",
+          mimeType: "application/vnd.google-apps.folder"
+        },
+        fields: "id"
+      });
+      const mainFolderId = folder.data.id;
     const subFolderId = subFolderRes.data.id;
 
     const filename = `${clientName} Submission ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}.txt`;
