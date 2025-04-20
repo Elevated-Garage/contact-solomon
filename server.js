@@ -50,6 +50,7 @@ const openai = new OpenAI({
 });
 
 let conversationHistory = [];
+let photoUploaded = false;
 
 app.post('/message', async (req, res) => {
   const userMessage = req.body.message;
@@ -140,7 +141,14 @@ Optionally ask: â€œIs there anything else you'd like to add before we wrap up?â€
   const skipSummary = userMessage.toLowerCase().includes("uploaded a photo");
 
 
-  res.json(responseData);
+
+    if (!intakeSummarySent && hasAnsweredAllIntakeQuestions(conversationHistory) && photoUploaded) {
+      await submitFinalIntakeSummary(conversationHistory);
+      intakeSummarySent = true;
+      return res.json({ ...responseData, show_summary: true });
+    } else {
+      return res.json(responseData);
+    }
 
 
   } catch (err) {
@@ -229,6 +237,7 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
       }
     });
 
+    photoUploaded = true;
     if (req.file && req.file.path) {
       const filePath = path.join(__dirname, req.file.path);
       if (fs.existsSync(filePath)) {
