@@ -136,11 +136,6 @@ Optionally ask: â€œIs there anything else you'd like to add before we wrap up?â€
 
   let responseData = { reply: aiReply, photo_request: isPhotoPrompt };
 
-    if (!skipSummary && !intakeSummarySent && hasAnsweredAllIntakeQuestions(conversationHistory)) {
-      await submitFinalIntakeSummary(conversationHistory);
-      intakeSummarySent = true;
-      responseData.show_summary = true;
-    }
 
   const skipSummary = userMessage.toLowerCase().includes("uploaded a photo");
 
