@@ -778,12 +778,14 @@ form.addEventListener("submit", async (e) => {
   appendMessage(message, "user");
   input.value = "";
 
+  appendTypingIndicator();
   const res = await fetch("/message", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({ message })
 });
 const data = await res.json();
+  removeTypingIndicator();
   appendMessage(data.reply, "bot");
   if (data.photo_request) { showPhotoUploader(); }
   if (data.show_summary) {
@@ -905,6 +907,20 @@ document.addEventListener("DOMContentLoaded", () => {
         appendMessage("⚠️ There was a problem processing your upload. Please try again.", "bot");
       });
     });
+  }
+});
+</script><script>
+function appendTypingIndicator() {
+  const typing = document.getElementById("typing");
+  typing.style.display = "block";
+}
+function removeTypingIndicator() {
+  const typing = document.getElementById("typing");
+  typing.style.display = "none";
+}
+</script></body>
+</html>
+
   }
 });
 </script></body>
