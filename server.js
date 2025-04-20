@@ -327,12 +327,12 @@ async function submitFinalIntakeSummary(conversationHistory) {
   const buffer = Buffer.from(formattedText, "utf-8");
 
   // Email the summary
-  await transporter.sendMail({
-    from: process.env.LEAD_EMAIL_USER,
-    to: "nick@elevatedgarage.com",
-    subject: "📥 New Garage Intake Submission",
-    text: formattedText
-  });
+await transporter.sendMail({
+  from: process.env.LEAD_EMAIL_USER,
+  to: 'nick@elevatedgarage.com',
+  subject: '📥 New Garage Submission',
+  text: formattedText + '\n\nNote: Files were saved to Google Drive.'
+});
 
   // Upload to Drive
   const parentFolder = await getOrCreateFolder(drive, "Garage Submissions");
