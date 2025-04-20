@@ -64,6 +64,7 @@ app.post('/message', async (req, res) => {
         size: '512x512'
       });
       const imageUrl = dalleRes.data[0].url;
+      return res.json({ reply: "Here’s your generated design 👇", image: imageUrl });
     }
 
     const completion = await openai.chat.completions.create({
@@ -139,7 +140,7 @@ Optionally ask: “Is there anything else you'd like to add before we wrap up?�
   const skipSummary = userMessage.toLowerCase().includes("uploaded a photo");
 
 
-    responseData = { reply: aiReply, show_summary: true };
+  res.json(responseData);
 
 
   } catch (err) {
@@ -259,6 +260,7 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
       text: formattedText + '\n\nNote: Files were saved to Google Drive.'
     });
 
+    res.json({ success: true });
   } catch (err) {
     console.error("❌ Submit error:", err.message);
     res.status(500).json({ success: false, message: "Server error" });
