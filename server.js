@@ -262,21 +262,24 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
           },
         });
         fs.unlinkSync(filePath);
-      }
-    }
-
-await transporter.sendMail({
-  from: process.env.LEAD_EMAIL_USER,
+  
 await transporter.sendMail({
   from: process.env.LEAD_EMAIL_USER,
   to: 'nick@elevatedgarage.com',
   subject: '📥 New Garage Submission',
-  text: formattedText + '\n\nNote: Files were saved to Google Drive.'
+  text: formattedText + '
+
+Note: Files were saved to Google Drive.'
 });
+
+}
+    }
+
+await (async () => {
+  })();
   subject: '📥 New Garage Submission',
   text: formattedText + '\n\nNote: Files were saved to Google Drive.'
 });
-      from: process.env.LEAD_EMAIL_USER,
       to: 'nick@elevatedgarage.com',
       subject: '📥 New Garage Submission',
       text: formattedText + '\n\nNote: Files were saved to Google Drive.'
@@ -332,6 +335,7 @@ function hasAnsweredAllIntakeQuestions(history) {
 
 
 async function submitFinalIntakeSummary(conversationHistory) {
+  const drive = google.drive({ version: 'v3', auth: oauth2Client });
   const formattedText = conversationHistory
     .filter(m => m.role === 'user' || m.role === 'assistant')
     .map(m => `${m.role.toUpperCase()}: ${m.content}`)
@@ -343,7 +347,6 @@ async function submitFinalIntakeSummary(conversationHistory) {
 
   // Email the summary
 await transporter.sendMail({
-  from: process.env.LEAD_EMAIL_USER,
   to: 'nick@elevatedgarage.com',
   subject: '📥 New Garage Submission',
   text: formattedText + '\n\nNote: Files were saved to Google Drive.'
