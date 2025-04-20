@@ -124,7 +124,6 @@ Optionally ask: “Is there anything else you'd like to add before we wrap up?�
 
     const aiReply = completion.choices?.[0]?.message?.content || "⚠️ Sorry, I couldn’t generate a response.";
     conversationHistory.push({ role: 'assistant', content: aiReply });
-
     
   const lowerReply = aiReply.toLowerCase();
   const isPhotoPrompt = [
@@ -298,6 +297,21 @@ app.get('/api/oauth2callback', async (req, res) => {
 let intakeSummarySent = false;
 
 
+function hasAnsweredAllIntakeQuestions(history) {
+  const checklist = [
+    "full name",
+    "email",
+    "phone",
+    "garage goals",
+    "must-have features",
+    "budget",
+    "start date",
+    "photo",
+    "final notes"
+  ];
+  const combined = history.map(entry => entry.content.toLowerCase()).join(" ");
+  return checklist.every(item => combined.includes(item));
+}
 
 
 async function submitFinalIntakeSummary(conversationHistory) {
