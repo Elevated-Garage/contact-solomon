@@ -257,7 +257,12 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
 
 await transporter.sendMail({
   from: process.env.LEAD_EMAIL_USER,
+await transporter.sendMail({
+  from: process.env.LEAD_EMAIL_USER,
   to: 'nick@elevatedgarage.com',
+  subject: '📥 New Garage Submission',
+  text: formattedText + '\n\nNote: Files were saved to Google Drive.'
+});
   subject: '📥 New Garage Submission',
   text: formattedText + '\n\nNote: Files were saved to Google Drive.'
 });
