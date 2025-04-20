@@ -193,40 +193,24 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
     if (mainFolderRes.data.files.length > 0) {
       mainFolderId = mainFolderRes.data.files[0].id;
     } else {
-
-    if (req.file && req.file.path) {
-      const photoMeta = {
-        path: req.file.path,
-        originalName: req.file.originalname,
-        mimeType: req.file.mimetype
-      };
-      if (!global.photoQueue) global.photoQueue = [];
-      global.photoQueue.push(photoMeta);
-    }
+      const createdMain = await drive.files.create({
         requestBody: {
           name: "Garage Submissions",
-    const folder = await drive.files.create({
-      requestBody: {
-        name: "Garage Submissions",
-        mimeType: "application/vnd.google-apps.folder"
-      },
-      fields: "id"
-    });
-    const mainFolderId = folder.data.id;
+          mimeType: "application/vnd.google-apps.folder",
+        },
+        fields: "id"
+      });
       mainFolderId = createdMain.data.id;
     }
 
     const subFolderRes = await drive.files.create({
       requestBody: {
         name: submissionFolderName,
-    const folder = await drive.files.create({
-      requestBody: {
-        name: "Garage Submissions",
-        mimeType: "application/vnd.google-apps.folder"
+        mimeType: "application/vnd.google-apps.folder",
+        parents: [mainFolderId]
       },
       fields: "id"
     });
-    const mainFolderId = folder.data.id;
     const subFolderId = subFolderRes.data.id;
 
     const filename = `${clientName} Submission ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}.txt`;
@@ -342,28 +326,6 @@ async function submitFinalIntakeSummary(conversationHistory) {
     subject: "📥 New Garage Intake Submission",
     text: formattedText
   });
-
-    // Upload any queued photos to the same Drive folder
-    if (global.photoQueue && global.photoQueue.length > 0) {
-      for (const photo of global.photoQueue) {
-        const photoPath = path.join(__dirname, photo.path);
-        if (fs.existsSync(photoPath)) {
-          await drive.files.create({
-            requestBody: {
-              name: photo.originalName,
-              mimeType: photo.mimeType,
-              parents: [subFolderId]
-            },
-            media: {
-              mimeType: photo.mimeType,
-              body: fs.createReadStream(photoPath)
-            }
-          });
-          fs.unlinkSync(photoPath);
-        }
-      }
-      global.photoQueue = [];
-    }
 
   // Upload to Drive
   const drive = google.drive({ version: "v3", auth: oauth2Client });
