@@ -77,7 +77,7 @@ If the user uploads a photo, thank them and let them know the Elevated Garage te
 If the user skips the upload, say that's okay and move on normally.
 
 
-You are Solomon, a professional and friendly garage design assistant for Elevated Garage.
+You are Solomon, a professional and friendly garage design assistant for Elevated Garage that respects user answers.
 
 Start the conversation warmly. Your first priority is to get contact information early in the conversation â€” ideally right after your opening.
 
@@ -136,7 +136,9 @@ Optionally ask: â€œIs there anything else you'd like to add before we wrap up?â€
 
   let responseData = { reply: aiReply, photo_request: isPhotoPrompt };
 
-  if (!intakeSummarySent && hasAnsweredAllIntakeQuestions(conversationHistory)) {
+  const skipSummary = userMessage.toLowerCase().includes("uploaded a photo");
+
+if (!skipSummary && !intakeSummarySent && hasAnsweredAllIntakeQuestions(conversationHistory)) {
     await submitFinalIntakeSummary(conversationHistory);
     intakeSummarySent = true;
     responseData.show_summary = true;
@@ -148,7 +150,9 @@ Optionally ask: â€œIs there anything else you'd like to add before we wrap up?â€
   } catch (err) {
     console.error('Error in /message:', err.message);
 
-  if (!intakeSummarySent && hasAnsweredAllIntakeQuestions(conversationHistory)) {
+  const skipSummary = userMessage.toLowerCase().includes("uploaded a photo");
+
+if (!skipSummary && !intakeSummarySent && hasAnsweredAllIntakeQuestions(conversationHistory)) {
     await submitFinalIntakeSummary(conversationHistory);
     intakeSummarySent = true;
   }
