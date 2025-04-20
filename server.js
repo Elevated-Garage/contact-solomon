@@ -141,6 +141,8 @@ Optionally ask: â€œIs there anything else you'd like to add before we wrap up?â€
 
 
   res.json(responseData);
+    responseData = { reply: aiReply, show_summary: true };
+    res.json(responseData);
 
 
   } catch (err) {
