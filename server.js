@@ -158,12 +158,12 @@ async function getOrCreateFolder(drive, folderName) {
   const res = await drive.files.list({ q: query });
   if (res.data.files.length > 0) return res.data.files[0].id;
 
-        await drive.files.create({
-          requestBody: {
+  const newFolder = await drive.files.create({
+    requestBody: {
       name: folderName,
       mimeType: 'application/vnd.google-apps.folder',
     }
-        });
+  });
   return newFolder.data.id;
 }
 
@@ -193,17 +193,19 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
     if (mainFolderRes.data.files.length > 0) {
       mainFolderId = mainFolderRes.data.files[0].id;
     } else {
+      const createdMain = await drive.files.create({
         requestBody: {
-      requestBody: {
-        mimeType: "application/vnd.google-apps.folder",
+          name: "Garage Submissions",
+          mimeType: "application/vnd.google-apps.folder",
         },
         fields: "id"
       });
       mainFolderId = createdMain.data.id;
     }
 
+    const subFolderRes = await drive.files.create({
       requestBody: {
-      requestBody: {
+        name: submissionFolderName,
         mimeType: "application/vnd.google-apps.folder",
         parents: [mainFolderId]
       },
@@ -215,6 +217,7 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
     const formattedText = responses.map(r => `${r.step}: ${r.answer}`).join('\n');
     const buffer = Buffer.from(formattedText, 'utf-8');
 
+    await drive.files.create({
       requestBody: {
         name: filename,
         mimeType: 'text/plain',
@@ -226,29 +229,10 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
       }
     });
 
-    if (global.photoQueue && global.photoQueue.length > 0) {
-      for (const photo of global.photoQueue) {
-        const photoPath = path.join(__dirname, photo.path);
-        if (fs.existsSync(photoPath)) {
-        await drive.files.create({
-          requestBody: {
-              name: photo.originalName,
-              mimeType: photo.mimeType,
-              parents: [subFolderId]
-          },
-          media: {
-              mimeType: photo.mimeType,
-              body: fs.createReadStream(photoPath),
-          },
-        });
-          fs.unlinkSync(photoPath);
-        }
-      }
-      global.photoQueue = [];
-    }
-
     if (req.file && req.file.path) {
       const filePath = path.join(__dirname, req.file.path);
+      if (fs.existsSync(filePath)) {
+        await drive.files.create({
           requestBody: {
             name: req.file.originalname,
             mimeType: req.file.mimetype,
@@ -259,6 +243,7 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
             body: fs.createReadStream(filePath),
           },
         });
+        fs.unlinkSync(filePath);
       }
     }
 
@@ -275,16 +260,6 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
       text: formattedText + '\n\nNote: Files were saved to Google Drive.'
     });
 
-
-    if (req.file && req.file.path) {
-      const photoMeta = {
-        path: req.file.path,
-        originalName: req.file.originalname,
-        mimeType: req.file.mimetype
-      };
-      if (!global.photoQueue) global.photoQueue = [];
-      global.photoQueue.push(photoMeta);
-    }
     res.json({ success: true });
   } catch (err) {
     console.error("❌ Submit error:", err.message);
@@ -355,38 +330,17 @@ async function submitFinalIntakeSummary(conversationHistory) {
   // Upload to Drive
   const drive = google.drive({ version: "v3", auth: oauth2Client });
   const parentFolder = await getOrCreateFolder(drive, "Garage Submissions");
-        await drive.files.create({
-          requestBody: {
+  await drive.files.create({
+    requestBody: {
       name: filename,
       mimeType: "text/plain",
       parents: [parentFolder]
-          },
-          media: {
+    },
+    media: {
       mimeType: "text/plain",
       body: Readable.from(buffer)
     }
-        });
-
-    if (global.photoQueue && global.photoQueue.length > 0) {
-      for (const photo of global.photoQueue) {
-        const photoPath = path.join(__dirname, photo.path);
-        if (fs.existsSync(photoPath)) {
-        await drive.files.create({
-          requestBody: {
-              name: photo.originalName,
-              mimeType: photo.mimeType,
-              parents: [subFolderId]
-          },
-          media: {
-              mimeType: photo.mimeType,
-              body: fs.createReadStream(photoPath),
-          },
-        });
-          fs.unlinkSync(photoPath);
-        }
-      }
-      global.photoQueue = [];
-    }
+  });
 
   console.log("✅ Intake summary sent to email and Google Drive.");
 }
@@ -395,4 +349,3 @@ const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
   console.log(`✅ Contact Solomon backend running on port ${PORT}`);
 });
-
