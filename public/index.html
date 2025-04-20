@@ -7,76 +7,6 @@
 <title>Let’s Elevate Your Garage!</title>
 <style>
 .message.user { background-color: #B91B21; color: white; align-self: flex-end; padding: 10px; margin: 8px 0; border-radius: 12px; max-width: 80%; }
-.send-button svg path {
-  transition: transform 0.2s ease, fill 0.2s ease;
-}
-.send-button:hover svg path {
-  transform: scale(1.2);
-  fill: white;
-}
-
-.upload-card {
-  background: white;
-  padding: 20px;
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-  max-width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  margin-top: 14px;
-}
-.upload-label {
-  font-weight: 600;
-  font-size: 1rem;
-  color: #B91B21;
-}
-.upload-dropzone {
-  border: 2px dashed #B91B21;
-  border-radius: 12px;
-  padding: 24px;
-  text-align: center;
-  color: #999;
-  cursor: pointer;
-  transition: background 0.2s ease;
-}
-.upload-dropzone:hover {
-  background: #fef3f3;
-}
-.upload-preview {
-  display: none;
-  max-width: 100%;
-  border-radius: 10px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-}
-.upload-buttons {
-  display: flex;
-  gap: 12px;
-  justify-content: flex-start;
-}
-.upload-btn, .skip-btn {
-  background: #B91B21;
-  color: white;
-  padding: 8px 16px;
-  font-size: 0.95rem;
-  font-weight: 500;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background 0.2s ease;
-}
-.upload-btn:disabled {
-  background: #aaa;
-  cursor: not-allowed;
-}
-.upload-btn:hover:not(:disabled),
-.skip-btn:hover {
-  background: #a3171d;
-}
-
-</style>
-<style>
-.message.user { background-color: #B91B21; color: white; align-self: flex-end; padding: 10px; margin: 8px 0; border-radius: 12px; max-width: 80%; }
 
 .range-container {
   background: rgba(255, 255, 255, 0.05);
@@ -709,90 +639,74 @@ body.solomon-embedded .form-wrapper {
   flex-direction: column;
 }
 </style>
+
 <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #f0f2f5;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-    }
-
-    .upload-card {
-      background: white;
-      padding: 24px;
-      border-radius: 16px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-      width: 100%;
-      max-width: 480px;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-      box-sizing: border-box;
-    }
-
-    .upload-label {
-      font-size: 1.2rem;
-      font-weight: bold;
-      color: #B91B21;
-      margin-bottom: 8px;
-    }
-
-    .upload-dropzone {
-      border: 2px dashed #B91B21;
-      border-radius: 12px;
-      padding: 30px;
-      text-align: center;
-      color: #999;
-      cursor: pointer;
-      transition: background 0.2s ease;
-    }
-
-    .upload-dropzone:hover {
-      background: #fef3f3;
-    }
-
-    .upload-preview {
-      display: none;
-      max-width: 100%;
-      border-radius: 10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-    }
-
-    .upload-buttons {
-      display: flex;
-      gap: 12px;
-      justify-content: center;
-    }
-
-    .upload-btn, .skip-btn {
-      background: #B91B21;
-      color: white;
-      padding: 10px 18px;
-      font-size: 0.95rem;
-      font-weight: 500;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background 0.2s ease;
-    }
-
-    .upload-btn:disabled {
-      background: #aaa;
-      cursor: not-allowed;
-    }
-
-    .upload-btn:hover:not(:disabled),
-    .skip-btn:hover {
-      background: #a3171d;
-    }
-
-    input[type="file"] {
-      display: none;
-    }
-  </style></head>
+.upload-card {
+  background: white;
+  padding: 24px;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-sizing: border-box;
+  margin: 0 auto;
+}
+.upload-label {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #B91B21;
+  margin-bottom: 8px;
+}
+.upload-dropzone {
+  border: 2px dashed #B91B21;
+  border-radius: 12px;
+  padding: 30px;
+  text-align: center;
+  color: #999;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+.upload-dropzone:hover {
+  background: #fef3f3;
+}
+.upload-preview {
+  display: none;
+  max-width: 100%;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+.upload-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+.upload-btn, .skip-btn {
+  background: #B91B21;
+  color: white;
+  padding: 10px 18px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+.upload-btn:disabled {
+  background: #aaa;
+  cursor: not-allowed;
+}
+.upload-btn:hover:not(:disabled),
+.skip-btn:hover {
+  background: #a3171d;
+}
+input[type="file"] {
+  display: none;
+}
+</style>
+</head>
 <body>
 <div id="app">
 <div class="header">
@@ -805,16 +719,20 @@ body.solomon-embedded .form-wrapper {
 <div id="typing" style="display:none;">Solomon is typing...</div>
 <input accept="image/*" id="file-upload" style="display: none;" type="file"/>
 <form class="form-col" id="chat-form">
-<div id="uploadCardContainer" style="display: none; margin-bottom: 24px;"><div class="upload-card">
+
+<div id="uploadCardContainer" style="display: none; margin-bottom: 24px;">
+<div class="upload-card">
 <label class="upload-label">📷 Upload a photo of your current garage or inspiration space</label>
 <div class="upload-dropzone" id="dropzone">Click to select or drag &amp; drop a photo</div>
-<input accept="image/*" id="fileInput_0" type="file"/>
+<input accept="image/*" id="fileInput" type="file"/>
 <img class="upload-preview" id="preview"/>
 <div class="upload-buttons">
 <button class="upload-btn" disabled="" id="uploadBtn">Upload Photo</button>
-<button class="skip-btn" onclick="alert('Skipped')">Skip Upload</button>
+<button class="skip-btn" onclick="document.getElementById('uploadCardContainer').style.display = 'none';">Skip Upload</button>
 </div>
-</div></div><div class="input-container" style="display: flex; align-items: center; gap: 6px; padding: 4px 6px; background: transparent; z-index: 10; position: sticky; bottom: 0; height: 40px;">
+</div>
+</div>
+<div class="input-container" style="display: flex; align-items: center; gap: 6px; padding: 4px 6px; background: transparent; z-index: 10; position: sticky; bottom: 0; height: 40px;">
 <label class="upload-button" for="file-upload" style="font-size: 28px; cursor: pointer; user-select: none; color: #B91B21;"><span style="color: white;">+</span></label>
 <input accept="image/*,.pdf,.doc,.docx" id="file-upload" style="display: none;" type="file"/>
 <textarea id="user-input" placeholder="Type your message..." required="True" style="flex: 1; padding: 10px; font-size: 16px; background: white; color: #111; border: 1px solid #ccc; border-radius: 8px; outline: none; flex: 1.2; width: 100%; resize: none; overflow-y: auto; font-family: inherit; line-height: 1.4;">Solomon, can you help me design my garage?</textarea>
@@ -826,7 +744,126 @@ body.solomon-embedded .form-wrapper {
 </div>
 </form>
 </div>
+<script>
+/* chatBox declared once */
+const input = document.getElementById("user-input");
+const chatBox = document.getElementById('chat-box');
+const form = document.getElementById('chat-form');
 
-<div id="summary-download" style="display: none; margin-top: 20px; text-align: center;"><button id="download-summary" type="button">📄 Download My Submission</button></div></body>
+
+const typingIndicator = document.getElementById('typing');
+
+
+let responses = [];
+
+// removed prompts — now handled by AI
+
+// removed followups — now handled by AI
+
+function appendMessage(text, sender = "bot") {
+  const msg = document.createElement("div");
+  msg.className = `message ${sender}`;
+  msg.textContent = text;
+  chatBox.appendChild(msg);
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+// removed nextPrompt — AI is in control
+
+// removed askFollowup — handled by AI now
+
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const message = input.value.trim();
+  if (!message) return;
+  appendMessage(message, "user");
+  input.value = "";
+
+  const res = await fetch("/message", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ message })
+});
+const data = await res.json();
+  appendMessage(data.reply, "bot");
+  if (data.photo_request) { showPhotoUploader(); }
+  if (data.show_summary) {
+    document.getElementById("summary-download").style.display = "block";
+  }
+});
+
+
+document.addEventListener("DOMContentLoaded", () => {
+  const input = document.getElementById("user-input");
+  if (input) {
+    input.value = "Solomon, can you help me design my garage?";
+  }
+});
+</script><script>
+document.getElementById("user-input").addEventListener("keydown", function (e) {
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault();
+    document.getElementById("chat-form").dispatchEvent(new Event("submit"));
+  }
+});
+</script><script>
+document.addEventListener("input", function (event) {
+  const el = event.target;
+  if (el.id === "user-input") {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+});
+</script>
+<div id="summary-download" style="display: none; margin-top: 20px; text-align: center;"><button id="download-summary" type="button">📄 Download My Submission</button></div>
+<script>
+const dropzone = document.getElementById('dropzone');
+const fileInput = document.getElementById('fileInput');
+const preview = document.getElementById('preview');
+const uploadBtn = document.getElementById('uploadBtn');
+
+dropzone.addEventListener('click', () => fileInput.click());
+
+fileInput.addEventListener('change', () => {
+  const file = fileInput.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      preview.src = reader.result;
+      preview.style.display = 'block';
+      uploadBtn.disabled = false;
+    };
+    reader.readAsDataURL(file);
+  }
+});
+
+dropzone.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  dropzone.style.background = '#fef3f3';
+});
+dropzone.addEventListener('dragleave', () => {
+  dropzone.style.background = 'transparent';
+});
+dropzone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  dropzone.style.background = 'transparent';
+  const file = e.dataTransfer.files[0];
+  if (file && file.type.startsWith('image/')) {
+    fileInput.files = e.dataTransfer.files;
+    const reader = new FileReader();
+    reader.onload = () => {
+      preview.src = reader.result;
+      preview.style.display = 'block';
+      uploadBtn.disabled = false;
+    };
+    reader.readAsDataURL(file);
+  }
+});
+uploadBtn.onclick = () => {
+  alert('Photo uploaded!');
+};
+</script>
+</body>
 </html>
 
