@@ -159,14 +159,11 @@ async function getOrCreateFolder(drive, folderName) {
   if (res.data.files.length > 0) return res.data.files[0].id;
 
   const newFolder = await drive.files.create({
-    const folder = await drive.files.create({
-      requestBody: {
-        name: "Garage Submissions",
-        mimeType: "application/vnd.google-apps.folder"
-      },
-      fields: "id"
-    });
-    const mainFolderId = folder.data.id;
+    requestBody: {
+      name: folderName,
+      mimeType: 'application/vnd.google-apps.folder',
+    }
+  });
   return newFolder.data.id;
 }
 
@@ -206,61 +203,35 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
       if (!global.photoQueue) global.photoQueue = [];
       global.photoQueue.push(photoMeta);
     }
-    const folder = await drive.files.create({
-      requestBody: {
-        name: "Garage Submissions",
-        mimeType: "application/vnd.google-apps.folder"
-      },
-      fields: "id"
-    });
-    const mainFolderId = folder.data.id;
-    const folder = await drive.files.create({
-      requestBody: {
-        name: "Garage Submissions",
-        mimeType: "application/vnd.google-apps.folder"
-      },
-      fields: "id"
-    });
-    const mainFolderId = folder.data.id;
+        requestBody: {
+          name: "Garage Submissions",
+          mimeType: "application/vnd.google-apps.folder",
+        },
         fields: "id"
       });
-      const mainFolderId = folder.data.id;
       mainFolderId = createdMain.data.id;
     }
 
-    const folder = await drive.files.create({
+    const subFolderRes = await drive.files.create({
       requestBody: {
-        name: "Garage Submissions",
-        mimeType: "application/vnd.google-apps.folder"
+        name: submissionFolderName,
+        mimeType: "application/vnd.google-apps.folder",
+        parents: [mainFolderId]
       },
       fields: "id"
     });
-    const mainFolderId = folder.data.id;
-    const folder = await drive.files.create({
-      requestBody: {
-        name: "Garage Submissions",
-        mimeType: "application/vnd.google-apps.folder"
-      },
-      fields: "id"
-    });
-    const mainFolderId = folder.data.id;
-        fields: "id"
-      });
-      const mainFolderId = folder.data.id;
     const subFolderId = subFolderRes.data.id;
 
     const filename = `${clientName} Submission ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}.txt`;
     const formattedText = responses.map(r => `${r.step}: ${r.answer}`).join('\n');
     const buffer = Buffer.from(formattedText, 'utf-8');
 
-    const folder = await drive.files.create({
+    await drive.files.create({
       requestBody: {
-        name: "Garage Submissions",
-        mimeType: "application/vnd.google-apps.folder"
+        name: filename,
+        mimeType: 'text/plain',
+        parents: [subFolderId]
       },
-      fields: "id"
-    });
-    const mainFolderId = folder.data.id;
       media: {
         mimeType: 'text/plain',
         body: Readable.from(buffer),
@@ -273,14 +244,11 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
       const photoPath = path.join(__dirname, photo.path);
       if (fs.existsSync(photoPath)) {
         await drive.files.create({
-    const folder = await drive.files.create({
-      requestBody: {
-        name: "Garage Submissions",
-        mimeType: "application/vnd.google-apps.folder"
-      },
-      fields: "id"
-    });
-    const mainFolderId = folder.data.id;
+          requestBody: {
+            name: photo.originalName,
+            mimeType: photo.mimeType,
+            parents: [subFolderId]
+          },
           media: {
             mimeType: photo.mimeType,
             body: fs.createReadStream(photoPath)
@@ -295,14 +263,12 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
     if (req.file && req.file.path) {
       const filePath = path.join(__dirname, req.file.path);
       if (fs.existsSync(filePath)) {
-    const folder = await drive.files.create({
-      requestBody: {
-        name: "Garage Submissions",
-        mimeType: "application/vnd.google-apps.folder"
-      },
-      fields: "id"
-    });
-    const mainFolderId = folder.data.id;
+        await drive.files.create({
+          requestBody: {
+            name: req.file.originalname,
+            mimeType: req.file.mimetype,
+            parents: [subFolderId]
+          },
           media: {
             mimeType: req.file.mimetype,
             body: fs.createReadStream(filePath),
@@ -395,14 +361,12 @@ async function submitFinalIntakeSummary(conversationHistory) {
   // Upload to Drive
   const drive = google.drive({ version: "v3", auth: oauth2Client });
   const parentFolder = await getOrCreateFolder(drive, "Garage Submissions");
-    const folder = await drive.files.create({
-      requestBody: {
-        name: "Garage Submissions",
-        mimeType: "application/vnd.google-apps.folder"
-      },
-      fields: "id"
-    });
-    const mainFolderId = folder.data.id;
+  await drive.files.create({
+    requestBody: {
+      name: filename,
+      mimeType: "text/plain",
+      parents: [parentFolder]
+    },
     media: {
       mimeType: "text/plain",
       body: Readable.from(buffer)
@@ -415,14 +379,11 @@ async function submitFinalIntakeSummary(conversationHistory) {
       const photoPath = path.join(__dirname, photo.path);
       if (fs.existsSync(photoPath)) {
         await drive.files.create({
-    const folder = await drive.files.create({
-      requestBody: {
-        name: "Garage Submissions",
-        mimeType: "application/vnd.google-apps.folder"
-      },
-      fields: "id"
-    });
-    const mainFolderId = folder.data.id;
+          requestBody: {
+            name: photo.originalName,
+            mimeType: photo.mimeType,
+            parents: [subFolderId]
+          },
           media: {
             mimeType: photo.mimeType,
             body: fs.createReadStream(photoPath)
