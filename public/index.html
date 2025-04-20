@@ -867,6 +867,28 @@ function showPhotoUploader() {
   const uploader = document.getElementById('uploadCardContainer');
   if (uploader) uploader.style.display = 'block';
 }
+</script><script>
+document.addEventListener("DOMContentLoaded", () => {
+  const skipBtn = document.getElementById("skipUpload");
+  if (skipBtn) {
+    skipBtn.addEventListener("click", () => {
+      document.getElementById("uploadCardContainer").style.display = "none";
+
+      fetch("/message", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: "I’d prefer not to upload a photo right now." })
+      })
+        .then(res => res.json())
+        .then(data => {
+          appendMessage(data.reply, "bot");
+          if (data.show_summary) {
+            document.getElementById("summary-download").style.display = "block";
+          }
+        });
+    });
+  }
+});
 </script></body>
 </html>
 
