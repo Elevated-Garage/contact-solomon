@@ -278,11 +278,11 @@ Note: Files were saved to Google Drive.'
 await (async () => {
   })();
   subject: '📥 New Garage Submission',
-  text: formattedText + '\n\nNote: Files were saved to Google Drive.'
+  text: formattedText + "\n\nNote: Files were saved to Google Drive."
 });
       to: 'nick@elevatedgarage.com',
       subject: '📥 New Garage Submission',
-      text: formattedText + '\n\nNote: Files were saved to Google Drive.'
+      text: formattedText + "\n\nNote: Files were saved to Google Drive."
     });
 
     res.json({ success: true });
@@ -349,7 +349,7 @@ async function submitFinalIntakeSummary(conversationHistory) {
 await transporter.sendMail({
   to: 'nick@elevatedgarage.com',
   subject: '📥 New Garage Submission',
-  text: formattedText + '\n\nNote: Files were saved to Google Drive.'
+  text: formattedText + "\n\nNote: Files were saved to Google Drive."
 });
 
   // Upload to Drive
