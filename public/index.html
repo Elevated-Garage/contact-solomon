@@ -805,7 +805,7 @@ body.solomon-embedded .form-wrapper {
 <div id="typing" style="display:none;">Solomon is typing...</div>
 <input accept="image/*" id="file-upload" style="display: none;" type="file"/>
 <form class="form-col" id="chat-form">
-<div id="previewContainer" style="display: none; margin-bottom: 24px;"><div class="upload-card">
+<div id="previewContainer" style="display: none; position: relative; z-index: 10; margin-top: 12px;"><label class="upload-label">📷 Upload a photo of your garage</label><input accept="image/*" class="upload-dropzone" id="fileInput" type="file"/><img class="upload-preview" id="imagePreview" style="display: none; max-width: 100%; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.15);"/><div class="upload-buttons"><button class="upload-btn" id="uploadPhoto">Upload Photo</button><button class="skip-btn" id="skipUpload">Skip Upload</button></div></div><div id="uploadCardContainer" style="display: none; margin-bottom: 24px;"><div class="upload-card">
 <label class="upload-label">📷 Upload a photo of your current garage or inspiration space</label>
 <div class="upload-dropzone" id="dropzone">Click to select or drag &amp; drop a photo</div>
 <input accept="image/*" id="fileInput" type="file"/>
@@ -981,7 +981,6 @@ document.addEventListener("DOMContentLoaded", () => {
       reader.onload = function (e) {
         preview.src = e.target.result;
         preview.style.display = "block";
-        preview.scrollIntoView({ behavior: 'smooth', block: 'center' });
       };
       reader.readAsDataURL(file);
     });
@@ -1038,3 +1037,4 @@ document.addEventListener("DOMContentLoaded", () => {
     };
   </script></body>
 </html>
+
