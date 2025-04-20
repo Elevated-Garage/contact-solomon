@@ -712,7 +712,7 @@ input[type="file"] {
 <h1>Let’s Elevate Your Garage!</h1>
 <p>Your smart garage designer is standing by—let’s build your vision together.</p>
 </div>
-<div class="chat-box" id="chatBox">
+<div class="chat-box" id="chat-box">
 <div class="message bot">👋 Hey there! Before we get started, I have a few quick questions to help design your perfect garage.</div>
 </div>
 <div id="typing" style="display:none;">Solomon is typing...</div>
@@ -743,42 +743,60 @@ input[type="file"] {
 </form>
 </div>
 <script>
+/* chatBox declared once */
+const input = document.getElementById("user-input");
+const chatBox = document.getElementById('chat-box');
+const form = document.getElementById('chat-form');
+
+
+const typingIndicator = document.getElementById('typing');
+
+
+let responses = [];
+
+// removed prompts — now handled by AI
+
+// removed followups — now handled by AI
+
+function appendMessage(text, sender = "bot") {
+  const msg = document.createElement("div");
+  msg.className = `message ${sender}`;
+  msg.textContent = text;
+  chatBox.appendChild(msg);
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+// removed nextPrompt — AI is in control
+
+// removed askFollowup — handled by AI now
+
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const message = input.value.trim();
+  if (!message) return;
+  appendMessage(message, "user");
+  input.value = "";
+
+  const res = await fetch("/message", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ message })
+});
+const data = await res.json();
+  appendMessage(data.reply, "bot");
+  if (data.photo_request) { showPhotoUploader(); }
+  if (data.show_summary) {
+    document.getElementById("summary-download").style.display = "block";
+  }
+});
+
+
 document.addEventListener("DOMContentLoaded", () => {
-  const form = document.getElementById("chat-form");
   const input = document.getElementById("user-input");
-  const chatBox = document.getElementById("chatBox");
-
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const message = input.value.trim();
-    if (!message) return;
-
-    appendMessage(message, "user");
-    input.value = "";
-
-    appendTypingIndicator();
-
-    try {
-      const res = await fetch("/message", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message })
-      });
-
-      const data = await res.json();
-      removeTypingIndicator();
-      appendMessage(data.reply, "bot");
-
-      if (data.photo_request) showPhotoUploader && showPhotoUploader();
-      if (data.show_summary) {
-        document.getElementById("summary-download").style.display = "block";
-      }
-    } catch (err) {
-      console.error("Fetch error:", err);
-      removeTypingIndicator();
-      appendMessage("⚠️ Something went wrong. Please try again.", "bot");
-    }
-  });
+  if (input) {
+    input.value = "Solomon, can you help me design my garage?";
+  }
 });
 </script><script>
 document.getElementById("user-input").addEventListener("keydown", function (e) {
@@ -870,8 +888,7 @@ document.addEventListener("DOMContentLoaded", () => {
       })
       .then(() => {
         document.getElementById("uploadCardContainer").style.display = "none";
-        return appendTypingIndicator();
-    fetch("/message", {
+        return fetch("/message", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ message: "I uploaded a photo of my garage." })
@@ -879,7 +896,6 @@ document.addEventListener("DOMContentLoaded", () => {
       })
       .then(res => res.json())
       .then(data => {
-        removeTypingIndicator();
         appendMessage(data.reply, "bot");
         if (data.show_summary) {
           document.getElementById("summary-download").style.display = "block";
@@ -891,20 +907,5 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
-</script><script>
-function appendTypingIndicator() {
-  const chatBox = document.getElementById("chatBox");
-  const msg = document.createElement("div");
-  msg.className = "message bot typing-indicator";
-  msg.id = "typing-indicator";
-  msg.textContent = "Solomon is typing...";
-  chatBox.appendChild(msg);
-  chatBox.scrollTop = chatBox.scrollHeight;
-}
-function removeTypingIndicator() {
-  const typing = document.getElementById("typing-indicator");
-  if (typing) typing.remove();
-}
 </script></body>
 </html>
-
