@@ -874,9 +874,6 @@ dropzone.addEventListener('drop', (e) => {
     reader.readAsDataURL(file);
   }
 });
-uploadBtn.onclick = () => {
-  appendMessage('📸 Photo uploaded successfully, thank you!', 'user');
-};
 </script>
 <script>
 function showPhotoUploader() {
@@ -892,6 +889,8 @@ document.addEventListener("DOMContentLoaded", () => {
     uploadBtn.addEventListener("click", () => {
       const file = fileInput.files[0];
       if (!file) return;
+
+      appendMessage("📸 Upload successful! Your garage image is now part of the project file.", "user");
 
       const formData = new FormData();
       formData.append("photo", file);
@@ -932,5 +931,3 @@ function removeTypingIndicator() {
 }
 </script></body>
 </html>
-
-
