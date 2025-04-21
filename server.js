@@ -242,7 +242,8 @@ const structuredSummary = expectedOrder.map(label => {
     const answer = preferred?.answer || "";
     return `${label}: ${answer || "(Not provided)"}`;
   }
-return `${label}: ${match ? match.answer : "(Not provided)"}`;
+const match = responses.find(r => r.step === label);
+  return `${label}: ${match ? match.answer : "(Not provided)"}`;
 }).join('\n');
 
 
