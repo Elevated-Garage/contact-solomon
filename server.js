@@ -238,14 +238,21 @@ const structuredSummary = expectedOrder.map(label => {
   }
 
   if (label === "Preferred Start Date") {
-    const preferred = responses.find(r => r.step === "Preferred Start Date");
+    const preferred = responses.find(r => r.step.toLowerCase().includes("start date"));
     const answer = preferred?.answer || "";
+    return `${label}: ${answer || "(Not provided)"}`;
+  }
+
+  if (label === "Final Notes") {
+    const notes = responses.find(r => r.step.toLowerCase().includes("note"));
+    const answer = notes?.answer || "";
     return `${label}: ${answer || "(Not provided)"}`;
   }
 
   const match = responses.find(r => r.step === label);
   return `${label}: ${match ? match.answer : "(Not provided)"}`;
 }).join('\n');
+
 
 
 
