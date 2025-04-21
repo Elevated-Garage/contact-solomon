@@ -9,6 +9,14 @@ const multer = require('multer');
 const { Readable } = require('stream');
 const OpenAI = require("openai");
 require('dotenv').config();
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.LEAD_EMAIL_USER,
+    pass: process.env.LEAD_EMAIL_PASS
+  }
+});
+
 
 // === Intake Summary Submission ===
 // Once the conversation reaches a natural conclusion and all required fields are answered,
@@ -260,13 +268,7 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
       }
     }
 
-    await nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.LEAD_EMAIL_USER,
-        pass: process.env.LEAD_EMAIL_PASS,
-      }
-    }).sendMail({
+    await transporter.sendMail({
       from: process.env.LEAD_EMAIL_USER,
       to: 'nick@elevatedgarage.com',
       subject: '📥 New Garage Submission',
@@ -311,6 +313,7 @@ function hasAnsweredAllIntakeQuestions(history) {
     "email",
     "phone",
     "garage goals",
+    "Estimated Square Footage of Space",
     "must-have features",
     "budget",
     "start date",
