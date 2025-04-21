@@ -233,6 +233,7 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
 
 
 
+
 const structuredSummary = expectedOrder.map(label => {
   if (label === "Garage Photo Upload") {
     return `${label}: ${photoUploaded ? "✅ Uploaded" : "❌ Not uploaded"}`;
@@ -242,7 +243,7 @@ const structuredSummary = expectedOrder.map(label => {
     const match = responses.find(r =>
       r.step.toLowerCase().includes("start") ||
       r.step.toLowerCase().includes("date") ||
-      /asap|soon|next|spring|summer|fall|202\d|jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec/i.test(r.answer)
+      /asap|soon|next|spring|summer|fall|202\d|jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec|\d{1,2}\/\d{1,2}/i.test(r.answer)
     );
     const answer = match?.answer || "";
     return `${label}: ${answer || "(Not provided)"}`;
@@ -252,7 +253,37 @@ const structuredSummary = expectedOrder.map(label => {
     const match = responses.find(r =>
       r.step.toLowerCase().includes("note") ||
       r.step.toLowerCase().includes("anything else")
-    ) || responses[responses.length - 1]; // fallback
+    ) || responses[responses.length - 1];
+    const answer = match?.answer || "";
+    return `${label}: ${answer || "(Not provided)"}`;
+  }
+
+  if (label === "Garage Goals") {
+    const match = responses.find(r =>
+      r.step.toLowerCase().includes("goal") ||
+      r.step.toLowerCase().includes("project") ||
+      r.step.toLowerCase().includes("garage")
+    );
+    const answer = match?.answer || "";
+    return `${label}: ${answer || "(Not provided)"}`;
+  }
+
+  if (label === "Estimated Square Footage of Space") {
+    const match = responses.find(r =>
+      r.step.toLowerCase().includes("square") ||
+      r.step.toLowerCase().includes("footage") ||
+      /\d{2,}/.test(r.answer)
+    );
+    const answer = match?.answer || "";
+    return `${label}: ${answer || "(Not provided)"}`;
+  }
+
+  if (label === "Must-Have Features") {
+    const match = responses.find(r =>
+      r.step.toLowerCase().includes("must") ||
+      r.step.toLowerCase().includes("features") ||
+      r.step.toLowerCase().includes("requirements")
+    );
     const answer = match?.answer || "";
     return `${label}: ${answer || "(Not provided)"}`;
   }
@@ -260,6 +291,7 @@ const structuredSummary = expectedOrder.map(label => {
   const match = responses.find(r => r.step === label);
   return `${label}: ${match ? match.answer : "(Not provided)"}`;
 }).join('\n');
+
 
 
 
