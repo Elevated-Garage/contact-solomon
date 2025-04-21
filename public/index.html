@@ -512,11 +512,72 @@ input[type="range"]::-moz-range-thumb {
   resize: none;
 }
 </style>
-
-
-
-
-</head>
+<style>
+.upload-card {
+  background: white;
+  padding: 24px;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-sizing: border-box;
+  margin: 0 auto;
+}
+.upload-label {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #B91B21;
+  margin-bottom: 8px;
+}
+.upload-dropzone {
+  border: 2px dashed #B91B21;
+  border-radius: 12px;
+  padding: 30px;
+  text-align: center;
+  color: #999;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+.upload-dropzone:hover {
+  background: #fef3f3;
+}
+.upload-preview {
+  display: none;
+  max-width: 100%;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+.upload-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+.upload-btn, .skip-btn {
+  background: #B91B21;
+  color: white;
+  padding: 10px 18px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+.upload-btn:disabled {
+  background: #aaa;
+  cursor: not-allowed;
+}
+.upload-btn:hover:not(:disabled),
+.skip-btn:hover {
+  background: #a3171d;
+}
+input[type="file"] {
+  display: none;
+}
+</style></head>
 <body>
 <div id="app">
 <div class="header">
