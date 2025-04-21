@@ -204,7 +204,29 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
     const subFolderId = subFolderRes.data.id;
 
     const filename = `${clientName} Submission ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}.txt`;
-    const formattedText = responses.map(r => `${r.step}: ${r.answer}`).join('\n');
+    
+    const expectedOrder = [
+      "Full Name",
+      "Email Address",
+      "Phone Number",
+      "Garage Goals",
+      "Estimated Square Footage of Space",
+      "Must-Have Features",
+      "Budget Range",
+      "Preferred Start Date",
+      "Garage Photo Upload",
+      "Final Notes"
+    ];
+
+    const structuredSummary = expectedOrder.map(label => {
+      if (label === "Garage Photo Upload") {
+        return `${label}: ${photoUploaded ? "✅ Uploaded" : "❌ Not uploaded"}`;
+      }
+      const match = responses.find(r => r.step === label);
+      return `${label}: ${match ? match.answer : "(Not provided)"}`;
+    }).join('\n');
+
+    const formattedText = structuredSummary;
     const buffer = Buffer.from(formattedText, 'utf-8');
 
     await drive.files.create({
@@ -313,7 +335,7 @@ async function submitFinalIntakeSummary(conversationHistory) {
   // Email the summary
   await transporter.sendMail({
     from: process.env.LEAD_EMAIL_USER,
-    to: "nick@elevatedgarage.com",
+    to: "elevatedgaragecda@gmail.com",
     subject: "📥 New Garage Intake Submission",
     text: formattedText
   });
