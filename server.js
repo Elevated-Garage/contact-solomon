@@ -251,6 +251,7 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
 
     photoUploaded = true;
     if (req.file && req.file.path) {
+      photoUploaded = true;
       const filePath = path.join(__dirname, req.file.path);
       if (fs.existsSync(filePath)) {
         await drive.files.create({
@@ -270,7 +271,7 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
 
     await transporter.sendMail({
       from: process.env.LEAD_EMAIL_USER,
-      to: 'nick@elevatedgarage.com',
+      to: 'elevatedgaragecda@gmail.com',
       subject: '📥 New Garage Submission',
       text: formattedText + '\n\nNote: Files were saved to Google Drive.'
     });
