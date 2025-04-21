@@ -232,27 +232,7 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
       }
       const match = responses.find(r => r.step === label);
       return `${label}: ${match ? match.answer : "(Not provided)"}`;
-    
-  if (label === "Budget Range") {
-    const budgetEntry = responses.find(r => r.step === "Budget Range");
-    const answer = budgetEntry?.answer || "";
-    const isBudget = /\$|\d+k|\d{3,}/i.test(answer);
-    if (!isBudget && answer) {
-      return `Preferred Start Date: ${answer}`;
-    }
-  }
-
-  if (label === "Preferred Start Date") {
-    const startDateEntry = responses.find(r => r.step === "Budget Range");
-    const answer = startDateEntry?.answer || "";
-    const isBudget = /\$|\d+k|\d{3,}/i.test(answer);
-    if (!isBudget && answer) {
-      return `${label}: ${answer}`;
-    }
-    const original = responses.find(r => r.step === "Preferred Start Date");
-    return `${label}: ${original?.answer || "(Not provided)"}`;
-  }
-}).join('\n');
+    }).join('\n');
 
     const formattedText = structuredSummary;
     const buffer = Buffer.from(formattedText, 'utf-8');
@@ -386,3 +366,4 @@ const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
   console.log(`✅ Contact Solomon backend running on port ${PORT}`);
 });
+
