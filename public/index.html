@@ -590,18 +590,19 @@ input[type="file"] {
 <div id="typing" style="display:none;">Solomon is typing...</div>
 <input accept="image/*" id="file-upload" style="display: none;" type="file"/>
 <form class="form-col" id="chat-form">
-<div id="uploadCardContainer" style="display: none; margin-bottom: 24px;">
-<div class="upload-card">
-<label class="upload-label">📷 Upload a photo of your current garage or inspiration space</label>
-<div class="upload-dropzone" id="dropzone">Click to select or drag &amp; drop a photo</div>
-<input accept="image/*" id="fileInput" type="file"/>
-<img class="upload-preview" id="preview"/>
-<div class="upload-buttons">
-<button class="upload-btn" disabled="" id="uploadBtn">Upload Photo</button>
-<button class="skip-btn" onclick="document.getElementById('uploadCardContainer').style.display = 'none';">Skip Upload</button>
+
+<div id="uploadCardContainer" style="display: none; margin: 24px auto; max-width: 500px;">
+<div id="dropzone" style="border: 2px dashed #B91B21; border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; transition: background 0.2s;">
+<p style="margin: 0; color: #B91B21; font-weight: 500;">Click or drag a photo here</p>
+<input accept="image/*" id="fileInput" style="display:none;" type="file"/>
+<img id="preview" style="display:none; margin-top: 15px; max-width: 100%; border-radius: 8px;"/>
+</div>
+<div style="margin-top: 16px; text-align: center;">
+<button disabled="" id="uploadBtn" style="background: #B91B21; color: white; padding: 8px 20px; border: none; border-radius: 6px;">Upload</button>
+<button onclick="document.getElementById('uploadCardContainer').style.display = 'none';" style="background: transparent; border: none; color: #666; margin-left: 12px;">Skip</button>
 </div>
 </div>
-</div>
+
 <div class="input-container" style="display: flex; align-items: center; gap: 6px; padding: 4px 6px; background: transparent; z-index: 10; position: sticky; bottom: 0; height: 40px;">
 <label class="upload-button" for="file-upload" style="font-size: 28px; cursor: pointer; user-select: none; color: #B91B21;"><span style="color: white;">+</span></label>
 <input accept="image/*,.pdf,.doc,.docx" id="file-upload" style="display: none;" type="file"/>
@@ -886,7 +887,6 @@ document.getElementById("download-summary").addEventListener("click", () => {
 });
 </script></body>
 </html>
-
 
 
 
