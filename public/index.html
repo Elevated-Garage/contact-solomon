@@ -808,7 +808,22 @@ form.addEventListener("submit", async (e) => {
     }
   }
 
-  responses.push({ step: stepLabel, answer: message });
+  
+  const parts = message.split(",");
+  const isLikelyContactCombo = (
+    parts.length === 3 &&
+    message.includes("@") &&
+    /\d{7,}/.test(parts[2])
+  );
+
+  if (isLikelyContactCombo) {
+    responses.push({ step: "Full Name", answer: parts[0].trim() });
+    responses.push({ step: "Email Address", answer: parts[1].trim() });
+    responses.push({ step: "Phone Number", answer: parts[2].trim() });
+  } else {
+    responses.push({ step: stepLabel, answer: message });
+  }
+
 
   if (!message) return;
   appendMessage(message, "user");
@@ -981,6 +996,7 @@ document.getElementById("download-summary").addEventListener("click", () => {
 });
 </script></body>
 </html>
+
 
 
 
