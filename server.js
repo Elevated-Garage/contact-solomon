@@ -1,24 +1,5 @@
 const express = require('express');
-const fs = require
-    if (label === "Budget Range") {
-      const budgetEntry = responses.find(r => r.step === "Budget Range");
-      const answer = budgetEntry?.answer || "";
-      const isBudget = /\$|\d+k|\d{3,}/i.test(answer);
-      if (!isBudget && answer) {
-        return `Preferred Start Date: ${answer}`;
-      }
-    }
-
-    if (label === "Preferred Start Date") {
-      const startDateEntry = responses.find(r => r.step === "Budget Range");
-      const answer = startDateEntry?.answer || "";
-      const isBudget = /\$|\d+k|\d{3,}/i.test(answer);
-      if (!isBudget && answer) {
-        return `${label}: ${answer}`;
-      }
-      return `${label}: (Not provided)`;
-    }
-('fs');
+const fs = require('fs');
 const path = require('path');
 const bodyParser = require('body-parser');
 const nodemailer = require('nodemailer');
@@ -251,7 +232,26 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
       }
       const match = responses.find(r => r.step === label);
       return `${label}: ${match ? match.answer : "(Not provided)"}`;
-    }).join('\n');
+    
+  if (label === "Budget Range") {
+    const budgetEntry = responses.find(r => r.step === "Budget Range");
+    const answer = budgetEntry?.answer || "";
+    const isBudget = /\$|\d+k|\d{3,}/i.test(answer);
+    if (!isBudget && answer) {
+      return `Preferred Start Date: ${answer}`;
+    }
+  }
+
+  if (label === "Preferred Start Date") {
+    const startDateEntry = responses.find(r => r.step === "Budget Range");
+    const answer = startDateEntry?.answer || "";
+    const isBudget = /\$|\d+k|\d{3,}/i.test(answer);
+    if (!isBudget && answer) {
+      return `${label}: ${answer}`;
+    }
+    return `${label}: (Not provided)`;
+  }
+}).join('\n');
 
     const formattedText = structuredSummary;
     const buffer = Buffer.from(formattedText, 'utf-8');
