@@ -808,6 +808,46 @@ form.addEventListener("submit", async (e) => {
     }
   }
 
+  // Handle combined contact info
+  if (stepLabel === "Full Name" && message.includes(",") && message.includes("@")) {
+    const parts = message.split(",");
+    if (parts.length >= 3) {
+      responses.push({ step: "Full Name", answer: parts[0].trim() });
+      responses.push({ step: "Email Address", answer: parts[1].trim() });
+      responses.push({ step: "Phone Number", answer: parts[2].trim() });
+    } else {
+      responses.push({ step: stepLabel, answer: message });
+    }
+  } else if (stepLabel === "Preferred Start Date" && message.toLowerCase().includes("asap")) {
+    responses.push({ step: "Preferred Start Date", answer: "ASAP" });
+  } else {
+    responses.push({ step: stepLabel, answer: message });
+  }
+
+  // Auto-generate response entry
+  const lastBotMessage = [...document.querySelectorAll('.message.bot')].pop()?.textContent || "";
+  let stepLabel = "Answer " + (responses.length + 1);
+
+  const keywordMap = {
+    "name": "Full Name",
+    "email": "Email Address",
+    "phone": "Phone Number",
+    "goal": "Garage Goals",
+    "square": "Estimated Square Footage of Space",
+    "feature": "Must-Have Features",
+    "budget": "Budget Range",
+    "start date": "Preferred Start Date",
+    "photo": "Garage Photo Upload",
+    "note": "Final Notes"
+  };
+
+  for (const keyword in keywordMap) {
+    if (lastBotMessage.toLowerCase().includes(keyword)) {
+      stepLabel = keywordMap[keyword];
+      break;
+    }
+  }
+
   responses.push({ step: stepLabel, answer: message });
 
   if (!message) return;
@@ -981,5 +1021,7 @@ document.getElementById("download-summary").addEventListener("click", () => {
 });
 </script></body>
 </html>
+
+
 
 
