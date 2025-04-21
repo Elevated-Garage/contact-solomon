@@ -232,20 +232,28 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
 
 
 
+
 const structuredSummary = expectedOrder.map(label => {
   if (label === "Garage Photo Upload") {
     return `${label}: ${photoUploaded ? "✅ Uploaded" : "❌ Not uploaded"}`;
   }
 
   if (label === "Preferred Start Date") {
-    const preferred = responses.find(r => r.step.toLowerCase().includes("start date"));
-    const answer = preferred?.answer || "";
+    const match = responses.find(r =>
+      r.step.toLowerCase().includes("start") ||
+      r.step.toLowerCase().includes("date") ||
+      /asap|soon|next|spring|summer|fall|202\d|jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec/i.test(r.answer)
+    );
+    const answer = match?.answer || "";
     return `${label}: ${answer || "(Not provided)"}`;
   }
 
   if (label === "Final Notes") {
-    const notes = responses.find(r => r.step.toLowerCase().includes("note"));
-    const answer = notes?.answer || "";
+    const match = responses.find(r =>
+      r.step.toLowerCase().includes("note") ||
+      r.step.toLowerCase().includes("anything else")
+    ) || responses[responses.length - 1]; // fallback
+    const answer = match?.answer || "";
     return `${label}: ${answer || "(Not provided)"}`;
   }
 
