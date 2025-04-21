@@ -781,13 +781,11 @@ function appendMessage(text, sender = "bot") {
 // removed askFollowup — handled by AI now
 
 
-
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
   const message = input.value.trim();
-
   // Auto-generate response entry
-  
+  const lastBotMessage = [...document.querySelectorAll('.message.bot')].pop()?.textContent || "";
   let stepLabel = "Answer " + (responses.length + 1);
 
   const keywordMap = {
@@ -810,6 +808,32 @@ form.addEventListener("submit", async (e) => {
     }
   }
 
+  
+  // Auto-generate response entry
+  const lastBotMessage = [...document.querySelectorAll('.message.bot')].pop()?.textContent || "";
+  let stepLabel = "Answer " + (responses.length + 1);
+
+  const keywordMap = {
+    "name": "Full Name",
+    "email": "Email Address",
+    "phone": "Phone Number",
+    "goal": "Garage Goals",
+    "square": "Estimated Square Footage of Space",
+    "feature": "Must-Have Features",
+    "budget": "Budget Range",
+    "start date": "Preferred Start Date",
+    "photo": "Garage Photo Upload",
+    "note": "Final Notes"
+  };
+
+  for (const keyword in keywordMap) {
+    if (lastBotMessage.toLowerCase().includes(keyword)) {
+      stepLabel = keywordMap[keyword];
+      break;
+    }
+  }
+
+  // Split Full Name + Email + Phone
   if (stepLabel === "Full Name" && message.includes(",") && message.includes("@")) {
     const parts = message.split(",");
     if (parts.length >= 3) {
@@ -824,27 +848,6 @@ form.addEventListener("submit", async (e) => {
   } else {
     responses.push({ step: stepLabel, answer: message });
   }
-
-  appendMessage(message, "user");
-  input.value = "";
-
-  appendTypingIndicator();
-  const res = await fetch("/message", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ message })
-  });
-  const data = await res.json();
-  removeTypingIndicator();
-  appendMessage(data.reply, "bot");
-
-  if (data.photo_request) {
-    showPhotoUploader();
-  }
-  if (data.show_summary) {
-    document.getElementById("summary-download").style.display = "block";
-  }
-});
 
 
   if (!message) return;
@@ -885,9 +888,9 @@ document.addEventListener("input", function (event) {
   const el = event.target;
   if (el.id === "user-input") {
     el.style.height = "auto";
-    
+    const maxHeight = 120;
     const initialHeight = 36;
-    
+    const maxHeight = 120;
     el.style.height = initialHeight + "px";
     el.style.height = Math.min(el.scrollHeight, maxHeight) + "px";
   }
@@ -1018,6 +1021,7 @@ document.getElementById("download-summary").addEventListener("click", () => {
 });
 </script></body>
 </html>
+
 
 
 
