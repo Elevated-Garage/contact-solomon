@@ -64,6 +64,11 @@ app.post('/message', async (req, res) => {
   const userMessage = req.body.message;
   conversationHistory.push({ role: 'user', content: userMessage });
 
+  if (userMessage.toLowerCase().includes("skipping the photo")) {
+    photoUploaded = true;
+  }
+
+
   try {
     
 
