@@ -784,6 +784,32 @@ function appendMessage(text, sender = "bot") {
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
   const message = input.value.trim();
+  // Auto-generate response entry
+  const lastBotMessage = [...document.querySelectorAll('.message.bot')].pop()?.textContent || "";
+  let stepLabel = "Answer " + (responses.length + 1);
+
+  const keywordMap = {
+    "name": "Full Name",
+    "email": "Email Address",
+    "phone": "Phone Number",
+    "goal": "Garage Goals",
+    "square": "Estimated Square Footage of Space",
+    "feature": "Must-Have Features",
+    "budget": "Budget Range",
+    "start date": "Preferred Start Date",
+    "photo": "Garage Photo Upload",
+    "note": "Final Notes"
+  };
+
+  for (const keyword in keywordMap) {
+    if (lastBotMessage.toLowerCase().includes(keyword)) {
+      stepLabel = keywordMap[keyword];
+      break;
+    }
+  }
+
+  responses.push({ step: stepLabel, answer: message });
+
   if (!message) return;
   appendMessage(message, "user");
   input.value = "";
