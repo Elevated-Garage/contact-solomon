@@ -228,46 +228,24 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
 
     photoUploaded = req.file && req.file.path ? true : false;
 
+
+
 const structuredSummary = expectedOrder.map(label => {
-
-  if (label === "Preferred Start Date") {
-    const startDateEntry = responses.find(r => r.step === "Budget Range");
-    const answer = startDateEntry?.answer || "";
-    const isBudget = /\$|\d+k|\d{3,}/i.test(answer);
-    if (!isBudget && answer) {
-      return `${label}: ${answer}`;
-    }
-    const original = responses.find(r => r.step === "Preferred Start Date");
-    return `${label}: ${original?.answer || "(Not provided)"}`;
-  }
-
       if (label === "Garage Photo Upload") {
         return `${label}: ${photoUploaded ? "✅ Uploaded" : "❌ Not uploaded"}`;
       }
-      const match = responses.find(r => r.step === label);
+
       if (label === "Preferred Start Date") {
-        const startDateEntry = responses.find(r => r.step === "Budget Range");
-        const answer = startDateEntry?.answer || "";
-        const isBudget = /\$|\d+k|\d{3,}/i.test(answer);
-        if (!isBudget && answer) {
-          return `${label}: ${answer}`;
-        }
-        const original = responses.find(r => r.step === "Preferred Start Date");
-        return `${label}: ${original?.answer || "(Not provided)"}`;
+        const preferred = responses.find(r => r.step === "Preferred Start Date");
+        const answer = preferred?.answer || "";
+        return `${label}: ${answer || "(Not provided)"}`;
       }
 
+      const match = responses.find(r => r.step === label);
       return `${label}: ${match ? match.answer : "(Not provided)"}`;
-        const startDateEntry = responses.find(r => r.step === "Budget Range");
-        const answer = startDateEntry?.answer || "";
-        const isBudget = /\$|\d+k|\d{3,}/i.test(answer);
-        if (!isBudget && answer) {
-          return `${label}: ${answer}`;
-        }
-        const original = responses.find(r => r.step === "Preferred Start Date");
-        return `${label}: ${original?.answer || "(Not provided)"}`;
-      }
-    
-    }).join('\n');
+}).join('\n');
+
+
 
     const formattedText = structuredSummary;
     const buffer = Buffer.from(formattedText, 'utf-8');
