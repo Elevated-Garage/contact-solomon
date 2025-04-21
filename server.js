@@ -243,6 +243,7 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
 
     photoUploaded = true;
     if (req.file && req.file.path) {
+    photoUploaded = true;
       const filePath = path.join(__dirname, req.file.path);
       if (fs.existsSync(filePath)) {
         await drive.files.create({
