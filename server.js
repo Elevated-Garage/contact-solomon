@@ -233,14 +233,19 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
 
 
 
+
 const structuredSummary = expectedOrder.map(label => {
   if (label === "Garage Photo Upload") {
     return `${label}: ${photoUploaded ? "✅ Uploaded" : "❌ Not uploaded"}`;
   }
 
   if (label === "Preferred Start Date") {
-    const preferred = responses.find(r => r.step.toLowerCase().includes("start date"));
-    const answer = preferred?.answer || "";
+    const match = responses.find(r =>
+      r.step.toLowerCase().includes("start") ||
+      r.step.toLowerCase().includes("date") ||
+      /asap|soon|next|spring|summer|fall|202\d|jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec|\d{1,2}\/\d{1,2}/i.test(r.answer)
+    );
+    const answer = match?.answer || "";
     return `${label}: ${answer || "(Not provided)"}`;
   }
 
@@ -265,7 +270,10 @@ const structuredSummary = expectedOrder.map(label => {
       r.step.toLowerCase().includes("must") ||
       r.step.toLowerCase().includes("feature") ||
       r.step.toLowerCase().includes("important") ||
-      r.step.toLowerCase().includes("need")
+      r.step.toLowerCase().includes("need") ||
+      r.step.toLowerCase().includes("looking for") ||
+      r.step.toLowerCase().includes("want") ||
+      /storage|gym|lift|cabinet|cold plunge/i.test(r.answer)
     );
     const answer = match?.answer || "";
     return `${label}: ${answer || "(Not provided)"}`;
@@ -274,6 +282,7 @@ const structuredSummary = expectedOrder.map(label => {
   const match = responses.find(r => r.step === label);
   return `${label}: ${match ? match.answer : "(Not provided)"}`;
 }).join('\n');
+
 
 
 
