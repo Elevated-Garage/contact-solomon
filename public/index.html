@@ -513,71 +513,219 @@ input[type="range"]::-moz-range-thumb {
 }
 </style>
 <style>
-.upload-card {
-  background: white;
-  padding: 24px;
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-  width: 100%;
-  max-width: 480px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  box-sizing: border-box;
-  margin: 0 auto;
+.message.user { background-color: #B91B21; color: white; align-self: flex-end; padding: 10px; margin: 8px 0; border-radius: 12px; max-width: 80%; }
+  .send-button:hover, .upload-button:hover {
+    transform: scale(1.2);
+    transition: transform 0.2s ease-in-out;
+  }
+
+.chat-box {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;  /* IE 10+ */
 }
-.upload-label {
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: #B91B21;
-  margin-bottom: 8px;
+.chat-box::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
 }
-.upload-dropzone {
-  border: 2px dashed #B91B21;
-  border-radius: 12px;
-  padding: 30px;
-  text-align: center;
-  color: #999;
-  cursor: pointer;
-  transition: background 0.2s ease;
-}
-.upload-dropzone:hover {
-  background: #fef3f3;
-}
-.upload-preview {
-  display: none;
-  max-width: 100%;
+
+
+input[type="date"] {
+  padding: 10px 14px;
+  font-size: 16px;
+  font-family: inherit;
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 10px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  background: rgba(255, 255, 255, 0.05);
+  color: white;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  outline: none;
+  transition: all 0.2s ease;
 }
-.upload-buttons {
-  display: flex;
-  gap: 12px;
-  justify-content: center;
+
+input[type="date"]:hover {
+  border-color: #B91B21;
 }
-.upload-btn, .skip-btn {
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+}
+
+
+input[type="range"] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 4px;
+  background: #ccc;
+  outline: none;
+  transition: background 0.2s;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #B91B21;
+  cursor: pointer;
+  border: none;
+  margin-top: -6px;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #B91B21;
+  cursor: pointer;
+  border: none;
+}
+
+</style>
+<style>
+.message.user { background-color: #B91B21; color: white; align-self: flex-end; padding: 10px; margin: 8px 0; border-radius: 12px; max-width: 80%; }
+button.ai-style-change-1 {
+  width: 100px;
+  height: 30px;
+  padding: 5px;
+  display: inline-block;
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  font-size: 14px;
+  line-height: 1;
   background: #B91B21;
   color: white;
-  padding: 10px 18px;
-  font-size: 0.95rem;
-  font-weight: 500;
   border: none;
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
-  transition: background 0.2s ease;
+  box-sizing: border-box;
 }
-.upload-btn:disabled {
-  background: #aaa;
-  cursor: not-allowed;
+</style>
+<style>
+.message.user { background-color: #B91B21; color: white; align-self: flex-end; padding: 10px; margin: 8px 0; border-radius: 12px; max-width: 80%; }
+.submit-button {
+  background: linear-gradient(145deg, #B91B21, #a3171d);
+  color: white;
+  padding: 14px 32px;
+  font-size: 16px;
+  border: none;
+  border-radius: 40px;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(185, 27, 33, 0.4);
+  transition: all 0.25s ease-in-out;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  margin: 20px auto 0 auto;
+  margin-top: 20px;
 }
-.upload-btn:hover:not(:disabled),
-.skip-btn:hover {
-  background: #a3171d;
+.submit-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(185, 27, 33, 0.6);
+  background: linear-gradient(145deg, #c8232b, #B91B21);
 }
-input[type="file"] {
-  display: none;
+.submit-button:active {
+  transform: scale(0.98);
+  box-shadow: 0 2px 10px rgba(185, 27, 33, 0.3);
 }
-</style></head>
+<style>
+.message.user { background-color: #B91B21; color: white; align-self: flex-end; padding: 10px; margin: 8px 0; border-radius: 12px; max-width: 80%; }
+/* Apply fullscreen layout ONLY when embedded */
+body.solomon-embedded,
+body.solomon-embedded html {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+}
+
+body.solomon-embedded #app,
+body.solomon-embedded .form-wrapper {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+</style>
+<style>#user-input {
+  overflow-y: auto;
+}</style><style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f9f9f9;
+      margin: 0;
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    #uploadCardContainer {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+      max-width: 500px;
+      width: 100%;
+    }
+
+    #dropzone {
+      border: 2px dashed #B91B21;
+      border-radius: 12px;
+      padding: 30px;
+      text-align: center;
+      color: #B91B21;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    #dropzone:hover {
+      background: #fef3f3;
+    }
+
+    #preview {
+      display: none;
+      margin-top: 16px;
+      max-width: 100%;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .buttons {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 1rem;
+    }
+
+    #uploadBtn {
+      background: #B91B21;
+      color: white;
+      margin-right: 12px;
+    }
+
+    #uploadBtn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    #skipBtn {
+      background: transparent;
+      color: #555;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+  </style></head>
 <body>
 <div id="app">
 <div class="header">
@@ -590,19 +738,15 @@ input[type="file"] {
 <div id="typing" style="display:none;">Solomon is typing...</div>
 <input accept="image/*" id="file-upload" style="display: none;" type="file"/>
 <form class="form-col" id="chat-form">
-
-<div id="uploadCardContainer" style="display: none; margin: 24px auto; max-width: 500px;">
-<div id="dropzone" style="border: 2px dashed #B91B21; border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; transition: background 0.2s;">
-<p style="margin: 0; color: #B91B21; font-weight: 500;">Click or drag a photo here</p>
-<input accept="image/*" id="fileInput" style="display:none;" type="file"/>
-<img id="preview" style="display:none; margin-top: 15px; max-width: 100%; border-radius: 8px;"/>
-</div>
-<div style="margin-top: 16px; text-align: center;">
-<button disabled="" id="uploadBtn" style="background: #B91B21; color: white; padding: 8px 20px; border: none; border-radius: 6px;">Upload</button>
-<button onclick="document.getElementById('uploadCardContainer').style.display = 'none';" style="background: transparent; border: none; color: #666; margin-left: 12px;">Skip</button>
+<div id="uploadCardContainer" style="display: none;">
+<div id="dropzone">Click or drag a photo here</div>
+<input accept="image/*" id="fileInput" type="file"/>
+<img id="preview"/>
+<div class="buttons">
+<button disabled="" id="uploadBtn">Upload</button>
+<button id="skipBtn" onclick="alert('Skipped!')">Skip</button>
 </div>
 </div>
-
 <div class="input-container" style="display: flex; align-items: center; gap: 6px; padding: 4px 6px; background: transparent; z-index: 10; position: sticky; bottom: 0; height: 40px;">
 <label class="upload-button" for="file-upload" style="font-size: 28px; cursor: pointer; user-select: none; color: #B91B21;"><span style="color: white;">+</span></label>
 <input accept="image/*,.pdf,.doc,.docx" id="file-upload" style="display: none;" type="file"/>
@@ -688,31 +832,7 @@ form.addEventListener("submit", async (e) => {
     responses.push({ step: "Email Address", answer: parts[1].trim() });
     responses.push({ step: "Phone Number", answer: parts[2].trim() });
   } else {
-    
-  const parts = message.split(",");
-  const isLikelyContactCombo = (
-    parts.length === 3 &&
-    message.includes("@") &&
-    /\d{7,}/.test(parts[2])
-  );
-
-  const isLikelyTimeline = (
-    /\b(week|month|day|soon|asap|later|whenever|ready|schedule|start|available)\b/i.test(message) ||
-    /\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}/.test(message)
-  );
-
-  if (isLikelyContactCombo) {
-    responses.push({ step: "Full Name", answer: parts[0].trim() });
-    responses.push({ step: "Email Address", answer: parts[1].trim() });
-    responses.push({ step: "Phone Number", answer: parts[2].trim() });
-  } else if (stepLabel === "Preferred Start Date" || (
-      ["timeline", "start date", "when", "install", "available"].some(k => lastBotMessage.toLowerCase().includes(k)) && isLikelyTimeline
-    )) {
-    responses.push({ step: "Preferred Start Date", answer: message });
-  } else {
     responses.push({ step: stepLabel, answer: message });
-  }
-
   }
 
 
@@ -885,8 +1005,52 @@ document.getElementById("download-summary").addEventListener("click", () => {
   document.body.removeChild(link);
   URL.revokeObjectURL(url);
 });
+</script><script>
+  const dropzone = document.getElementById('dropzone');
+  const fileInput = document.getElementById('fileInput');
+  const preview = document.getElementById('preview');
+  const uploadBtn = document.getElementById('uploadBtn');
+
+  dropzone.addEventListener('click', () => fileInput.click());
+
+  dropzone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropzone.style.background = '#fef3f3';
+  });
+
+  dropzone.addEventListener('dragleave', () => {
+    dropzone.style.background = 'white';
+  });
+
+  dropzone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropzone.style.background = 'white';
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) {
+      fileInput.files = e.dataTransfer.files;
+      showPreview(file);
+    }
+  });
+
+  fileInput.addEventListener('change', () => {
+    const file = fileInput.files[0];
+    if (file) showPreview(file);
+  });
+
+  function showPreview(file) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      preview.src = reader.result;
+      preview.style.display = 'block';
+      uploadBtn.disabled = false;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  uploadBtn.addEventListener('click', () => {
+    alert('📸 Upload successful!');
+  });
 </script></body>
 </html>
-
 
 
