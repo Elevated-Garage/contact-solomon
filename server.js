@@ -249,7 +249,8 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
     if (!isBudget && answer) {
       return `${label}: ${answer}`;
     }
-    return `${label}: (Not provided)`;
+    const original = responses.find(r => r.step === "Preferred Start Date");
+    return `${label}: ${original?.answer || "(Not provided)"}`;
   }
 }).join('\n');
 
