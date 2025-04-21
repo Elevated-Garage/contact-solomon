@@ -231,20 +231,22 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
 
 
 
+
 const structuredSummary = expectedOrder.map(label => {
   if (label === "Garage Photo Upload") {
     return `${label}: ${photoUploaded ? "✅ Uploaded" : "❌ Not uploaded"}`;
   }
 
-  
   if (label === "Preferred Start Date") {
     const preferred = responses.find(r => r.step === "Preferred Start Date");
     const answer = preferred?.answer || "";
     return `${label}: ${answer || "(Not provided)"}`;
   }
-const match = responses.find(r => r.step === label);
+
+  const match = responses.find(r => r.step === label);
   return `${label}: ${match ? match.answer : "(Not provided)"}`;
 }).join('\n');
+
 
 
 
