@@ -229,6 +229,18 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
     photoUploaded = req.file && req.file.path ? true : false;
 
 const structuredSummary = expectedOrder.map(label => {
+
+  if (label === "Preferred Start Date") {
+    const startDateEntry = responses.find(r => r.step === "Budget Range");
+    const answer = startDateEntry?.answer || "";
+    const isBudget = /\$|\d+k|\d{3,}/i.test(answer);
+    if (!isBudget && answer) {
+      return `${label}: ${answer}`;
+    }
+    const original = responses.find(r => r.step === "Preferred Start Date");
+    return `${label}: ${original?.answer || "(Not provided)"}`;
+  }
+
       if (label === "Garage Photo Upload") {
         return `${label}: ${photoUploaded ? "✅ Uploaded" : "❌ Not uploaded"}`;
       }
