@@ -880,7 +880,8 @@ function showPhotoUploader() {
   const uploader = document.getElementById('uploadCardContainer');
   if (uploader) uploader.style.display = 'block';
 }
-</script><script>
+</script>
+<script>
 document.addEventListener("DOMContentLoaded", () => {
   const uploadBtn = document.getElementById("uploadBtn");
   const fileInput = document.getElementById("fileInput");
@@ -894,6 +895,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const formData = new FormData();
       formData.append("photo", file);
+      formData.append("responses", JSON.stringify(responses)); // ✅ Added to fix summary
 
       fetch("/submit", {
         method: "POST",
@@ -920,7 +922,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
-</script><script>
+</script>
+<script>
 function appendTypingIndicator() {
   const typing = document.getElementById("typing");
   typing.style.display = "block";
