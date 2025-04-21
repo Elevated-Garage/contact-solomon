@@ -1,5 +1,24 @@
 const express = require('express');
-const fs = require('fs');
+const fs = require
+    if (label === "Budget Range") {
+      const budgetEntry = responses.find(r => r.step === "Budget Range");
+      const answer = budgetEntry?.answer || "";
+      const isBudget = /\$|\d+k|\d{3,}/i.test(answer);
+      if (!isBudget && answer) {
+        return `Preferred Start Date: ${answer}`;
+      }
+    }
+
+    if (label === "Preferred Start Date") {
+      const startDateEntry = responses.find(r => r.step === "Budget Range");
+      const answer = startDateEntry?.answer || "";
+      const isBudget = /\$|\d+k|\d{3,}/i.test(answer);
+      if (!isBudget && answer) {
+        return `${label}: ${answer}`;
+      }
+      return `${label}: (Not provided)`;
+    }
+('fs');
 const path = require('path');
 const bodyParser = require('body-parser');
 const nodemailer = require('nodemailer');
