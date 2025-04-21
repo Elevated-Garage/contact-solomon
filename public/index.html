@@ -870,11 +870,8 @@ const data = await res.json();
 });
 
 
-document.addEventListener("DOMContentLoaded", () => {
-  const input = document.getElementById("user-input");
-  if (input) {
-    input.value = "Solomon, can you help me design my garage?";
-  }
+window.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("user-input").value = "Solomon, can you help me design my garage?";
 });
 </script><script>
 document.getElementById("user-input").addEventListener("keydown", function (e) {
@@ -1021,7 +1018,5 @@ document.getElementById("download-summary").addEventListener("click", () => {
 });
 </script></body>
 </html>
-
-
 
 
