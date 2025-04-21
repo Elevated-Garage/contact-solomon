@@ -304,7 +304,7 @@ const structuredSummary = expectedOrder.map(label => {
 app.get('/auth', (req, res) => {
   const authUrl = oauth2Client.generateAuthUrl({
     access_type: 'offline',
-    prompt: 'consent'
+    prompt: 'consent',
     scope: ['https://www.googleapis.com/auth/drive.file'],
   });
   res.redirect(authUrl);
