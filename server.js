@@ -95,8 +95,8 @@ You must ensure the following key topics are covered before ending the conversat
 6. Must-Have Features  
 7. Budget Range  
 8. Preferred Start Date  
-9. Garage Photo Upload  
-10. Final Notes
+9. Final Notes
+10. Garage Photo Upload 
 
 Do not ask all of these at once.  
 Weave them into the conversation naturally — one at a time — based on where the discussion is heading.  
@@ -222,8 +222,8 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
       "Must-Have Features",
       "Budget Range",
       "Preferred Start Date",
-      "Garage Photo Upload",
-      "Final Notes"
+      "Final Notes",
+      "Garage Photo Upload"
     ];
 
     photoUploaded = req.file && req.file.path ? true : false;
