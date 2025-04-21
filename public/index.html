@@ -763,6 +763,10 @@ const typingIndicator = document.getElementById('typing');
 
 
 let responses = [];
+window.addEventListener("load", () => {
+  responses = [];
+});
+
 
 // removed prompts — now handled by AI
 
@@ -996,10 +1000,6 @@ document.getElementById("download-summary").addEventListener("click", () => {
 });
 </script></body>
 </html>
-
-
-
-
 
 
 
