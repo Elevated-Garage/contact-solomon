@@ -85,7 +85,7 @@ Ask for:
 
 Only after collecting that, begin learning about garage goals, layout, and features.
 
-You must ensure the following key topics are covered before ending the conversation:
+You must ensure the following key topics are covered before ending the conversation. Please treat "Garage Photo Upload" as the **final** required question, and only bring it up after all others have been answered.
 
 1. Full Name  
 2. Email Address  
