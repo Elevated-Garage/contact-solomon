@@ -785,10 +785,6 @@ form.addEventListener("submit", async (e) => {
   e.preventDefault();
   const message = input.value.trim();
   // Auto-generate response entry
-  
-  // Improved smart label detection and splitting
-  
-  // Enhanced smart label detection and splitting
   const lastBotMessage = [...document.querySelectorAll('.message.bot')].pop()?.textContent || "";
   let stepLabel = "Answer " + (responses.length + 1);
 
@@ -801,10 +797,8 @@ form.addEventListener("submit", async (e) => {
     "feature": "Must-Have Features",
     "budget": "Budget Range",
     "start date": "Preferred Start Date",
-    "timeline": "Preferred Start Date",
-    "when": "Preferred Start Date",
-    "note": "Final Notes",
-    "photo": "Garage Photo Upload"
+    "photo": "Garage Photo Upload",
+    "note": "Final Notes"
   };
 
   for (const keyword in keywordMap) {
@@ -814,38 +808,7 @@ form.addEventListener("submit", async (e) => {
     }
   }
 
-  const parts = message.split(",");
-  const isLikelyContactCombo = (
-    parts.length === 3 &&
-    message.includes("@") &&
-    /\d{7,}/.test(parts[2])
-  );
-
-  const isLikelyTimeline = (
-    /\b(week|month|day|soon|asap|later|whenever|ready)\b/i.test(message) ||
-    /\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}/.test(message)
-  );
-
-  if (isLikelyContactCombo) {
-    responses.push({ step: "Full Name", answer: parts[0].trim() });
-    responses.push({ step: "Email Address", answer: parts[1].trim() });
-    responses.push({ step: "Phone Number", answer: parts[2].trim() });
-  } else if (stepLabel === "Preferred Start Date" || (
-      ["timeline", "start date", "when"].some(k => lastBotMessage.toLowerCase().includes(k)) && isLikelyTimeline
-    )) {
-    responses.push({ step: "Preferred Start Date", answer: message });
-  } else {
-    responses.push({ step: stepLabel, answer: message });
-  }
-
-    responses.push({ step: "Email Address", answer: parts[1].trim() });
-    responses.push({ step: "Phone Number", answer: parts[2].trim() });
-  } else if (["Preferred Start Date", "Final Notes"].includes(stepLabel) && message.toLowerCase().includes("asap")) {
-    responses.push({ step: "Preferred Start Date", answer: "ASAP" });
-  } else {
-    responses.push({ step: stepLabel, answer: message });
-  }
-
+  responses.push({ step: stepLabel, answer: message });
 
   if (!message) return;
   appendMessage(message, "user");
@@ -1018,6 +981,7 @@ document.getElementById("download-summary").addEventListener("click", () => {
 });
 </script></body>
 </html>
+
 
 
 
