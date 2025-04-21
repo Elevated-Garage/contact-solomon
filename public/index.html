@@ -744,7 +744,7 @@ body.solomon-embedded .form-wrapper {
 <img id="preview"/>
 <div class="buttons">
 <button disabled="" id="uploadBtn">Upload</button>
-<button id="skipBtn" onclick="alert('Skipped!')">Skip</button>
+<button id="skipBtn" type="button">Skip</button>  <script> document.getElementById("skipBtn").addEventListener("click", () => {   document.getElementById("uploadCardContainer").style.display = "none";    fetch("/message", {     method: "POST",     headers: { "Content-Type": "application/json" },     body: JSON.stringify({ message: "I am skipping the photo upload." })   })   .then(res => res.json())   .then(data => {     if (data.show_summary) {       document.getElementById("summary-download").style.display = "block";     }   }); }); </script>
 </div>
 </div>
 <div class="input-container" style="display: flex; align-items: center; gap: 6px; padding: 4px 6px; background: transparent; z-index: 10; position: sticky; bottom: 0; height: 40px;">
