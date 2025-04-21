@@ -230,26 +230,29 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
 
 
 
+
 const structuredSummary = expectedOrder.map(label => {
-      if (label === "Garage Photo Upload") {
-        return `${label}: ${photoUploaded ? "✅ Uploaded" : "❌ Not uploaded"}`;
-      }
+  if (label === "Garage Photo Upload") {
+    return `${label}: ${photoUploaded ? "✅ Uploaded" : "❌ Not uploaded"}`;
+  }
 
-      
-      if (label === "Preferred Start Date") {
-        const preferred = responses.find(r => r.step === "Preferred Start Date");
-        const directAnswer = preferred?.answer || "";
-        if (directAnswer) return `${label}: ${directAnswer}`;
+  if (label === "Preferred Start Date") {
+    const preferred = responses.find(r => r.step === "Preferred Start Date");
+    const directAnswer = preferred?.answer || "";
+    if (directAnswer) return `${label}: ${directAnswer}`;
 
-        const budget = responses.find(r => r.step === "Budget Range");
-        const budgetAnswer = budget?.answer || "";
-        const looksLikeDate = /asap|soon|next|spring|summer|fall|202\d|january|february|march|april|may|june|july|august|september|october|november|december/i.test(budgetAnswer);
-        if (looksLikeDate) return `${label}: ${budgetAnswer}`;
+    const budget = responses.find(r => r.step === "Budget Range");
+    const budgetAnswer = budget?.answer || "";
+    const looksLikeDate = /asap|soon|next|spring|summer|fall|202\d|january|february|march|april|may|june|july|august|september|october|november|december/i.test(budgetAnswer);
+    if (looksLikeDate) return `${label}: ${budgetAnswer}`;
 
-        return `${label}: (Not provided)`;
-      }
-return `${label}: ${match ? match.answer : "(Not provided)"}`;
+    return `${label}: (Not provided)`;
+  }
+
+  const match = responses.find(r => r.step === label);
+  return `${label}: ${match ? match.answer : "(Not provided)"}`;
 }).join('\n');
+
 
 
 
