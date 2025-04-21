@@ -233,9 +233,18 @@ const structuredSummary = expectedOrder.map(label => {
         return `${label}: ${photoUploaded ? "✅ Uploaded" : "❌ Not uploaded"}`;
       }
       const match = responses.find(r => r.step === label);
-      return `${label}: ${match ? match.answer : "(Not provided)"}`;
-
       if (label === "Preferred Start Date") {
+        const startDateEntry = responses.find(r => r.step === "Budget Range");
+        const answer = startDateEntry?.answer || "";
+        const isBudget = /\$|\d+k|\d{3,}/i.test(answer);
+        if (!isBudget && answer) {
+          return `${label}: ${answer}`;
+        }
+        const original = responses.find(r => r.step === "Preferred Start Date");
+        return `${label}: ${original?.answer || "(Not provided)"}`;
+      }
+
+      return `${label}: ${match ? match.answer : "(Not provided)"}`;
         const startDateEntry = responses.find(r => r.step === "Budget Range");
         const answer = startDateEntry?.answer || "";
         const isBudget = /\$|\d+k|\d{3,}/i.test(answer);
