@@ -784,8 +784,7 @@ function appendMessage(text, sender = "bot") {
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
   const message = input.value.trim();
-  if (!message) return;
-// Auto-generate response entry
+  // Auto-generate response entry
   const lastBotMessage = [...document.querySelectorAll('.message.bot')].pop()?.textContent || "";
   let stepLabel = "Answer " + (responses.length + 1);
 
@@ -982,8 +981,6 @@ document.getElementById("download-summary").addEventListener("click", () => {
 });
 </script></body>
 </html>
-
-
 
 
 
