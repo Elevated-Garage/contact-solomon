@@ -146,7 +146,7 @@ Optionally ask: â€œIs there anything else you'd like to add before we wrap up?â€
   const lowerReply = aiReply.toLowerCase();
   const isPhotoPrompt = /photo|garage image|upload.*picture|garage pic|current space/i.test(aiReply);
 
-  let responseData = { reply: aiReply, photo_request: isPhotoPrompt };
+  let responseData = { response: aiReply, photo_request: isPhotoPrompt };
 
 
   const skipSummary = userMessage.toLowerCase().includes("uploaded a photo");
