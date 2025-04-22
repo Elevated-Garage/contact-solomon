@@ -23,18 +23,6 @@ const oauth2Client = new google.auth.OAuth2(
 );
 
 try {
-  const tokenData = fs.readFileSync("token.json", "utf-8");
-  const token = JSON.parse(tokenData);
-  oauth2Client.setCredentials(token);
-
-  oauth2Client.on("tokens", (tokens) => {
-    if (tokens.refresh_token || tokens.access_token) {
-      fs.writeFileSync("token.json", JSON.stringify({
-        ...token,
-        ...tokens,
-      }));
-      console.log("🔁 Token refreshed and saved.");
-    }
   });
 } catch (err) {
   console.warn("⚠️ No existing token.json found. You'll need to reauthorize at /auth.");
@@ -44,46 +32,6 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-app.get("/auth", (req, res) => {
-  const authUrl = oauth2Client.generateAuthUrl({
-    access_type: "offline",
-    scope: ["https://www.googleapis.com/auth/drive.file"],
-  });
-  res.redirect(authUrl);
-});
-
-app.get("/api/oauth2callback", async (req, res) => {
-  const code = req.query.code;
-  const { tokens } = await oauth2Client.getToken(code);
-  oauth2Client.setCredentials(tokens);
-  fs.writeFileSync("token.json", JSON.stringify(tokens));
-  res.send("✅ Authorization successful! You can close this tab.");
-});
-
-async function submitFinalIntakeSummary(conversationHistory) {
-  const authClient = await auth.getClient();
-  const drive = google.drive({ version: "v3", auth: authClient });
-
-  const fileMetadata = {
-    name: `Garage Intake Summary - ${new Date().toISOString()}.txt`,
-    parents: [process.env.GOOGLE_DRIVE_FOLDER_ID],
-  };
-
-  const fileContent = conversationHistory.map(entry => `${entry.role}: ${entry.content}`).join("\n");
-
-  const media = {
-    mimeType: "text/plain",
-    body: fileContent,
-  };
-
-  await drive.files.create({
-    resource: fileMetadata,
-    media: media,
-    fields: "id",
-  });
-
-  console.log("✅ Summary uploaded to Google Drive.");
-}
 
 async function extractIntakeData(conversationHistory) {
   const conversationText = conversationHistory.map(m => m.role + ": " + m.content).join("\n");
