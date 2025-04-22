@@ -395,7 +395,7 @@ function hasAnsweredAllIntakeQuestions(history) {
   const combined = history.map(entry => entry.content.toLowerCase()).join(" ");
   return checklist.every(item => {
   if (item === "photo") {
-    return combined.includes("📸 I'm skipping the photo upload.");
+    return combined.includes("📸 I'm skipping the photo upload.") || combined.includes("📸 Garage photo uploaded.");
   }
   return combined.includes(item);
 });
