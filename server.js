@@ -62,8 +62,6 @@ let photoUploaded = false;
 
 app.post('/message', async (req, res) => {
   const userMessage = req.body.message;
-  console.log("Received skip message:", userMessage);
-
 
   // Fallback: parse full name, email, and phone if all in one message
   if (conversationHistory.length === 0 && /@/.test(userMessage) && /\d{7,}/.test(userMessage)) {
@@ -73,8 +71,6 @@ app.post('/message', async (req, res) => {
       conversationHistory.push({ role: 'user', content: parts[0] + ' ' + parts[1], step: 'Full Name' });
       conversationHistory.push({ role: 'user', content: parts.find(p => p.includes('@')), step: 'Email Address' });
       conversationHistory.push({ role: 'user', content: parts.find(p => /\d{7,}/.test(p)), step: 'Phone Number' });
-      console.log("Conversation history now:", conversationHistory);
-
 
       // Skip normal processing to let AI continue
       return res.json({ response: "Thanks! I’ve recorded your name, email, and phone number.", show_summary: false });
