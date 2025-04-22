@@ -840,16 +840,7 @@ form.addEventListener("submit", async (e) => {
   input.value = "";
 
   appendTypingIndicator();
-  const res = await fetch("/message", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          conversationHistory: [
-            ...responses.map(r => ({ role: "user", content: r.answer })),
-            { role: "user", content: message }
-          ]
-        })
-});
+  const res = await // Removed automatic GPT submission to prevent early summary
 const data = await res.json();
   removeTypingIndicator();
   appendMessage(data.reply, "bot");
@@ -864,6 +855,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const input = document.getElementById("user-input");
   if (input) {
     input.value = "Solomon, can you help me design my garage?";
+    document.getElementById("chat-form").dispatchEvent(new Event("submit"));
   }
 });
 </script><script>
@@ -958,11 +950,7 @@ document.addEventListener("DOMContentLoaded", () => {
       })
       .then(() => {
         document.getElementById("uploadCardContainer").style.display = "none";
-        return fetch("/message", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: "I uploaded a photo of my garage." })
-        });
+        return // Removed automatic GPT submission to prevent early summary
       })
       .then(res => res.json())
       .then(data => {
@@ -1061,21 +1049,7 @@ function handleSkip() {
 
   document.getElementById("uploadCardContainer").style.display = "none";
 
-  fetch("/message", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ message: "I am skipping the photo upload." })
-  })
-  .then(res => res.json())
-  .then(data => {
-    appendMessage(data.reply, "bot");
-    if (data.show_summary) {
-      document.getElementById("summary-download").style.display = "block";
-    }
-  })
-  .catch(() => {
-    appendMessage("⚠️ Failed to process skip. Please try again.", "bot");
-  });
+  // Removed automatic GPT submission to prevent early summary
 }
 </script>
 
