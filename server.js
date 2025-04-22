@@ -16,14 +16,12 @@ const auth = new google.auth.GoogleAuth({
 
 
 
-  const fileMetadata = {
     name: `Garage Intake Summary - ${new Date().toISOString()}.txt`,
     parents: [process.env.GOOGLE_DRIVE_FOLDER_ID],
   };
 
   const fileContent = conversationHistory.map(entry => `${entry.role}: ${entry.content}`).join("\n");
 
-  const media = {
     mimeType: "text/plain",
     body: fileContent,
   };
