@@ -1051,39 +1051,14 @@ document.getElementById("download-summary").addEventListener("click", () => {
   });
 </script>
 <script>
-
 function handleSkip() {
   appendMessage("📸 I'm skipping the photo upload.", "user");
 
-  const formData = new FormData();
-  formData.append("photoSkipped", true);
-  formData.append("responses", JSON.stringify(responses));
-
   document.getElementById("uploadCardContainer").style.display = "none";
 
-  fetch("/submit", {
+  fetch("/message", {
     method: "POST",
-    body: formData
-  })
-  .then(() => {
-    return fetch("/message", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: "📸 I'm skipping the photo upload." })
-    });
-  })
-  .then(res => res.json())
-  .then(data => {
-    appendMessage(data.reply, "bot");
-    if (data.show_summary) {
-      document.getElementById("summary-download").style.display = "block";
-    }
-  })
-  .catch(() => {
-    appendMessage("⚠️ Failed to process skip. Please try again.", "bot");
-  });
-}
-,
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ message: "I am skipping the photo upload." })
   })
   .then(res => res.json())
@@ -1101,5 +1076,4 @@ function handleSkip() {
 
 </body>
 </html>
-
 
