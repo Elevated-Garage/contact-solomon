@@ -14,10 +14,6 @@ const port = process.env.PORT || 10000;
 const auth = new google.auth.GoogleAuth({
   credentials: JSON.parse(process.env.GOOGLE_CREDENTIALS),
 
-} catch (err) {
-
-  res.redirect(authUrl);
-});
 
 
   const fileMetadata = {
@@ -96,9 +92,6 @@ app.post("/message", async (req, res) => {
   let extractedData = null;
   try {
     extractedData = await extractIntakeData(conversationHistory);
-  } catch (err) {
-    console.error("🔥 Error during GPT extraction:", err);
-  }
   console.log("🧠 GPT extracted data:", extractedData);
 
   if (extractedData && Object.keys(extractedData).length >= 3) {
