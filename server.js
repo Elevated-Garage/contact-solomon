@@ -18,7 +18,6 @@ const openai = new OpenAI({
 
 const auth = new google.auth.GoogleAuth({
 
-const { OAuth2Client } = require("google-auth-library");
 
 const oauth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_CLIENT_ID,
