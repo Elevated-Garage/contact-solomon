@@ -65,7 +65,14 @@ app.post('/message', async (req, res) => {
   conversationHistory.push({ role: 'user', content: userMessage });
 
   const skipSummary = userMessage.toLowerCase().includes("uploaded a photo") || userMessage.toLowerCase().includes("skipping the photo");
-  if (userMessage.toLowerCase().includes("skipping the photo")) {
+  if (
+  userMessage.toLowerCase().includes("skipping the photo") ||
+  userMessage.toLowerCase().includes("📸 i'm skipping the photo upload") ||
+  userMessage.toLowerCase().includes("i am skipping the photo upload")
+) {
+  photoUploaded = true;
+  conversationHistory.push({ role: 'user', content: "📸 I'm skipping the photo upload." });
+}
     photoUploaded = true;
   }
 
