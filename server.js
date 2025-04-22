@@ -65,6 +65,7 @@ async function extractIntakeData(conversationHistory) {
     "- garage_photo_upload",
     "Respond ONLY with a valid JSON object. No text before or after. No assistant tag. No markdown formatting.",
     "Use natural language understanding to infer vague answers (e.g., \"probably 400ish square feet\").",
+    "If the user skips or declines the garage photo upload, set the field 'garage_photo_upload' to 'skipped'.",
     "",
     "Here is the full conversation transcript:",
     conversationText
@@ -100,18 +101,38 @@ app.post("/message", async (req, res) => {
   }
 
   try {
-    const extractedData = await extractIntakeData(conversationHistory);
-    console.log("🧠 GPT extracted data:", extractedData);
-
-    if (extractedData && Object.keys(extractedData).length >= 3) {
-      console.log("✅ Submitting final intake summary via GPT logic.");
-      await submitFinalIntakeSummary(conversationHistory);
-    }
-
-    res.json({ success: true });
+    // Just return a friendly AI reply (no summary yet)
+    return res.json({ reply: "Thanks! What would you like to add next?", done: false });
   } catch (err) {
     console.error("❌ Server error:", err.message);
     res.status(500).json({ success: false, error: "Internal server error." });
+  }
+});
+
+app.post("/submit-summary", async (req, res) => {
+  console.log("📝 /submit-summary hit");
+
+  const { conversationHistory } = req.body;
+  if (!conversationHistory || !Array.isArray(conversationHistory)) {
+    return res.status(400).json({ success: false, error: "Invalid conversation history format." });
+  }
+
+  try {
+    const extractedData = await extractIntakeData(conversationHistory);
+    console.log("🧠 Final extracted data:", extractedData);
+
+    const hasAllFields = extractedData &&
+      Object.values(extractedData).every(val => val && val.length > 0);
+
+    if (!hasAllFields) {
+      return res.status(400).json({ success: false, error: "Incomplete data. All fields must be filled." });
+    }
+
+    await submitFinalIntakeSummary(conversationHistory);
+    return res.json({ success: true, show_summary: true });
+  } catch (err) {
+    console.error("❌ Error submitting final summary:", err.message);
+    return res.status(500).json({ success: false, error: "Failed to submit summary." });
   }
 });
 
