@@ -15,6 +15,23 @@ const transporter = nodemailer.createTransport({
     user: process.env.LEAD_EMAIL_USER,
     pass: process.env.LEAD_EMAIL_PASS
 
+}
+  }
+});
+
+
+// === Intake Summary Submission ===
+// Once the conversation reaches a natural conclusion and all required fields are answered,
+// this server will:
+// 1. Format the user's responses into a structured summary
+// 2. Email the summary to nick@elevatedgarage.com using nodemailer
+// 3. Upload the summary (and any attached photos) to Google Drive using your OAuth token
+//
+// This logic will be handled in the /submit route (or triggered from /message when intake is complete).
+
+const app = express();
+
+// Extract structured intake data using GPT
 async function extractIntakeData(conversationHistory) {
   const prompt = `From the following client conversation, extract all relevant garage intake information in JSON format.
 
@@ -49,20 +66,6 @@ ${conversationHistory.map(m => `${m.role}: ${m.content}`).join("\n")}`;
     return null;
   }
 }
-  }
-});
-
-
-// === Intake Summary Submission ===
-// Once the conversation reaches a natural conclusion and all required fields are answered,
-// this server will:
-// 1. Format the user's responses into a structured summary
-// 2. Email the summary to nick@elevatedgarage.com using nodemailer
-// 3. Upload the summary (and any attached photos) to Google Drive using your OAuth token
-//
-// This logic will be handled in the /submit route (or triggered from /message when intake is complete).
-
-const app = express();
 app.use(cors());
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
