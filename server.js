@@ -22,8 +22,6 @@ const oauth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_REDIRECT_URI
 );
 
-try {
-  });
 } catch (err) {
   console.warn("⚠️ No existing token.json found. You'll need to reauthorize at /auth.");
 }
@@ -64,9 +62,6 @@ const prompt = [
     temperature: 0.2,
   });
 
-  try {
-    return JSON.parse(completion.choices[0].message.content);
-  } catch (e) {
     console.error("❌ Failed to parse GPT response:", completion.choices[0].message.content);
     return null;
   }
@@ -86,9 +81,6 @@ app.post("/message", async (req, res) => {
   }
 
   let extractedData = null;
-  try {
-    extractedData = await extractIntakeData(conversationHistory);
-  } catch (err) {
     console.error("🔥 Error during GPT extraction:", err);
   }
   console.log("🧠 GPT extracted data:", extractedData);
