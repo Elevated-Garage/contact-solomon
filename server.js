@@ -43,7 +43,7 @@ function hasAnsweredAllIntakeQuestions(conversationHistory) {
       console.log("✔️ final notes check:", match);
       return match;
 
-    const match = combined.includes(item);
+    return combined.includes(item);
     console.log(`✔️ checklist check for '${item}':`, match);
     return match;
   });
@@ -432,7 +432,7 @@ function hasAnsweredAllIntakeQuestions(history) {
     const match = combined.includes("garage goals") || combined.includes("epoxy") || combined.includes("floor");
     console.log("✔️ garage goals check:", match);
     return match;
-  const match = combined.includes(item);
+    return combined.includes(item);
   console.log(`✔️ checklist check for '${item}':`, match);
   return match;
 });
