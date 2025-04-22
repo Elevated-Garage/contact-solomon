@@ -794,7 +794,11 @@ function appendMessage(text, sender = "bot") {
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
   const message = input.value.trim();
-  // Auto-generate response entry
+  if (!message) return;
+
+  appendMessage(message, "user");
+  input.value = "";
+
   const lastBotMessage = [...document.querySelectorAll('.message.bot')].pop()?.textContent || "";
   let stepLabel = "Answer " + (responses.length + 1);
 
@@ -818,7 +822,6 @@ form.addEventListener("submit", async (e) => {
     }
   }
 
-  
   const parts = message.split(",");
   const isLikelyContactCombo = (
     parts.length === 3 &&
@@ -828,6 +831,42 @@ form.addEventListener("submit", async (e) => {
 
   if (isLikelyContactCombo) {
     responses.push({ step: "Full Name", answer: parts[0].trim() });
+    responses.push({ step: "Email Address", answer: parts[1].trim() });
+    responses.push({ step: "Phone Number", answer: parts[2].trim() });
+  } else {
+    responses.push({ step: stepLabel, answer: message });
+  }
+
+  appendTypingIndicator();
+
+  const conversationHistory = [...document.querySelectorAll(".message")].map(msg => {
+    return {
+      role: msg.classList.contains("user") ? "user" : "assistant",
+      content: msg.textContent.trim()
+    };
+  });
+
+  try {
+    const res = await fetch("/message", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ conversationHistory })
+    });
+
+    const data = await res.json();
+    removeTypingIndicator();
+
+    if (data.reply) appendMessage(data.reply, "bot");
+    if (data.photo_request) showPhotoUploader();
+    if (data.show_summary) {
+      document.getElementById("summary-download").style.display = "block";
+    }
+  } catch (err) {
+    removeTypingIndicator();
+    appendMessage("⚠️ Failed to reach Solomon. Please try again.", "bot");
+    console.error("Fetch error:", err);
+  }
+});
     responses.push({ step: "Email Address", answer: parts[1].trim() });
     responses.push({ step: "Phone Number", answer: parts[2].trim() });
   } else {
@@ -891,4 +930,3 @@ function handleSkip() {
 
 </body>
 </html>
-
