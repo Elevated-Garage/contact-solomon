@@ -855,14 +855,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const input = document.getElementById("user-input");
   if (input) {
     input.value = "Solomon, can you help me design my garage?";
-    document.getElementById("chat-form").dispatchEvent(new Event("submit"));
+    // Message is preloaded but not auto-submitted.
   }
 });
 </script><script>
 document.getElementById("user-input").addEventListener("keydown", function (e) {
   if (e.key === "Enter" && !e.shiftKey) {
     e.preventDefault();
-    document.getElementById("chat-form").dispatchEvent(new Event("submit"));
+    // Message is preloaded but not auto-submitted.
   }
 });
 </script><script>
@@ -891,3 +891,4 @@ function handleSkip() {
 
 </body>
 </html>
+
