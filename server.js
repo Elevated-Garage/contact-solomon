@@ -64,6 +64,12 @@ app.post('/message', async (req, res) => {
   const userMessage = req.body.message;
   conversationHistory.push({ role: 'user', content: userMessage });
 
+  // Handle skip trigger secret message
+  if (userMessage === "📸 SKIP_TRIGGER_SUMMARY") {
+    photoUploaded = true;
+    conversationHistory.push({ role: 'user', content: "📸 I'm skipping the photo upload." });
+  }
+
   const skipSummary = userMessage.toLowerCase().includes("uploaded a photo") || userMessage.toLowerCase().includes("skipping the photo");
   if (userMessage.toLowerCase().includes("skipping the photo")) {
     photoUploaded = true;
