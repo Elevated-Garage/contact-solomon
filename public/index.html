@@ -791,6 +791,74 @@ function appendMessage(text, sender = "bot") {
 // removed askFollowup — handled by AI now
 
 
+
+    responses.push({ step: "Email Address", answer: parts[1].trim() });
+    responses.push({ step: "Phone Number", answer: parts[2].trim() });
+  } else {
+    responses.push({ step: stepLabel, answer: message });
+  }
+
+  appendTypingIndicator();
+
+  const conversationHistory = [...document.querySelectorAll(".message")].map(msg => {
+    return {
+      role: msg.classList.contains("user") ? "user" : "assistant",
+      content: msg.textContent.trim()
+    };
+  });
+
+  try {
+    const res = await fetch("/message", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ conversationHistory })
+    });
+
+    const data = await res.json();
+    removeTypingIndicator();
+
+    if (data.reply) appendMessage(data.reply, "bot");
+    if (data.photo_request) showPhotoUploader();
+    if (data.show_summary) {
+      document.getElementById("summary-download").style.display = "block";
+    }
+  } catch (err) {
+    removeTypingIndicator();
+    appendMessage("⚠️ Failed to reach Solomon. Please try again.", "bot");
+    console.error("Fetch error:", err);
+  }
+});
+    responses.push({ step: "Email Address", answer: parts[1].trim() });
+    responses.push({ step: "Phone Number", answer: parts[2].trim() });
+  } else {
+    responses.push({ step: stepLabel, answer: message });
+  }
+
+
+  if (!message) return;
+  appendMessage(message, "user");
+  input.value = "";
+
+  appendTypingIndicator();
+  // const res = await fetch("/message", { method: "POST", body: JSON.stringify({ conversationHistory }) });
+// const data = await res.json();
+  removeTypingIndicator();
+  appendMessage(data.reply, "bot");
+  if (data.photo_request) { showPhotoUploader(); }
+  if (data.show_summary) {
+    document.getElementById("summary-download").style.display = "block";
+  }
+});
+
+
+document.addEventListener("DOMContentLoaded", () => {
+  const input = document.getElementById("user-input");
+  if (input) {
+    input.value = "Solomon, can you help me design my garage?";
+    // Message is preloaded but not auto-submitted.
+  }
+});
+
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
   const message = input.value.trim();
@@ -867,36 +935,7 @@ form.addEventListener("submit", async (e) => {
     console.error("Fetch error:", err);
   }
 });
-    responses.push({ step: "Email Address", answer: parts[1].trim() });
-    responses.push({ step: "Phone Number", answer: parts[2].trim() });
-  } else {
-    responses.push({ step: stepLabel, answer: message });
-  }
 
-
-  if (!message) return;
-  appendMessage(message, "user");
-  input.value = "";
-
-  appendTypingIndicator();
-  // const res = await fetch("/message", { method: "POST", body: JSON.stringify({ conversationHistory }) });
-// const data = await res.json();
-  removeTypingIndicator();
-  appendMessage(data.reply, "bot");
-  if (data.photo_request) { showPhotoUploader(); }
-  if (data.show_summary) {
-    document.getElementById("summary-download").style.display = "block";
-  }
-});
-
-
-document.addEventListener("DOMContentLoaded", () => {
-  const input = document.getElementById("user-input");
-  if (input) {
-    input.value = "Solomon, can you help me design my garage?";
-    // Message is preloaded but not auto-submitted.
-  }
-});
 </script><script>
 document.getElementById("user-input").addEventListener("keydown", function (e) {
   if (e.key === "Enter" && !e.shiftKey) {
