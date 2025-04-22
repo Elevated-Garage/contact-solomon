@@ -62,6 +62,8 @@ let photoUploaded = false;
 
 app.post('/message', async (req, res) => {
   const userMessage = req.body.message;
+  console.log("Received skip message:", userMessage);
+
 
   // Fallback: parse full name, email, and phone if all in one message
   if (conversationHistory.length === 0 && /@/.test(userMessage) && /\d{7,}/.test(userMessage)) {
