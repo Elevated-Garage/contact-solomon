@@ -73,6 +73,8 @@ app.post('/message', async (req, res) => {
       conversationHistory.push({ role: 'user', content: parts[0] + ' ' + parts[1], step: 'Full Name' });
       conversationHistory.push({ role: 'user', content: parts.find(p => p.includes('@')), step: 'Email Address' });
       conversationHistory.push({ role: 'user', content: parts.find(p => /\d{7,}/.test(p)), step: 'Phone Number' });
+      console.log("Conversation history now:", conversationHistory);
+
 
       // Skip normal processing to let AI continue
       return res.json({ response: "Thanks! I’ve recorded your name, email, and phone number.", show_summary: false });
