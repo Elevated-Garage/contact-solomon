@@ -17,6 +17,30 @@ const openai = new OpenAI({
 });
 
 const auth = new google.auth.GoogleAuth({
+
+const { OAuth2Client } = require("google-auth-library");
+
+const oauth2Client = new google.auth.OAuth2(
+  process.env.GOOGLE_CLIENT_ID,
+  process.env.GOOGLE_CLIENT_SECRET,
+  process.env.GOOGLE_REDIRECT_URI
+);
+
+app.get("/auth", (req, res) => {
+  const authUrl = oauth2Client.generateAuthUrl({
+    access_type: "offline",
+    scope: ["https://www.googleapis.com/auth/drive.file"],
+  });
+  res.redirect(authUrl);
+});
+
+app.get("/api/oauth2callback", async (req, res) => {
+  const code = req.query.code;
+  const { tokens } = await oauth2Client.getToken(code);
+  oauth2Client.setCredentials(tokens);
+  fs.writeFileSync("token.json", JSON.stringify(tokens));
+  res.send("✅ Authorization successful! You can close this tab.");
+});
   keyFile: "credentials.json",
   scopes: ["https://www.googleapis.com/auth/drive"],
 });
