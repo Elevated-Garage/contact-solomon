@@ -1,4 +1,3 @@
-
 const express = require("express");
 const bodyParser = require("body-parser");
 const { google } = require("googleapis");
@@ -12,17 +11,16 @@ app.use(express.static(path.join(__dirname, "public")));
 
 const port = process.env.PORT || 10000;
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
 const auth = new google.auth.GoogleAuth({
   keyFile: "credentials.json",
   scopes: ["https://www.googleapis.com/auth/drive"],
 });
 
-
 const oauth2Client = new google.auth.OAuth2(
+  process.env.GOOGLE_CLIENT_ID,
+  process.env.GOOGLE_CLIENT_SECRET,
+  process.env.GOOGLE_REDIRECT_URI
+);
 
 try {
   const tokenData = fs.readFileSync("token.json", "utf-8");
@@ -41,10 +39,10 @@ try {
 } catch (err) {
   console.warn("⚠️ No existing token.json found. You'll need to reauthorize at /auth.");
 }
-  process.env.GOOGLE_CLIENT_ID,
-  process.env.GOOGLE_CLIENT_SECRET,
-  process.env.GOOGLE_REDIRECT_URI
-);
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
 app.get("/auth", (req, res) => {
   const authUrl = oauth2Client.generateAuthUrl({
