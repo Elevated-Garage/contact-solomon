@@ -17,6 +17,9 @@ const openai = new OpenAI({
 });
 
 const auth = new google.auth.GoogleAuth({
+  keyFile: "credentials.json",
+  scopes: ["https://www.googleapis.com/auth/drive"],
+});
 
 
 const oauth2Client = new google.auth.OAuth2(
@@ -39,9 +42,6 @@ app.get("/api/oauth2callback", async (req, res) => {
   oauth2Client.setCredentials(tokens);
   fs.writeFileSync("token.json", JSON.stringify(tokens));
   res.send("✅ Authorization successful! You can close this tab.");
-});
-  keyFile: "credentials.json",
-  scopes: ["https://www.googleapis.com/auth/drive"],
 });
 
 async function submitFinalIntakeSummary(conversationHistory) {
