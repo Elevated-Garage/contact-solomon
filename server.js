@@ -15,6 +15,7 @@ const transporter = nodemailer.createTransport({
     user: process.env.LEAD_EMAIL_USER,
     pass: process.env.LEAD_EMAIL_PASS
 
+
 }
   }
 });
@@ -30,42 +31,6 @@ const transporter = nodemailer.createTransport({
 // This logic will be handled in the /submit route (or triggered from /message when intake is complete).
 
 const app = express();
-
-// Extract structured intake data using GPT
-async function extractIntakeData(conversationHistory) {
-  const prompt = `From the following client conversation, extract all relevant garage intake information in JSON format.
-
-Fields:
-- full_name
-- email
-- phone
-- garage_goals
-- square_footage
-- must_have_features
-- budget
-- start_date
-- final_notes
-
-Respond ONLY with JSON, no commentary.
-
-Conversation:
-${conversationHistory.map(m => `${m.role}: ${m.content}`).join("\n")}`;
-
-  const completion = await openai.createChatCompletion({
-    model: "gpt-4",
-    messages: [
-      { role: "system", content: prompt }
-    ],
-    temperature: 0.2
-  });
-
-  try {
-    return JSON.parse(completion.data.choices[0].message.content);
-  } catch (e) {
-    console.error("❌ Failed to parse GPT response:", completion.data.choices[0].message.content);
-    return null;
-  }
-}
 app.use(cors());
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
@@ -494,3 +459,41 @@ const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
   console.log(`✅ Contact Solomon backend running on port ${PORT}`);
 });
+
+
+async function extractIntakeData(conversationHistory) {
+  const prompt = [
+    "From the following client conversation, extract all relevant garage intake information in JSON format.",
+    "",
+    "Fields:",
+    "- full_name",
+    "- email",
+    "- phone",
+    "- garage_goals",
+    "- square_footage",
+    "- must_have_features",
+    "- budget",
+    "- start_date",
+    "- final_notes",
+    "",
+    "Respond ONLY with JSON, no commentary.",
+    "",
+    "Conversation:",
+    conversationHistory.map(m => `${m.role}: ${m.content}`).join("\n")
+  ].join("\n");
+
+  const completion = await openai.createChatCompletion({
+    model: "gpt-4",
+    messages: [
+      { role: "system", content: prompt }
+    ],
+    temperature: 0.2
+  });
+
+  try {
+    return JSON.parse(completion.data.choices[0].message.content);
+  } catch (e) {
+    console.error("❌ Failed to parse GPT response:", completion.data.choices[0].message.content);
+    return null;
+  }
+}
