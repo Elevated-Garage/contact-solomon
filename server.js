@@ -461,6 +461,10 @@ app.listen(PORT, () => {
 });
 
 
+
+}
+
+
 async function extractIntakeData(conversationHistory) {
   const prompt = [
     "From the following client conversation, extract all relevant garage intake information in JSON format.",
@@ -479,7 +483,9 @@ async function extractIntakeData(conversationHistory) {
     "Respond ONLY with JSON, no commentary.",
     "",
     "Conversation:",
-    conversationHistory.map(m => `${m.role}: ${m.content}`).join("\n")
+    conversationHistory.map(function(m) {
+      return m.role + ": " + m.content;
+    }).join("\n")
   ].join("\n");
 
   const completion = await openai.createChatCompletion({
