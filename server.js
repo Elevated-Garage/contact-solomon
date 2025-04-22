@@ -73,8 +73,6 @@ app.post('/message', async (req, res) => {
   photoUploaded = true;
   conversationHistory.push({ role: 'user', content: "📸 I'm skipping the photo upload." });
 }
-    photoUploaded = true;
-  }
 
 
   try {
