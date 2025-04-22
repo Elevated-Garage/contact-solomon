@@ -30,6 +30,7 @@ function hasAnsweredAllIntakeQuestions(conversationHistory) {
       console.log("✔️ square footage check:", match);
       return match;
     }
+    }
     if (item === "must-have features") {
       const match = combined.includes("feature") || combined.includes("need") || combined.includes("want") || combined.includes("would like") || combined.includes("include");
       console.log("✔️ must-have features check:", match);
