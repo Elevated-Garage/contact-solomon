@@ -1,3 +1,63 @@
+
+function hasAnsweredAllIntakeQuestions(conversationHistory) {
+  const checklist = [
+    "full name",
+    "email",
+    "phone",
+    "garage goals",
+    "Estimated Square Footage of Space",
+    "must-have features",
+    "budget",
+    "start date",
+    "final notes",
+    "photo"
+  ];
+  const combined = conversationHistory.map(r => r.content.toLowerCase()).join(" ");
+
+  return checklist.every(item => {
+    if (item === "photo") {
+      const match = combined.includes("📸 i'm skipping the photo upload.") || combined.includes("📸 garage photo uploaded.");
+      console.log("✔️ photo check:", match);
+      return match;
+    }
+    if (item === "garage goals") {
+      const match = combined.includes("garage goals") || combined.includes("epoxy") || combined.includes("floor");
+      console.log("✔️ garage goals check:", match);
+      return match;
+    }
+    if (item === "Estimated Square Footage of Space") {
+      const match = /\b\d{2,4}\b/.test(combined) || combined.includes("square foot") || combined.includes("sqft") || combined.includes("sf");
+      console.log("✔️ square footage check:", match);
+      return match;
+    }
+    if (item === "must-have features") {
+      const match = combined.includes("feature") || combined.includes("need") || combined.includes("want") || combined.includes("would like") || combined.includes("include");
+      console.log("✔️ must-have features check:", match);
+      return match;
+    }
+    if (item === "budget") {
+      const match = combined.includes("budget") || combined.includes("$") || combined.includes("k") || combined.includes("thousand") || /\b\d{3,6}\b/.test(combined);
+      console.log("✔️ budget check:", match);
+      return match;
+    }
+    if (item === "start date") {
+      const match = combined.includes("start") || combined.includes("asap") || combined.includes("soon") || combined.includes("next") || combined.includes("january") || combined.includes("summer");
+      console.log("✔️ start date check:", match);
+      return match;
+    }
+    if (item === "final notes") {
+      const match = combined.includes("nothing") || combined.includes("nope") || combined.includes("we're good") || combined.includes("wrap up") || combined.includes("that’s it") || combined.includes("that is it");
+      console.log("✔️ final notes check:", match);
+      return match;
+    }
+
+    const match = combined.includes(item);
+    console.log(`✔️ checklist check for '${item}':`, match);
+    return match;
+  });
+}
+
+
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
