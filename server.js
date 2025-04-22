@@ -129,13 +129,20 @@ app.get("/", (req, res) => {
 });
 
 app.post("/message", async (req, res) => {
+  console.log("📨 /message hit");
   const { conversationHistory } = req.body;
+  console.log("📋 Raw input:", JSON.stringify(conversationHistory, null, 2));
   if (!conversationHistory || !Array.isArray(conversationHistory)) {
     console.warn("❌ Missing or invalid conversationHistory in request body.");
     return res.status(400).json({ success: false, error: "Invalid conversation history format." });
   }
 
-  const extractedData = await extractIntakeData(conversationHistory);
+  let extractedData = null;
+  try {
+    extractedData = await extractIntakeData(conversationHistory);
+  } catch (err) {
+    console.error("🔥 Error during GPT extraction:", err);
+  }
   console.log("🧠 GPT extracted data:", extractedData);
 
   if (extractedData && Object.keys(extractedData).length >= 3) {
