@@ -38,10 +38,12 @@ function hasAnsweredAllIntakeQuestions(conversationHistory) {
       const match = combined.includes("start") || combined.includes("asap") || combined.includes("soon") || combined.includes("next") || combined.includes("january") || combined.includes("summer");
       console.log("✔️ start date check:", match);
       return match;
+    }
     if (item === "final notes") {
       const match = combined.includes("nothing") || combined.includes("nope") || combined.includes("we're good") || combined.includes("wrap up") || combined.includes("that’s it") || combined.includes("that is it");
       console.log("✔️ final notes check:", match);
       return match;
+    }
 
     return combined.includes(item);
     console.log(`✔️ checklist check for '${item}':`, match);
@@ -527,6 +529,21 @@ app.post("/message", async (req, res) => {
   if (extractedData && Object.keys(extractedData).length >= 3) {
     console.log("✅ Submitting final intake summary via GPT logic.");
     await submitFinalIntakeSummary(conversationHistory);
+
+  res.json({ success: true });
+});
+
+// ✅ GPT-based intake submission trigger
+app.post("/message", async (req, res) => {
+  const { conversationHistory } = req.body;
+
+  const extractedData = await extractIntakeData(conversationHistory);
+  console.log("🧠 GPT extracted data:", extractedData);
+
+  if (extractedData && Object.keys(extractedData).length >= 3) {
+    console.log("✅ Submitting final intake summary via GPT logic.");
+    await submitFinalIntakeSummary(conversationHistory);
+  }
 
   res.json({ success: true });
 });
