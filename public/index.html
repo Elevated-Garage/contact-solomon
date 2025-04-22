@@ -843,7 +843,12 @@ form.addEventListener("submit", async (e) => {
   const res = await fetch("/message", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ message })
+        body: JSON.stringify({
+          conversationHistory: [
+            ...responses.map(r => ({ role: "user", content: r.answer })),
+            { role: "user", content: message }
+          ]
+        })
 });
 const data = await res.json();
   removeTypingIndicator();
@@ -1076,4 +1081,3 @@ function handleSkip() {
 
 </body>
 </html>
-
