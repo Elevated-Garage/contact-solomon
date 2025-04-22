@@ -857,7 +857,12 @@ document.addEventListener("DOMContentLoaded", () => {
       const data = await res.json();
       removeTypingIndicator();
 
+      
       if (data.reply) appendMessage(data.reply, "bot");
+      if (data.done) {
+        finalizeSubmission(conversationHistory);
+      }
+
       if (data.photo_request) showPhotoUploader?.();
       if (data.show_summary) {
         document.getElementById("summary-download").style.display = "block";
@@ -869,6 +874,28 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
+
+async function finalizeSubmission(conversationHistory) {
+  try {
+    const res = await fetch("/submit-summary", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ conversationHistory })
+    });
+
+    const data = await res.json();
+    if (data.show_summary) {
+      document.getElementById("summary-download").style.display = "block";
+      appendMessage("📄 Your intake summary has been submitted successfully.", "bot");
+    } else {
+      appendMessage("⚠️ Submission was incomplete. Please complete all steps.", "bot");
+    }
+  } catch (err) {
+    appendMessage("❌ Failed to submit summary. Please try again.", "bot");
+    console.error("Submit error:", err);
+  }
+}
+
 </script>
 </body>
 </html>
