@@ -23,6 +23,24 @@ const auth = new google.auth.GoogleAuth({
 
 
 const oauth2Client = new google.auth.OAuth2(
+
+try {
+  const tokenData = fs.readFileSync("token.json", "utf-8");
+  const token = JSON.parse(tokenData);
+  oauth2Client.setCredentials(token);
+
+  oauth2Client.on("tokens", (tokens) => {
+    if (tokens.refresh_token || tokens.access_token) {
+      fs.writeFileSync("token.json", JSON.stringify({
+        ...token,
+        ...tokens,
+      }));
+      console.log("🔁 Token refreshed and saved.");
+    }
+  });
+} catch (err) {
+  console.warn("⚠️ No existing token.json found. You'll need to reauthorize at /auth.");
+}
   process.env.GOOGLE_CLIENT_ID,
   process.env.GOOGLE_CLIENT_SECRET,
   process.env.GOOGLE_REDIRECT_URI
