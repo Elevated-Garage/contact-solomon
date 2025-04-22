@@ -840,8 +840,8 @@ form.addEventListener("submit", async (e) => {
   input.value = "";
 
   appendTypingIndicator();
-  const res = await // Removed automatic GPT submission to prevent early summary
-const data = await res.json();
+  // const res = await fetch("/message", { method: "POST", body: JSON.stringify({ conversationHistory }) });
+// const data = await res.json();
   removeTypingIndicator();
   appendMessage(data.reply, "bot");
   if (data.photo_request) { showPhotoUploader(); }
@@ -872,177 +872,13 @@ document.addEventListener("input", function (event) {
     el.style.height = "auto";
     const maxHeight = 120;
     const initialHeight = 36;
-    const maxHeight = 120;
     el.style.height = initialHeight + "px";
     el.style.height = Math.min(el.scrollHeight, maxHeight) + "px";
   }
 });
 </script>
 <div id="summary-download" style="display: none; margin-top: 20px; text-align: center;"><button id="download-summary" type="button">📄 Download My Submission</button></div>
-<script>
-const dropzone = document.getElementById('dropzone');
-const fileInput = document.getElementById('fileInput');
-const preview = document.getElementById('preview');
-const uploadBtn = document.getElementById('uploadBtn');
 
-dropzone.addEventListener('click', () => fileInput.click());
-
-fileInput.addEventListener('change', () => {
-  const file = fileInput.files[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = () => {
-      preview.src = reader.result;
-      preview.style.display = 'block';
-      uploadBtn.disabled = false;
-    };
-    reader.readAsDataURL(file);
-  }
-});
-
-dropzone.addEventListener('dragover', (e) => {
-  e.preventDefault();
-  dropzone.style.background = '#fef3f3';
-});
-dropzone.addEventListener('dragleave', () => {
-  dropzone.style.background = 'transparent';
-});
-dropzone.addEventListener('drop', (e) => {
-  e.preventDefault();
-  dropzone.style.background = 'transparent';
-  const file = e.dataTransfer.files[0];
-  if (file && file.type.startsWith('image/')) {
-    fileInput.files = e.dataTransfer.files;
-    const reader = new FileReader();
-    reader.onload = () => {
-      preview.src = reader.result;
-      preview.style.display = 'block';
-      uploadBtn.disabled = false;
-    };
-    reader.readAsDataURL(file);
-  }
-});
-</script>
-<script>
-function showPhotoUploader() {
-  const uploader = document.getElementById('uploadCardContainer');
-  if (uploader) uploader.style.display = 'block';
-}
-</script><script>
-document.addEventListener("DOMContentLoaded", () => {
-  const uploadBtn = document.getElementById("uploadBtn");
-  const fileInput = document.getElementById("fileInput");
-
-  if (uploadBtn) {
-    uploadBtn.addEventListener("click", () => {
-      const file = fileInput.files[0];
-      if (!file) return;
-
-      appendMessage("📸 Upload successful! Your garage image is now part of the project file.", "user");
-
-      const formData = new FormData();
-      formData.append("photo", file);
-      formData.append("responses", JSON.stringify(responses));
-
-      fetch("/submit", {
-        method: "POST",
-        body: formData
-      })
-      .then(() => {
-        document.getElementById("uploadCardContainer").style.display = "none";
-        return // Removed automatic GPT submission to prevent early summary
-      })
-      .then(res => res.json())
-      .then(data => {
-        appendMessage(data.reply, "bot");
-        if (data.show_summary) {
-          document.getElementById("summary-download").style.display = "block";
-        }
-      })
-      .catch(() => {
-        appendMessage("⚠️ There was a problem processing your upload. Please try again.", "bot");
-      });
-    });
-  }
-});
-</script><script>
-function appendTypingIndicator() {
-  const typing = document.getElementById("typing");
-  typing.style.display = "block";
-}
-function removeTypingIndicator() {
-  const typing = document.getElementById("typing");
-  typing.style.display = "none";
-}
-</script><script>
-document.getElementById("download-summary").addEventListener("click", () => {
-  const messages = document.querySelectorAll(".message");
-  let summary = "";
-
-  messages.forEach(msg => {
-    if (msg.classList.contains("user")) {
-      summary += "User: " + msg.textContent + "\n";
-    } else if (msg.classList.contains("bot")) {
-      summary += "Solomon: " + msg.textContent + "\n";
-    }
-  });
-
-  const blob = new Blob([summary], { type: "text/plain" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = "Garage-Project-Summary.txt";
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
-});
-</script><script>
-  const dropzone = document.getElementById('dropzone');
-  const fileInput = document.getElementById('fileInput');
-  const preview = document.getElementById('preview');
-  const uploadBtn = document.getElementById('uploadBtn');
-
-  dropzone.addEventListener('click', () => fileInput.click());
-
-  dropzone.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    dropzone.style.background = '#fef3f3';
-  });
-
-  dropzone.addEventListener('dragleave', () => {
-    dropzone.style.background = 'white';
-  });
-
-  dropzone.addEventListener('drop', (e) => {
-    e.preventDefault();
-    dropzone.style.background = 'white';
-    const file = e.dataTransfer.files[0];
-    if (file && file.type.startsWith('image/')) {
-      fileInput.files = e.dataTransfer.files;
-      showPreview(file);
-    }
-  });
-
-  fileInput.addEventListener('change', () => {
-    const file = fileInput.files[0];
-    if (file) showPreview(file);
-  });
-
-  function showPreview(file) {
-    const reader = new FileReader();
-    reader.onload = () => {
-      preview.src = reader.result;
-      preview.style.display = 'block';
-      uploadBtn.disabled = false;
-    };
-    reader.readAsDataURL(file);
-  }
-
-  uploadBtn.addEventListener('click', () => {
-    alert('📸 Upload successful!');
-  });
-</script>
 <script>
 function handleSkip() {
   appendMessage("📸 I'm skipping the photo upload.", "user");
