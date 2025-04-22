@@ -13,23 +13,33 @@ const port = process.env.PORT || 10000;
 
 const auth = new google.auth.GoogleAuth({
   credentials: JSON.parse(process.env.GOOGLE_CREDENTIALS),
-  scopes: ["https://www.googleapis.com/auth/drive"],
-});
-
-const oauth2Client = new google.auth.OAuth2(
-  process.env.GOOGLE_CLIENT_ID,
-  process.env.GOOGLE_CLIENT_SECRET,
-  process.env.GOOGLE_REDIRECT_URI
-);
 
 } catch (err) {
-  console.warn("⚠️ No existing token.json found. You'll need to reauthorize at /auth.");
-}
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  res.redirect(authUrl);
 });
 
+
+  const fileMetadata = {
+    name: `Garage Intake Summary - ${new Date().toISOString()}.txt`,
+    parents: [process.env.GOOGLE_DRIVE_FOLDER_ID],
+  };
+
+  const fileContent = conversationHistory.map(entry => `${entry.role}: ${entry.content}`).join("\n");
+
+  const media = {
+    mimeType: "text/plain",
+    body: fileContent,
+  };
+
+  await drive.files.create({
+    resource: fileMetadata,
+    media: media,
+    fields: "id",
+  });
+
+  console.log("✅ Summary uploaded to Google Drive.");
+}
 
 async function extractIntakeData(conversationHistory) {
   const conversationText = conversationHistory.map(m => m.role + ": " + m.content).join("\n");
@@ -62,6 +72,9 @@ const prompt = [
     temperature: 0.2,
   });
 
+  try {
+    return JSON.parse(completion.choices[0].message.content);
+  } catch (e) {
     console.error("❌ Failed to parse GPT response:", completion.choices[0].message.content);
     return null;
   }
@@ -81,6 +94,9 @@ app.post("/message", async (req, res) => {
   }
 
   let extractedData = null;
+  try {
+    extractedData = await extractIntakeData(conversationHistory);
+  } catch (err) {
     console.error("🔥 Error during GPT extraction:", err);
   }
   console.log("🧠 GPT extracted data:", extractedData);
