@@ -153,6 +153,10 @@ app.get("/", (req, res) => {
 
 app.post("/message", async (req, res) => {
   const { conversationHistory } = req.body;
+  if (!conversationHistory || !Array.isArray(conversationHistory)) {
+    console.warn("❌ Missing or invalid conversationHistory in request body.");
+    return res.status(400).json({ success: false, error: "Invalid conversation history format." });
+  }
 
   const extractedData = await extractIntakeData(conversationHistory);
   console.log("🧠 GPT extracted data:", extractedData);
