@@ -14,9 +14,6 @@ const transporter = nodemailer.createTransport({
   auth: {
     user: process.env.LEAD_EMAIL_USER,
     pass: process.env.LEAD_EMAIL_PASS
-
-
-}
   }
 });
 
@@ -407,11 +404,6 @@ function hasAnsweredAllIntakeQuestions(history) {
     console.log("✔️ garage goals check:", match);
     return match;
   }
-  if (item === "Estimated Square Footage of Space") {
-    const match = /\b\d{2,4}\b/.test(combined) || combined.includes("square foot") || combined.includes("sqft") || combined.includes("sf");
-    console.log("✔️ square footage check:", match);
-    return match;
-  }
   const match = combined.includes(item);
   console.log(`✔️ checklist check for '${item}':`, match);
   return match;
@@ -459,14 +451,6 @@ const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
   console.log(`✅ Contact Solomon backend running on port ${PORT}`);
 });
-
-
-
-}
-
-
-
-}
 
 
 async function extractIntakeData(conversationHistory) {
