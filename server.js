@@ -12,7 +12,7 @@ app.use(express.static(path.join(__dirname, "public")));
 const port = process.env.PORT || 10000;
 
 const auth = new google.auth.GoogleAuth({
-  keyFile: "credentials.json",
+  credentials: JSON.parse(process.env.GOOGLE_CREDENTIALS),
   scopes: ["https://www.googleapis.com/auth/drive"],
 });
 
