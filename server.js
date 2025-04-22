@@ -399,6 +399,11 @@ function hasAnsweredAllIntakeQuestions(history) {
     console.log("✔️ photo check:", match);
     return match;
   }
+  if (item === "garage goals") {
+    const match = combined.includes("garage goals") || combined.includes("epoxy") || combined.includes("floor");
+    console.log("✔️ garage goals check:", match);
+    return match;
+  }
   const match = combined.includes(item);
   console.log(`✔️ checklist check for '${item}':`, match);
   return match;
