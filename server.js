@@ -18,43 +18,35 @@ function hasAnsweredAllIntakeQuestions(conversationHistory) {
       const match = combined.includes("📸 i'm skipping the photo upload.") || combined.includes("📸 garage photo uploaded.");
       console.log("✔️ photo check:", match);
       return match;
-    }
     if (item === "garage goals") {
       const match = combined.includes("garage goals") || combined.includes("epoxy") || combined.includes("floor");
       console.log("✔️ garage goals check:", match);
       return match;
-    }
     if (item === "Estimated Square Footage of Space") {
       const match = /\b\d{2,4}\b/.test(combined) || combined.includes("square foot") || combined.includes("sqft") || combined.includes("sf");
       console.log("✔️ square footage check:", match);
       return match;
-    }
     if (item === "must-have features") {
       const match = combined.includes("feature") || combined.includes("need") || combined.includes("want") || combined.includes("would like") || combined.includes("include");
       console.log("✔️ must-have features check:", match);
       return match;
-    }
     if (item === "budget") {
       const match = combined.includes("budget") || combined.includes("$") || combined.includes("k") || combined.includes("thousand") || /\b\d{3,6}\b/.test(combined);
       console.log("✔️ budget check:", match);
       return match;
-    }
     if (item === "start date") {
       const match = combined.includes("start") || combined.includes("asap") || combined.includes("soon") || combined.includes("next") || combined.includes("january") || combined.includes("summer");
       console.log("✔️ start date check:", match);
       return match;
-    }
     if (item === "final notes") {
       const match = combined.includes("nothing") || combined.includes("nope") || combined.includes("we're good") || combined.includes("wrap up") || combined.includes("that’s it") || combined.includes("that is it");
       console.log("✔️ final notes check:", match);
       return match;
-    }
 
     const match = combined.includes(item);
     console.log(`✔️ checklist check for '${item}':`, match);
     return match;
   });
-}
 
 
 const express = require('express');
@@ -73,7 +65,6 @@ const transporter = nodemailer.createTransport({
   auth: {
     user: process.env.LEAD_EMAIL_USER,
     pass: process.env.LEAD_EMAIL_PASS
-  }
 });
 
 
@@ -108,8 +99,6 @@ if (fs.existsSync('token.json')) {
     console.log("✅ Google Drive token loaded.");
   } catch (err) {
     console.error("❌ Failed to load token.json:", err.message);
-  }
-}
 
 // === OPENAI SETUP ===
 const openai = new OpenAI({
@@ -127,12 +116,10 @@ app.post('/message', async (req, res) => {
   if (userMessage === "📸 SKIP_TRIGGER_SUMMARY") {
     photoUploaded = true;
     conversationHistory.push({ role: 'user', content: "📸 I'm skipping the photo upload." });
-  }
 
   const skipSummary = userMessage.toLowerCase().includes("uploaded a photo") || userMessage.toLowerCase().includes("skipping the photo");
   if (userMessage.toLowerCase().includes("skipping the photo")) {
     photoUploaded = true;
-  }
 
 
   try {
@@ -209,7 +196,6 @@ Optionally ask: “Is there anything else you'd like to add before we wrap up?�
       return res.json({ ...responseData, show_summary: true });
     } else {
       return res.json(responseData);
-    }
 
 
   } catch (err) {
@@ -218,7 +204,6 @@ Optionally ask: “Is there anything else you'd like to add before we wrap up?�
   const skipSummary = userMessage.toLowerCase().includes("uploaded a photo");
 
     res.status(500).json({ reply: 'Something went wrong. Please try again shortly.' });
-  }
 });
 
 // === Helper: Google Drive folder setup ===
@@ -231,10 +216,8 @@ async function getOrCreateFolder(drive, folderName) {
     requestBody: {
       name: folderName,
       mimeType: 'application/vnd.google-apps.folder',
-    }
   });
   return newFolder.data.id;
-}
 
 // === /submit route ===
 app.post('/submit', upload.single('photo'), async (req, res) => {
@@ -247,7 +230,6 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
       responses = JSON.parse(req.body.responses);
     } catch (err) {
       console.warn("⚠️ Failed to parse responses:", req.body.responses);
-    }
 
     const nameStep = responses.find(r => r.step.toLowerCase().includes("full name"));
     const clientName = nameStep ? nameStep.answer.trim() : "Unknown";
@@ -270,7 +252,6 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
         fields: "id"
       });
       mainFolderId = createdMain.data.id;
-    }
 
     const subFolderRes = await drive.files.create({
       requestBody: {
@@ -308,7 +289,6 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
 const structuredSummary = expectedOrder.map(label => {
   if (label === "Garage Photo Upload") {
     return `${label}: ${photoUploaded ? "✅ Uploaded" : "❌ Not uploaded"}`;
-  }
 
   if (label === "Preferred Start Date") {
     const match = responses.find(r =>
@@ -318,13 +298,11 @@ const structuredSummary = expectedOrder.map(label => {
     );
     const answer = match?.answer || "";
     return `${label}: ${answer || "(Not provided)"}`;
-  }
 
   if (label === "Final Notes") {
     const notes = responses.find(r => r.step.toLowerCase().includes("note"));
     const answer = notes?.answer || "";
     return `${label}: ${answer || "(Not provided)"}`;
-  }
 
   if (label === "Garage Goals") {
     const match = responses.find(r =>
@@ -334,7 +312,6 @@ const structuredSummary = expectedOrder.map(label => {
     );
     const answer = match?.answer || "";
     return `${label}: ${answer || "(Not provided)"}`;
-  }
 
   if (label === "Must-Have Features") {
     const match = responses.find(r =>
@@ -348,7 +325,6 @@ const structuredSummary = expectedOrder.map(label => {
     );
     const answer = match?.answer || "";
     return `${label}: ${answer || "(Not provided)"}`;
-  }
 
   const match = responses.find(r => r.step === label);
   return `${label}: ${match ? match.answer : "(Not provided)"}`;
@@ -373,7 +349,6 @@ const structuredSummary = expectedOrder.map(label => {
       media: {
         mimeType: 'text/plain',
         body: Readable.from(buffer),
-      }
     });
 
     photoUploaded = true;
@@ -393,8 +368,6 @@ const structuredSummary = expectedOrder.map(label => {
           },
         });
         fs.unlinkSync(filePath);
-      }
-    }
 
     await transporter.sendMail({
       from: process.env.LEAD_EMAIL_USER,
@@ -407,7 +380,6 @@ const structuredSummary = expectedOrder.map(label => {
   } catch (err) {
     console.error("❌ Submit error:", err.message);
     res.status(500).json({ success: false, message: "Server error" });
-  }
 });
 
 // === Google OAuth endpoints ===
@@ -430,7 +402,6 @@ app.get('/api/oauth2callback', async (req, res) => {
   } catch (err) {
     console.error("❌ Auth callback error:", err.message);
     res.status(500).send("Authorization failed.");
-  }
 });
 
 let intakeSummarySent = false;
@@ -457,17 +428,14 @@ function hasAnsweredAllIntakeQuestions(history) {
     const match = combined.includes("📸 I'm skipping the photo upload.") || combined.includes("📸 Garage photo uploaded.");
     console.log("✔️ photo check:", match);
     return match;
-  }
   if (item === "garage goals") {
     const match = combined.includes("garage goals") || combined.includes("epoxy") || combined.includes("floor");
     console.log("✔️ garage goals check:", match);
     return match;
-  }
   const match = combined.includes(item);
   console.log(`✔️ checklist check for '${item}':`, match);
   return match;
 });
-}
 
 
 async function submitFinalIntakeSummary(conversationHistory) {
@@ -500,11 +468,9 @@ async function submitFinalIntakeSummary(conversationHistory) {
     media: {
       mimeType: "text/plain",
       body: Readable.from(buffer)
-    }
   });
 
   console.log("✅ Intake summary sent to email and Google Drive.");
-}
 
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
@@ -548,12 +514,9 @@ async function extractIntakeData(conversationHistory) {
   } catch (e) {
     console.error("❌ Failed to parse GPT response:", completion.data.choices[0].message.content);
     return null;
-  }
-}
 
 
 // ✅ Replace checklist-based submission trigger with GPT-driven logic
-}
 
 app.post("/message", async (req, res) => {
   const { conversationHistory } = req.body;
@@ -564,7 +527,6 @@ app.post("/message", async (req, res) => {
   if (extractedData && Object.keys(extractedData).length >= 3) {
     console.log("✅ Submitting final intake summary via GPT logic.");
     await submitFinalIntakeSummary(conversationHistory);
-  }
 
   res.json({ success: true });
 });
