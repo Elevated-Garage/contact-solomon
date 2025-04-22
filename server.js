@@ -553,13 +553,18 @@ async function extractIntakeData(conversationHistory) {
 
 
 // ✅ Replace checklist-based submission trigger with GPT-driven logic
-if (route === '/message') {
+}
+
+app.post("/message", async (req, res) => {
+  const { conversationHistory } = req.body;
+
   const extractedData = await extractIntakeData(conversationHistory);
   console.log("🧠 GPT extracted data:", extractedData);
 
-  // Submit summary if GPT gave us anything useful (even partially)
   if (extractedData && Object.keys(extractedData).length >= 3) {
     console.log("✅ Submitting final intake summary via GPT logic.");
     await submitFinalIntakeSummary(conversationHistory);
   }
-}
+
+  res.json({ success: true });
+});
