@@ -1,4 +1,3 @@
-
 function hasAnsweredAllIntakeQuestions(conversationHistory) {
   const checklist = [
     "full name",
@@ -549,5 +548,18 @@ async function extractIntakeData(conversationHistory) {
   } catch (e) {
     console.error("❌ Failed to parse GPT response:", completion.data.choices[0].message.content);
     return null;
+  }
+}
+
+
+// ✅ Replace checklist-based submission trigger with GPT-driven logic
+if (route === '/message') {
+  const extractedData = await extractIntakeData(conversationHistory);
+  console.log("🧠 GPT extracted data:", extractedData);
+
+  // Submit summary if GPT gave us anything useful (even partially)
+  if (extractedData && Object.keys(extractedData).length >= 3) {
+    console.log("✅ Submitting final intake summary via GPT logic.");
+    await submitFinalIntakeSummary(conversationHistory);
   }
 }
