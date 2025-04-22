@@ -758,215 +758,117 @@ body.solomon-embedded .form-wrapper {
 </div>
 </form>
 </div>
+
+<div id="summary-download" style="display: none; margin-top: 20px; text-align: center;"><button id="download-summary" type="button">📄 Download My Submission</button></div>
+
+
+
 <script>
-/* chatBox declared once */
-const input = document.getElementById("user-input");
-const chatBox = document.getElementById('chat-box');
-const form = document.getElementById('chat-form');
-
-
-const typingIndicator = document.getElementById('typing');
-
-
-let responses = [];
-window.addEventListener("load", () => {
-  responses = [];
-});
-
-
-// removed prompts — now handled by AI
-
-// removed followups — now handled by AI
-
-function appendMessage(text, sender = "bot") {
-  const msg = document.createElement("div");
-  msg.className = `message ${sender}`;
-  msg.textContent = text;
-  chatBox.appendChild(msg);
-  chatBox.scrollTop = chatBox.scrollHeight;
-}
-
-// removed nextPrompt — AI is in control
-
-// removed askFollowup — handled by AI now
-
-
-
-    responses.push({ step: "Email Address", answer: parts[1].trim() });
-    responses.push({ step: "Phone Number", answer: parts[2].trim() });
-  } else {
-    responses.push({ step: stepLabel, answer: message });
-  }
-
-  appendTypingIndicator();
-
-  const conversationHistory = [...document.querySelectorAll(".message")].map(msg => {
-    return {
-      role: msg.classList.contains("user") ? "user" : "assistant",
-      content: msg.textContent.trim()
-    };
-  });
-
-  try {
-    const res = await fetch("/message", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ conversationHistory })
-    });
-
-    const data = await res.json();
-    removeTypingIndicator();
-
-    if (data.reply) appendMessage(data.reply, "bot");
-    if (data.photo_request) showPhotoUploader();
-    if (data.show_summary) {
-      document.getElementById("summary-download").style.display = "block";
-    }
-  } catch (err) {
-    removeTypingIndicator();
-    appendMessage("⚠️ Failed to reach Solomon. Please try again.", "bot");
-    console.error("Fetch error:", err);
-  }
-});
-    responses.push({ step: "Email Address", answer: parts[1].trim() });
-    responses.push({ step: "Phone Number", answer: parts[2].trim() });
-  } else {
-    responses.push({ step: stepLabel, answer: message });
-  }
-
-
-  if (!message) return;
-  appendMessage(message, "user");
-  input.value = "";
-
-  appendTypingIndicator();
-  // const res = await fetch("/message", { method: "POST", body: JSON.stringify({ conversationHistory }) });
-// const data = await res.json();
-  removeTypingIndicator();
-  appendMessage(data.reply, "bot");
-  if (data.photo_request) { showPhotoUploader(); }
-  if (data.show_summary) {
-    document.getElementById("summary-download").style.display = "block";
-  }
-});
-
-
 document.addEventListener("DOMContentLoaded", () => {
   const input = document.getElementById("user-input");
   if (input) {
     input.value = "Solomon, can you help me design my garage?";
-    // Message is preloaded but not auto-submitted.
-  }
-});
-
-form.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const message = input.value.trim();
-  if (!message) return;
-
-  appendMessage(message, "user");
-  input.value = "";
-
-  const lastBotMessage = [...document.querySelectorAll('.message.bot')].pop()?.textContent || "";
-  let stepLabel = "Answer " + (responses.length + 1);
-
-  const keywordMap = {
-    "name": "Full Name",
-    "email": "Email Address",
-    "phone": "Phone Number",
-    "goal": "Garage Goals",
-    "square": "Estimated Square Footage of Space",
-    "feature": "Must-Have Features",
-    "budget": "Budget Range",
-    "start date": "Preferred Start Date",
-    "photo": "Garage Photo Upload",
-    "note": "Final Notes"
-  };
-
-  for (const keyword in keywordMap) {
-    if (lastBotMessage.toLowerCase().includes(keyword)) {
-      stepLabel = keywordMap[keyword];
-      break;
-    }
   }
 
-  const parts = message.split(",");
-  const isLikelyContactCombo = (
-    parts.length === 3 &&
-    message.includes("@") &&
-    /\d{7,}/.test(parts[2])
-  );
+  const chatBox = document.getElementById("chat-box");
+  const form = document.getElementById("chat-form");
+  const typingIndicator = document.getElementById("typing");
 
-  if (isLikelyContactCombo) {
-    responses.push({ step: "Full Name", answer: parts[0].trim() });
-    responses.push({ step: "Email Address", answer: parts[1].trim() });
-    responses.push({ step: "Phone Number", answer: parts[2].trim() });
-  } else {
-    responses.push({ step: stepLabel, answer: message });
+  let responses = [];
+
+  function appendMessage(text, sender = "bot") {
+    const msg = document.createElement("div");
+    msg.className = `message ${sender}`;
+    msg.textContent = text;
+    chatBox.appendChild(msg);
+    chatBox.scrollTop = chatBox.scrollHeight;
   }
 
-  appendTypingIndicator();
+  function appendTypingIndicator() {
+    typingIndicator.style.display = "block";
+  }
 
-  const conversationHistory = [...document.querySelectorAll(".message")].map(msg => {
-    return {
-      role: msg.classList.contains("user") ? "user" : "assistant",
-      content: msg.textContent.trim()
+  function removeTypingIndicator() {
+    typingIndicator.style.display = "none";
+  }
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const message = input.value.trim();
+    if (!message) return;
+
+    appendMessage(message, "user");
+    input.value = "";
+
+    const lastBotMessage = [...document.querySelectorAll('.message.bot')].pop()?.textContent || "";
+    let stepLabel = "Answer " + (responses.length + 1);
+
+    const keywordMap = {
+      "name": "Full Name",
+      "email": "Email Address",
+      "phone": "Phone Number",
+      "goal": "Garage Goals",
+      "square": "Estimated Square Footage of Space",
+      "feature": "Must-Have Features",
+      "budget": "Budget Range",
+      "start date": "Preferred Start Date",
+      "photo": "Garage Photo Upload",
+      "note": "Final Notes"
     };
-  });
 
-  try {
-    const res = await fetch("/message", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ conversationHistory })
+    for (const keyword in keywordMap) {
+      if (lastBotMessage.toLowerCase().includes(keyword)) {
+        stepLabel = keywordMap[keyword];
+        break;
+      }
+    }
+
+    const parts = message.split(",");
+    const isLikelyContactCombo = (
+      parts.length === 3 &&
+      message.includes("@") &&
+      /\d{7,}/.test(parts[2])
+    );
+
+    if (isLikelyContactCombo) {
+      responses.push({ step: "Full Name", answer: parts[0].trim() });
+      responses.push({ step: "Email Address", answer: parts[1].trim() });
+      responses.push({ step: "Phone Number", answer: parts[2].trim() });
+    } else {
+      responses.push({ step: stepLabel, answer: message });
+    }
+
+    appendTypingIndicator();
+
+    const conversationHistory = [...document.querySelectorAll(".message")].map(msg => {
+      return {
+        role: msg.classList.contains("user") ? "user" : "assistant",
+        content: msg.textContent.trim()
+      };
     });
 
-    const data = await res.json();
-    removeTypingIndicator();
+    try {
+      const res = await fetch("/message", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ conversationHistory })
+      });
 
-    if (data.reply) appendMessage(data.reply, "bot");
-    if (data.photo_request) showPhotoUploader();
-    if (data.show_summary) {
-      document.getElementById("summary-download").style.display = "block";
+      const data = await res.json();
+      removeTypingIndicator();
+
+      if (data.reply) appendMessage(data.reply, "bot");
+      if (data.photo_request) showPhotoUploader?.();
+      if (data.show_summary) {
+        document.getElementById("summary-download").style.display = "block";
+      }
+    } catch (err) {
+      removeTypingIndicator();
+      appendMessage("⚠️ Failed to reach Solomon. Please try again.", "bot");
+      console.error("Fetch error:", err);
     }
-  } catch (err) {
-    removeTypingIndicator();
-    appendMessage("⚠️ Failed to reach Solomon. Please try again.", "bot");
-    console.error("Fetch error:", err);
-  }
-});
-
-</script><script>
-document.getElementById("user-input").addEventListener("keydown", function (e) {
-  if (e.key === "Enter" && !e.shiftKey) {
-    e.preventDefault();
-    // Message is preloaded but not auto-submitted.
-  }
-});
-</script><script>
-document.addEventListener("input", function (event) {
-  const el = event.target;
-  if (el.id === "user-input") {
-    el.style.height = "auto";
-    const maxHeight = 120;
-    const initialHeight = 36;
-    el.style.height = initialHeight + "px";
-    el.style.height = Math.min(el.scrollHeight, maxHeight) + "px";
-  }
+  });
 });
 </script>
-<div id="summary-download" style="display: none; margin-top: 20px; text-align: center;"><button id="download-summary" type="button">📄 Download My Submission</button></div>
-
-<script>
-function handleSkip() {
-  appendMessage("📸 I'm skipping the photo upload.", "user");
-
-  document.getElementById("uploadCardContainer").style.display = "none";
-
-  // Removed automatic GPT submission to prevent early summary
-}
-</script>
-
 </body>
 </html>
-
