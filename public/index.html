@@ -928,6 +928,110 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 });
+
+
+// --- Photo intent decision handling ---
+document.addEventListener("aiReply", function(e) {
+  const msg = e.detail.message?.toLowerCase() || "";
+  const intentBtns = document.getElementById("photo-intent-buttons");
+  const uploadWrapper = document.getElementById("upload-action-buttons");
+
+  if (
+    msg.includes("photo") ||
+    msg.includes("upload a photo") ||
+    msg.includes("garage image")
+  ) {
+    if (intentBtns) intentBtns.style.display = "flex";
+    if (uploadWrapper) uploadWrapper.style.display = "none";
+  }
+});
+
+document.getElementById("intent-yes").addEventListener("click", () => {
+  document.getElementById("photo-intent-buttons").style.display = "none";
+  document.getElementById("upload-action-buttons").style.display = "flex";
+});
+
+document.getElementById("intent-no").addEventListener("click", () => {
+  const userMessage = "No, I’d like to skip the photo upload.";
+  appendMessage(userMessage, "user");
+  conversationHistory.push({ role: "user", content: userMessage });
+
+  const check = document.getElementById("checkmark");
+  if (check) {
+    check.style.display = "block";
+    check.style.animation = "pop 0.8s ease-out forwards";
+    setTimeout(() => {
+      check.style.display = "none";
+    }, 800);
+  }
+
+  fetch("/message", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      conversationHistory,
+      trigger_summary: true
+    })
+  })
+  .then((res) => res.json())
+  .then((data) => {
+    if (data && data.reply) {
+      appendMessage(data.reply, "bot");
+      document.dispatchEvent(new CustomEvent("aiReply", {
+        detail: { message: data.reply }
+      }));
+      conversationHistory.push({ role: "assistant", content: data.reply });
+    }
+  })
+  .catch((err) => {
+    appendMessage("❌ Error sending message.", "bot");
+    console.error(err);
+  });
+});
+
+// Override photo upload preview to trigger summary
+document.getElementById("file-upload").addEventListener("change", function () {
+  const files = Array.from(this.files);
+  const preview = document.getElementById("preview-thumbnails");
+
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      uploadedImages.push(e.target.result);
+      const img = document.createElement("img");
+      img.src = e.target.result;
+      img.className = "chat-image";
+      preview.appendChild(img);
+    };
+    reader.readAsDataURL(file);
+  });
+
+  appendMessage("📸 Photo uploaded successfully!", "user");
+
+  fetch("/message", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      conversationHistory,
+      images: uploadedImages,
+      trigger_summary: true
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data && data.reply) {
+      appendMessage(data.reply, "bot");
+      conversationHistory.push({ role: "assistant", content: data.reply });
+      document.dispatchEvent(new CustomEvent("aiReply", {
+        detail: { message: data.reply }
+      }));
+    }
+  })
+  .catch((err) => {
+    appendMessage("❌ Error sending photo message.", "bot");
+    console.error(err);
+  });
+});
 </script><script>
 document.addEventListener("aiReply", function(e) {
   const msg = e.detail.message?.toLowerCase() || "";
@@ -1040,7 +1144,12 @@ document.addEventListener("aiReply", function(e) {
   background-color: #8a121a;
 }
 </style>
-<div id="upload-action-buttons" style="display: none; justify-content: center; gap: 20px; margin-top: 28px; position: relative; align-items: center;"><button class="submit-button" id="submit-project-button" style="min-width: 160px; text-align: center; padding: 12px 22px; background: #B91B21; color: white; border: none; border-radius: 9999px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">Submit Project</button><button id="skip-upload" style="min-width: 160px; text-align: center; padding: 12px 22px; background: transparent; color: #B91B21; border: 2px solid #B91B21; border-radius: 9999px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">Skip Upload</button><div id="checkmark" style="display: none; position: absolute; top: -30px; right: -30px; font-size: 28px; color: #22c55e;">✔</div></div><div id="input-wrapper"><div class="thumbnail-preview" id="preview-thumbnails"></div>
+<div id="upload-action-buttons" style="display: none; justify-content: center; gap: 20px; margin-top: 28px; position: relative; align-items: center;"><button class="submit-button" id="submit-project-button" style="min-width: 160px; text-align: center; padding: 12px 22px; background: #B91B21; color: white; border: none; border-radius: 9999px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">Submit Project</button><button id="skip-upload" style="min-width: 160px; text-align: center; padding: 12px 22px; background: transparent; color: #B91B21; border: 2px solid #B91B21; border-radius: 9999px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">Skip Upload</button><div id="checkmark" style="display: none; position: absolute; top: -30px; right: -30px; font-size: 28px; color: #22c55e;">✔</div></div>
+<div id="photo-intent-buttons" style="display: none; justify-content: center; gap: 16px; margin-bottom: 12px;">
+<button id="intent-yes" style="padding: 8px 16px; background: #B91B21; color: white; border: none; border-radius: 8px; cursor: pointer;">Yes</button>
+<button id="intent-no" style="padding: 8px 16px; background: #6b7280; color: white; border: none; border-radius: 8px; cursor: pointer;">No</button>
+</div>
+<div id="input-wrapper"><div class="thumbnail-preview" id="preview-thumbnails"></div>
 <label class="upload-button" for="file-upload" style="font-size: 40px; cursor: pointer; user-select: none; color: #B91B21;"><span style="color: white;">+</span></label>
 <input id="file-upload" multiple="" type="file"/>
 <div contenteditable="true" id="input-field" placeholder="Type your message...">Solomon, can you help me design my garage?</div>
@@ -1222,4 +1331,3 @@ document.getElementById('skip-upload').addEventListener('click', () => {
 </script>
 </body>
 </html>
-
