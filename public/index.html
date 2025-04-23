@@ -1022,9 +1022,7 @@ document.addEventListener("DOMContentLoaded", function () {
   document.addEventListener("aiReply", function(e) {
     const msg = e.detail.message?.toLowerCase() || "";
     if (
-      msg.includes("photo") ||
-      msg.includes("upload a photo") ||
-      msg.includes("garage image")
+      msg.includes("[trigger_photo_step]")
     ) {
       intentBtns.style.display = "flex";
     }
@@ -1117,4 +1115,3 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 </script></body>
 </html>
-
