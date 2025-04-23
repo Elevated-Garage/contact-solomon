@@ -909,7 +909,7 @@ body.solomon-embedded .form-wrapper {
 <p>Your smart garage designer is standing by—let’s build your vision together.</p>
 </div><div class="chat-box" id="chat-box">
 <div class="message bot">👋 Hey there! Before we get started, I have a few quick questions to help design your perfect garage.</div>
-</div><div id="typing" style="display:none;">Solomon is typing...</div><form class="form-col" id="chat-form">
+</div><div id="typing" style="display:none;">Solomon is typing...</div><form class="form-col" id="chat-form" onsubmit="event.preventDefault();">
 <div id="uploadCardContainer" style="display: none;">
 <div id="dropzone">Click or drag a photo here</div>
 <input accept="image/*" id="fileInput" type="file"/>
@@ -1184,3 +1184,4 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 </script></body>
 </html>
+
