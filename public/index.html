@@ -1021,6 +1021,22 @@ document.addEventListener("DOMContentLoaded", function () {
   // Handle AI replies that ask about photo uploads
   document.addEventListener("aiReply", function(e) {
     const msg = e.detail.message?.toLowerCase() || "";
+const triggerPhrases = [
+  "[trigger_photo_step]",
+  "upload a photo",
+  "garage photo",
+  "photo of your garage",
+  "photo of your space",
+  "image of your garage",
+  "help our designers"
+];
+
+const shouldTrigger = triggerPhrases.some(phrase => msg.includes(phrase));
+if (shouldTrigger) {
+  const intentBtns = document.getElementById("intent-btns");
+  if (intentBtns) intentBtns.style.display = "flex";
+}
+
     if (
       msg.includes("[trigger_photo_step]")
     ) {
