@@ -1040,7 +1040,7 @@ document.addEventListener("aiReply", function(e) {
   background-color: #8a121a;
 }
 </style>
-<div id="input-wrapper"><div class="thumbnail-preview" id="preview-thumbnails"></div>
+<div id="upload-action-buttons" style="display: none; justify-content: center; gap: 20px; margin-top: 28px; position: relative; align-items: center;"><button class="submit-button" id="submit-project-button" style="min-width: 160px; text-align: center; padding: 12px 22px; background: #B91B21; color: white; border: none; border-radius: 9999px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">Submit Project</button><button id="skip-upload" style="min-width: 160px; text-align: center; padding: 12px 22px; background: transparent; color: #B91B21; border: 2px solid #B91B21; border-radius: 9999px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">Skip Upload</button><div id="checkmark" style="display: none; position: absolute; top: -30px; right: -30px; font-size: 28px; color: #22c55e;">✔</div></div><div id="input-wrapper"><div class="thumbnail-preview" id="preview-thumbnails"></div>
 <label class="upload-button" for="file-upload" style="font-size: 40px; cursor: pointer; user-select: none; color: #B91B21;"><span style="color: white;">+</span></label>
 <input id="file-upload" multiple="" type="file"/>
 <div contenteditable="true" id="input-field" placeholder="Type your message...">Solomon, can you help me design my garage?</div>
@@ -1220,6 +1220,7 @@ document.getElementById('skip-upload').addEventListener('click', () => {
     document.getElementById('send-button').click();
 });
 </script>
-<div id="upload-action-buttons" style="display: none; justify-content: center; gap: 20px; margin-top: 28px; position: relative; align-items: center;"><button class="submit-button" id="submit-project-button" style="min-width: 160px; text-align: center; padding: 12px 22px; background: #B91B21; color: white; border: none; border-radius: 9999px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">Submit Project</button><button id="skip-upload" style="min-width: 160px; text-align: center; padding: 12px 22px; background: transparent; color: #B91B21; border: 2px solid #B91B21; border-radius: 9999px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">Skip Upload</button><div id="checkmark" style="display: none; position: absolute; top: -30px; right: -30px; font-size: 28px; color: #22c55e;">✔</div></div></body>
+</body>
 </html>
+
 
