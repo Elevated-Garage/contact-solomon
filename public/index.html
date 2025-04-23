@@ -1,7 +1,12 @@
 <!DOCTYPE html>
 
 <html lang="en">
-<head>
+<head><script>
+let isSending = false;
+let uploadedImages = [];
+const conversationHistory = [];
+</script><script>
+</script>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Let’s Elevate Your Garage!</title>
@@ -908,6 +913,7 @@ body.solomon-embedded .form-wrapper {
 }
 </style><script>
 document.addEventListener("DOMContentLoaded", function () {
+  document.getElementById("input-field").innerText = "Solomon, can you help me design my garage?";
   const check = document.getElementById("checkmark");
   const submitBtn = document.getElementById("submit-project-button");
   const skipBtn = document.getElementById("skip-upload");
@@ -1046,11 +1052,9 @@ document.addEventListener("aiReply", function(e) {
 document.addEventListener('DOMContentLoaded', function () {
   const inputField = document.getElementById('input-field');
   const sendButton = document.getElementById('send-button');
-
   // Enable text wrapping
   inputField.style.whiteSpace = 'pre-wrap';
   inputField.style.wordBreak = 'break-word';
-
   // Send on Enter key
   inputField.addEventListener('keydown', function (e) {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -1073,18 +1077,14 @@ function removeUploadHighlight() {
   }
 }
 </script><script>
-let isSending = false;
-let uploadedImages = [];
 
 document.addEventListener("DOMContentLoaded", function () {
   const inputField = document.getElementById("input-field");
   const sendButton = document.getElementById("send-button");
   const chatBox = document.getElementById("chat-box");
-
-  let isSending = false;
-  let uploadedImages = [];
-  const conversationHistory = [];
-
+  
+  
+  
   function appendMessage(message, sender) {
     const bubble = document.createElement("div");
     bubble.className = "message " + sender;
@@ -1092,14 +1092,12 @@ document.addEventListener("DOMContentLoaded", function () {
     chatBox.appendChild(bubble);
     chatBox.scrollTop = chatBox.scrollHeight;
   }
-
   function sendMessage(text) {
     if (!text || text.trim() === "" || isSending) return;
     isSending = true;
     appendMessage(text, "user");
     conversationHistory.push({ role: "user", content: text });
     document.getElementById("typing").style.display = "block";
-
     fetch("/message", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -1109,7 +1107,6 @@ document.addEventListener("DOMContentLoaded", function () {
     .then(data => {
       document.getElementById("typing").style.display = "none";
       if (data && data.reply) {
-if (data && data.reply) {
         appendMessage(data.reply, "bot");
         document.dispatchEvent(new CustomEvent("aiReply", {
           detail: { message: data.reply }
@@ -1125,14 +1122,12 @@ if (data && data.reply) {
       isSending = false;
     });
   }
-
   sendButton.addEventListener("click", function (event) {
     event.preventDefault();
     const text = inputField.innerText.trim();
     sendMessage(text);
     inputField.innerText = "";
   });
-
   inputField.addEventListener("keydown", function (e) {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -1141,38 +1136,29 @@ if (data && data.reply) {
   });
 });
 </script><script>
-let isSending = false;
-let uploadedImages = [];
 
 document.addEventListener("DOMContentLoaded", function () {
   const fileInput = document.getElementById("file-upload");
   const previewContainer = document.getElementById("preview-thumbnails");
   const submitBtn = document.getElementById("submit-project-button");
-
   fileInput.addEventListener("change", function (event) {
     uploadedImages = [];
     previewContainer.innerHTML = "";
-
     const files = event.target.files;
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       const reader = new FileReader();
-
       reader.onload = function (e) {
         const imgData = e.target.result;
-
         if (!uploadedImages.includes(imgData)) {
           uploadedImages.push(imgData);
-
           const wrapper = document.createElement("div");
           wrapper.className = "thumbnail-wrapper";
-
           const img = document.createElement("img");
           img.src = imgData;
           img.style.width = "64px";
           img.style.height = "64px";
           img.style.objectFit = "cover";
-
           const removeBtn = document.createElement("button");
           removeBtn.innerText = "×";
           removeBtn.className = "remove-btn";
@@ -1183,21 +1169,17 @@ document.addEventListener("DOMContentLoaded", function () {
               submitBtn.style.display = "none";
             }
           };
-
           wrapper.appendChild(img);
           wrapper.appendChild(removeBtn);
           previewContainer.appendChild(wrapper);
         }
-
         if (uploadedImages.length > 0) {
           submitBtn.style.display = "block";
         }
       };
-
       reader.readAsDataURL(file);
     }
   });
-
   submitBtn.addEventListener("click", function () {
     if (uploadedImages.length > 0) {
       uploadedImages.forEach(img => {
@@ -1206,10 +1188,8 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     appendMessage("📸 Photo uploaded successfully!", "user");
     if (!uploadedImages || uploadedImages.length === 0) return;
-
     isSending = true;
     document.getElementById("typing").style.display = "block";
-
     fetch("/message", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -1242,3 +1222,4 @@ document.getElementById('skip-upload').addEventListener('click', () => {
 </script>
 <div id="upload-action-buttons" style="display: none; justify-content: center; gap: 20px; margin-top: 28px; position: relative; align-items: center;"><button class="submit-button" id="submit-project-button" style="min-width: 160px; text-align: center; padding: 12px 22px; background: #B91B21; color: white; border: none; border-radius: 9999px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">Submit Project</button><button id="skip-upload" style="min-width: 160px; text-align: center; padding: 12px 22px; background: transparent; color: #B91B21; border: 2px solid #B91B21; border-radius: 9999px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">Skip Upload</button><div id="checkmark" style="display: none; position: absolute; top: -30px; right: -30px; font-size: 28px; color: #22c55e;">✔</div></div></body>
 </html>
+
