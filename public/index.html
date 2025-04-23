@@ -938,6 +938,8 @@ body.solomon-embedded .form-wrapper {
 <div contenteditable="true" id="input-field" placeholder="Type your message...">Solomon, can you help me design my garage?</div>
 <button id="send-button" style="width: 64.59px; height: 31.5px; padding: 0;">Send</button>
 </div>
+<button class="submit-button" id="submit-project-button" style="display: none;">📤 Submit Project</button>
+
 </form>
 </div>
 <div id="summary-download" style="display: none; margin-top: 20px; text-align: center;"><button id="download-summary" type="button">📄 Download My Submission</button></div>
@@ -1097,5 +1099,52 @@ document.getElementById("file-upload").addEventListener("change", function(event
     reader.readAsDataURL(file);
   }
 });
+</script><script>
+document.addEventListener("DOMContentLoaded", function () {
+  const submitBtn = document.getElementById("submit-project-button");
+  const previewContainer = document.getElementById("preview-thumbnails");
+
+  function maybeToggleSubmitButton() {
+    if (uploadedImages && uploadedImages.length > 0) {
+      submitBtn.style.display = "block";
+    } else {
+      submitBtn.style.display = "none";
+    }
+  }
+
+  submitBtn.addEventListener("click", function () {
+    if (!uploadedImages || uploadedImages.length === 0) return;
+
+    isSending = true;
+    document.getElementById("typing").style.display = "block";
+
+    fetch("/message", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ conversationHistory, images: uploadedImages, trigger_summary: true })
+    })
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById("typing").style.display = "none";
+      if (data && data.reply) {
+        appendMessage(data.reply, "bot");
+        conversationHistory.push({ role: "assistant", content: data.reply });
+      }
+    })
+    .catch(() => {
+      document.getElementById("typing").style.display = "none";
+      appendMessage("❌ There was an error submitting your project.", "bot");
+    })
+    .finally(() => {
+      isSending = false;
+    });
+  });
+
+  const originalChangeHandler = document.getElementById("file-upload").onchange;
+  document.getElementById("file-upload").addEventListener("change", function (event) {
+    setTimeout(() => maybeToggleSubmitButton(), 200);
+  });
+});
 </script></body>
 </html>
+
