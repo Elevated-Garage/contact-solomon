@@ -16,14 +16,12 @@ const port = 10000;
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-// Google Drive Setup
 const auth = new google.auth.GoogleAuth({
   keyFile: process.env.GOOGLE_CREDENTIALS,
   scopes: ["https://www.googleapis.com/auth/drive.file"]
 });
 const drive = google.drive({ version: "v3", auth });
 
-// Solomon's conversational prompt
 const solomonPrompt = [
   "You are Solomon, a professional and friendly garage design assistant for Elevated Garage that respects user answers.",
   "If the user uploads a photo, thank them and let them know the Elevated Garage team will review it. Do NOT say you cannot view images. Just acknowledge the upload and continue.",
@@ -58,7 +56,6 @@ const solomonPrompt = [
   "\"Thanks for sharing everything — this gives us a great foundation to begin planning your garage. We'll follow up with next steps soon!\""
 ].join("\n");
 
-// AI-enhanced extraction of intake answers
 const extractIntakeData = async (conversationHistory) => {
   const prompt = [
     "You are a form analysis tool working behind the scenes at Elevated Garage.",
@@ -96,15 +93,19 @@ const extractIntakeData = async (conversationHistory) => {
     temperature: 0
   });
 
+  let raw = completion.choices[0].message.content.trim();
+  const firstBrace = raw.indexOf("{");
+  if (firstBrace > 0) raw = raw.slice(firstBrace);
+
   try {
-    return JSON.parse(completion.choices[0].message.content);
+    return JSON.parse(raw);
   } catch (err) {
     console.error("❌ Failed to parse extracted data:", err.message);
+    console.error("Returned content:", raw);
     return {};
   }
 };
 
-// GPT-powered chat logic
 app.post("/message", async (req, res) => {
   const { conversationHistory } = req.body;
 
@@ -125,7 +126,6 @@ app.post("/message", async (req, res) => {
     const extractedData = await extractIntakeData(conversationHistory);
     const done = extractedData && Object.values(extractedData).every(val => val && val.length > 0);
 
-    
     if (done) {
       const summaryLines = Object.entries(extractedData)
         .map(([key, value]) => `${key.replace(/_/g, ' ')}: ${value}`)
@@ -146,21 +146,20 @@ app.post("/message", async (req, res) => {
             body: fs.createReadStream(filePath)
           }
         });
-        fs.unlinkSync(filePath); // clean up
+        fs.unlinkSync(filePath);
         console.log("✅ Intake summary uploaded:", driveResponse.data.id);
       } catch (uploadErr) {
         console.error("❌ Upload failed:", uploadErr.message);
       }
     }
+
     return res.json({ reply: aiReply, done });
-    
   } catch (err) {
     console.error("❌ GPT error:", err.message);
     return res.json({ reply: "Thanks! What would you like to add next?", done: false });
   }
 });
 
-// Summary upload to Google Drive
 app.post("/submit-summary", async (req, res) => {
   const { summaryText } = req.body;
 
@@ -186,8 +185,7 @@ app.post("/submit-summary", async (req, res) => {
       }
     });
 
-    fs.unlinkSync(filePath); // cleanup
-
+    fs.unlinkSync(filePath);
     res.json({ success: true, fileId: driveResponse.data.id });
   } catch (err) {
     console.error("❌ Drive upload error:", err.message);
@@ -198,7 +196,6 @@ app.post("/submit-summary", async (req, res) => {
 app.listen(port, () => {
   console.log(`✅ Contact Solomon backend running on port ${port}`);
 });
-
 
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public/index.html"));
