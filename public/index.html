@@ -856,9 +856,6 @@ body.solomon-embedded .form-wrapper {
 </div>
 <style>
 #input-wrapper {
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
   max-width: 642px;
   width: 100%;
   margin-left: auto;
@@ -943,35 +940,7 @@ body.solomon-embedded .form-wrapper {
 </form>
 </div>
 <div id="summary-download" style="display: none; margin-top: 20px; text-align: center;"><button id="download-summary" type="button">📄 Download My Submission</button></div>
-<script>
-document.getElementById("message-input").addEventListener("keydown", function(event) {
-  if (event.key === "Enter" && !event.shiftKey) {
-    event.preventDefault();
-    submitMessage();
-  }
-});
 
-function showPhotoUploader() {
-  document.getElementById("uploadCardContainer").style.display = "block";
-}
-
-function handleSkip() {
-  appendMessage("📸 I’ve chosen to skip uploading a photo.", "user");
-  document.getElementById("uploadCardContainer").style.display = "none";
-  sendMessage("skip photo");
-}
-
-// Add photo_request trigger inside your message handler
-const originalAppendMessage = appendMessage;
-appendMessage = function(message, sender) {
-  if (typeof message === 'object' && message.photo_request === true) {
-    showPhotoUploader();
-    originalAppendMessage(message.reply, sender);
-  } else {
-    originalAppendMessage(message, sender);
-  }
-};
-</script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
   const inputField = document.getElementById('input-field');
@@ -1038,6 +1007,9 @@ document.addEventListener("DOMContentLoaded", function () {
   const sendButton = document.getElementById("send-button");
   const chatBox = document.getElementById("chat-box");
 
+  let isSending = false;
+  const conversationHistory = [];
+
   function appendMessage(message, sender) {
     const bubble = document.createElement("div");
     bubble.className = "message " + sender;
@@ -1047,30 +1019,36 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function sendMessage(text) {
-    if (!text || text.trim() === "") return;
+    if (!text || text.trim() === "" || isSending) return;
+    isSending = true;
     appendMessage(text, "user");
+    conversationHistory.push({ role: "user", content: text });
     document.getElementById("typing").style.display = "block";
 
     fetch("/message", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: text })
+      body: JSON.stringify({ conversationHistory, trigger_summary: false })
     })
     .then(res => res.json())
     .then(data => {
       document.getElementById("typing").style.display = "none";
       if (data && data.reply) {
         appendMessage(data.reply, "bot");
+        conversationHistory.push({ role: "assistant", content: data.reply });
       }
     })
     .catch(err => {
       document.getElementById("typing").style.display = "none";
       appendMessage("❌ There was an error sending your message.", "bot");
+    })
+    .finally(() => {
+      isSending = false;
     });
   }
 
   sendButton.addEventListener("click", function (event) {
-    event.preventDefault(); // 💥 Prevent form reload
+    event.preventDefault();
     const text = inputField.innerText.trim();
     sendMessage(text);
     inputField.innerText = "";
@@ -1085,4 +1063,3 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 </script></body>
 </html>
-
