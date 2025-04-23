@@ -8,15 +8,16 @@ uploads/
 # System files
 .DS_Store
 
-# Optional: logs or temp files
+# Logs or temp files
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# OAuth files — keep client_secret, ignore token after generation
-# Only ignore token.json, which is generated after auth
+# OAuth token (not used with Service Account, but safe to exclude)
 token.json
 
-# Do NOT ignore the client_secret JSON file so it gets deployed
-# client_secret_*.json must be committed
-!client_secret_*.json
+# ❗ INCLUDE service-account key file
+# If you named it 'service-account.json' or 'credentials.json', DO NOT ignore it!
+# For safety, whitelist it explicitly if needed:
+!service-account.json
+!credentials.json
