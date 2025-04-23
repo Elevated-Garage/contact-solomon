@@ -206,7 +206,3 @@ res.json({ reply: aiReply, done });
 app.listen(port, () => {
   console.log(`✅ Contact Solomon backend running on port ${port}`);
 });
-
-app.listen(port, () => {
-  console.log(`✅ Contact Solomon backend running on port ${port}`);
-});
