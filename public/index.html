@@ -1039,6 +1039,9 @@ function removeUploadHighlight() {
   }
 }
 </script><script>
+let isSending = false;
+let uploadedImages = [];
+
 document.addEventListener("DOMContentLoaded", function () {
   const inputField = document.getElementById("input-field");
   const sendButton = document.getElementById("send-button");
@@ -1100,6 +1103,9 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 </script><script>
+let isSending = false;
+let uploadedImages = [];
+
 document.addEventListener("DOMContentLoaded", function () {
   const fileInput = document.getElementById("file-upload");
   const previewContainer = document.getElementById("preview-thumbnails");
@@ -1155,6 +1161,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   submitBtn.addEventListener("click", function () {
+    appendMessage("📸 Photo uploaded successfully!", "user");
     if (!uploadedImages || uploadedImages.length === 0) return;
 
     isSending = true;
@@ -1191,5 +1198,4 @@ document.getElementById('skip-upload').addEventListener('click', () => {
 });
 </script>
 </body>
-
 </html>
