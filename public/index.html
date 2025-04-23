@@ -1182,6 +1182,16 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 });
-</script></body>
+</script>
+<script>
+document.getElementById('skip-upload').addEventListener('click', () => {
+    const inputField = document.getElementById('input-field');
+    inputField.innerText = "No thank you";
+    document.getElementById('send-button').click();
+});
+</script>
+</body>
+
 </html>
+
 
