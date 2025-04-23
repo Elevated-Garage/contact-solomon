@@ -1109,8 +1109,6 @@ document.addEventListener("DOMContentLoaded", function () {
     .then(data => {
       document.getElementById("typing").style.display = "none";
       if (data && data.reply) {
-        const reply = data.reply?.toLowerCase() || "";
-        const actionBtns = document.getElementById("upload-action-buttons");
         if (
           reply.includes("photo") ||
           reply.includes("upload") ||
