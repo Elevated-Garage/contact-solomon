@@ -856,6 +856,10 @@ body.solomon-embedded .form-wrapper {
 </div>
 <style>
 #input-wrapper {
+  max-width: 800px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -1025,6 +1029,57 @@ function removeUploadHighlight() {
     label.classList.remove("highlight");
   }
 }
+</script><script>
+document.addEventListener("DOMContentLoaded", function () {
+  const inputField = document.getElementById("input-field");
+  const sendButton = document.getElementById("send-button");
+  const chatBox = document.getElementById("chat-box");
+
+  function appendMessage(message, sender) {
+    const bubble = document.createElement("div");
+    bubble.className = "message " + sender;
+    bubble.innerText = message;
+    chatBox.appendChild(bubble);
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
+
+  function sendMessage(text) {
+    if (!text || text.trim() === "") return;
+    appendMessage(text, "user");
+    document.getElementById("typing").style.display = "block";
+
+    fetch("/message", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: text })
+    })
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById("typing").style.display = "none";
+      if (data && data.reply) {
+        appendMessage(data.reply, "bot");
+      }
+    })
+    .catch(err => {
+      document.getElementById("typing").style.display = "none";
+      appendMessage("❌ There was an error sending your message.", "bot");
+    });
+  }
+
+  sendButton.addEventListener("click", function (event) {
+    event.preventDefault(); // 💥 Prevent form reload
+    const text = inputField.innerText.trim();
+    sendMessage(text);
+    inputField.innerText = "";
+  });
+
+  inputField.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendButton.click();
+    }
+  });
+});
 </script></body>
 </html>
 
