@@ -1109,14 +1109,7 @@ document.addEventListener("DOMContentLoaded", function () {
     .then(data => {
       document.getElementById("typing").style.display = "none";
       if (data && data.reply) {
-        if (
-          reply.includes("photo") ||
-          reply.includes("upload") ||
-          reply.includes("picture") ||
-          reply.includes("image")
-        ) {
-          if (actionBtns) actionBtns.style.display = "flex";
-        }
+if (data && data.reply) {
         appendMessage(data.reply, "bot");
         document.dispatchEvent(new CustomEvent("aiReply", {
           detail: { message: data.reply }
