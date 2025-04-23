@@ -870,6 +870,7 @@ body.solomon-embedded .form-wrapper {
   padding: 10px 16px;
   margin: 20px;
   box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+  height: 42.4px;
 }
 
 #file-upload {
@@ -940,7 +941,6 @@ body.solomon-embedded .form-wrapper {
 </form>
 </div>
 <div id="summary-download" style="display: none; margin-top: 20px; text-align: center;"><button id="download-summary" type="button">📄 Download My Submission</button></div>
-
 <script>
 document.addEventListener('DOMContentLoaded', function () {
   const inputField = document.getElementById('input-field');
@@ -1008,6 +1008,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const chatBox = document.getElementById("chat-box");
 
   let isSending = false;
+  let uploadedImages = [];
   const conversationHistory = [];
 
   function appendMessage(message, sender) {
@@ -1028,7 +1029,7 @@ document.addEventListener("DOMContentLoaded", function () {
     fetch("/message", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ conversationHistory, trigger_summary: false })
+      body: JSON.stringify({ conversationHistory, images: uploadedImages, trigger_summary: false })
     })
     .then(res => res.json())
     .then(data => {
@@ -1060,6 +1061,41 @@ document.addEventListener("DOMContentLoaded", function () {
       sendButton.click();
     }
   });
+});
+</script><script>
+document.getElementById("file-upload").addEventListener("change", function(event) {
+  const previewContainer = document.getElementById("preview-thumbnails");
+  previewContainer.innerHTML = "";
+  uploadedImages = []; // reset previous uploads
+  const files = event.target.files;
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const wrapper = document.createElement("div");
+      wrapper.className = "thumbnail-wrapper";
+
+      const img = document.createElement("img");
+      img.src = e.target.result;
+      img.style.width = "64px";
+      img.style.height = "64px";
+      img.style.objectFit = "cover";
+
+      const removeBtn = document.createElement("button");
+      removeBtn.innerText = "×";
+      removeBtn.className = "remove-btn";
+      removeBtn.onclick = () => {
+        wrapper.remove();
+        uploadedImages = uploadedImages.filter(x => x !== e.target.result);
+      };
+
+      uploadedImages.push(e.target.result);
+      wrapper.appendChild(img);
+      wrapper.appendChild(removeBtn);
+      previewContainer.appendChild(wrapper);
+    };
+    reader.readAsDataURL(file);
+  }
 });
 </script></body>
 </html>
