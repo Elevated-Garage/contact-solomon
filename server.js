@@ -133,7 +133,7 @@ app.post("/message", async (req, res) => {
 
       if (done) {
         
-        let imageSection = '';
+        
         if (Array.isArray(req.body.images) && req.body.images.length > 0) {
           imageSection = '\n\nUploaded Images:\n' + req.body.images.map((img, i) => `Image ${i + 1}: [base64]`).join('\n');
         }
@@ -202,10 +202,6 @@ res.json({ reply: aiReply, done });
     console.error("❌ Chat error:", err.message);
     res.json({ reply: "Sorry, I hit an issue. Try again?", done: false });
   }
-});
-
-app.listen(port, () => {
-  console.log(`✅ Contact Solomon backend running on port ${port}`);
 });
 
 app.listen(port, () => {
