@@ -832,19 +832,80 @@ body.solomon-embedded .form-wrapper {
     input[type="file"] {
       display: none;
     }
-  </style></head>
+  </style><style>
+#main-centered-container {
+  max-width: 720px;
+  margin: 0 auto;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#input-wrapper {
+  justify-content: flex-start !important;
+  gap: 12px;
+}
+
+#input-field {
+  flex: 1;
+}
+</style><style>
+#main-centered-container {
+  max-width: 720px;
+  margin: 0 auto;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#input-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  max-width: 642px;
+  padding: 8px 12px;
+  border: 2px solid #B91B21;
+  border-radius: 12px;
+  background: white;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.05);
+}
+
+#input-field {
+  flex-grow: 1;
+  padding: 8px;
+  font-size: 16px;
+  border: none;
+  outline: none;
+  background: transparent;
+}
+
+.plus-button,
+#send-button {
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  border-radius: 8px;
+  background-color: #f3f4f6;
+  border: none;
+  cursor: pointer;
+}
+</style></head>
 <body>
 <div id="app">
-<div class="header">
+<input accept="image/*" id="file-upload" style="display: none;" type="file"/>
+<div id="main-centered-container"><div class="header">
 <h1>Let’s Elevate Your Garage!</h1>
 <p>Your smart garage designer is standing by—let’s build your vision together.</p>
-</div>
-<div class="chat-box" id="chat-box">
+</div><div class="chat-box" id="chat-box">
 <div class="message bot">👋 Hey there! Before we get started, I have a few quick questions to help design your perfect garage.</div>
-</div>
-<div id="typing" style="display:none;">Solomon is typing...</div>
-<input accept="image/*" id="file-upload" style="display: none;" type="file"/>
-<form class="form-col" id="chat-form">
+</div><div id="typing" style="display:none;">Solomon is typing...</div><form class="form-col" id="chat-form">
 <div id="uploadCardContainer" style="display: none;">
 <div id="dropzone">Click or drag a photo here</div>
 <input accept="image/*" id="fileInput" type="file"/>
@@ -856,9 +917,6 @@ body.solomon-embedded .form-wrapper {
 </div>
 <style>
 #input-wrapper {
-  margin-left: auto;
-  margin-right: auto;
-  display: block;
   max-width: 642px;
   width: 100%;
   margin-left: auto;
@@ -942,8 +1000,7 @@ body.solomon-embedded .form-wrapper {
 <button id="send-button" style="width: 64.59px; height: 31.5px; padding: 0;">Send</button>
 </div>
 <button class="submit-button" id="submit-project-button" style="display: none;">Submit Project</button>
-</form>
-</div>
+</form></div></div>
 <div id="summary-download" style="display: none; margin-top: 20px; text-align: center;"><button id="download-summary" type="button">📄 Download My Submission</button></div>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
@@ -1121,4 +1178,5 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 </script></body>
 </html>
+
 
