@@ -877,11 +877,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 async function finalizeSubmission(conversationHistory) {
   try {
-    const res = await fetch("/submit-summary", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ conversationHistory })
-    });
+    const res = await appendMessage("📄 Your intake summary has been submitted successfully.", "bot");
 
     const data = await res.json();
     if (data.show_summary) {
