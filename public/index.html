@@ -1161,6 +1161,11 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   submitBtn.addEventListener("click", function () {
+    if (uploadedImages.length > 0) {
+      uploadedImages.forEach(img => {
+        appendMessage('<img src="' + img + '" class="chat-image" />', "user");
+      });
+    }
     appendMessage("📸 Photo uploaded successfully!", "user");
     if (!uploadedImages || uploadedImages.length === 0) return;
 
@@ -1197,5 +1202,5 @@ document.getElementById('skip-upload').addEventListener('click', () => {
     document.getElementById('send-button').click();
 });
 </script>
-</body>
+<button id="skip-upload" style="margin-top: 12px;">Skip Upload</button></body>
 </html>
