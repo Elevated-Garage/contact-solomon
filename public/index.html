@@ -1,12 +1,7 @@
 <!DOCTYPE html>
 
 <html lang="en">
-<head><script>
-let isSending = false;
-let uploadedImages = [];
-const conversationHistory = [];
-</script><script>
-</script>
+<head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Let’s Elevate Your Garage!</title>
@@ -911,196 +906,7 @@ body.solomon-embedded .form-wrapper {
   50% { transform: scale(1.2); opacity: 1; }
   100% { transform: scale(1); opacity: 0; }
 }
-</style><script>
-document.addEventListener("DOMContentLoaded", function () {
-  document.getElementById("input-field").innerText = "Solomon, can you help me design my garage?";
-  const check = document.getElementById("checkmark");
-  const submitBtn = document.getElementById("submit-project-button");
-  const skipBtn = document.getElementById("skip-upload");
-  const buttons = [submitBtn, skipBtn];
-  buttons.forEach(btn => {
-    btn.addEventListener("click", () => {
-      check.style.display = "block";
-      check.style.animation = "pop 0.8s ease-out forwards";
-      setTimeout(() => {
-        check.style.display = "none";
-      }, 800);
-    });
-  });
-});
-
-
-// --- Photo intent decision handling ---
-document.addEventListener("aiReply", function(e) {
-  const msg = e.detail.message?.toLowerCase() || "";
-  const intentBtns = document.getElementById("photo-intent-buttons");
-  const uploadWrapper = document.getElementById("upload-action-buttons");
-
-  if (
-    msg.includes("photo") ||
-    msg.includes("upload a photo") ||
-    msg.includes("garage image")
-  ) {
-    if (intentBtns) intentBtns.style.display = "flex";
-    if (uploadWrapper) uploadWrapper.style.display = "none";
-  }
-});
-
-document.getElementById("intent-yes").addEventListener("click", () => {
-  document.getElementById("photo-intent-buttons").style.display = "none";
-  document.getElementById("upload-action-buttons").style.display = "flex";
-});
-
-document.getElementById("intent-no").addEventListener("click", () => {
-  const userMessage = "No, I’d like to skip the photo upload.";
-  appendMessage(userMessage, "user");
-  conversationHistory.push({ role: "user", content: userMessage });
-
-  const check = document.getElementById("checkmark");
-  if (check) {
-    check.style.display = "block";
-    check.style.animation = "pop 0.8s ease-out forwards";
-    setTimeout(() => {
-      check.style.display = "none";
-    }, 800);
-  }
-
-  fetch("/message", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      conversationHistory,
-      trigger_summary: true
-    })
-  })
-  .then((res) => res.json())
-  .then((data) => {
-    if (data && data.reply) {
-      appendMessage(data.reply, "bot");
-      document.dispatchEvent(new CustomEvent("aiReply", {
-        detail: { message: data.reply }
-      }));
-      conversationHistory.push({ role: "assistant", content: data.reply });
-    }
-  })
-  .catch((err) => {
-    appendMessage("❌ Error sending message.", "bot");
-    console.error(err);
-  });
-});
-
-// Override photo upload preview to trigger summary
-document.getElementById("file-upload").addEventListener("change", function () {
-  const files = Array.from(this.files);
-  const preview = document.getElementById("preview-thumbnails");
-
-  files.forEach(file => {
-    const reader = new FileReader();
-    reader.onload = function (e) {
-      uploadedImages.push(e.target.result);
-      const img = document.createElement("img");
-      img.src = e.target.result;
-      img.className = "chat-image";
-      preview.appendChild(img);
-    };
-    reader.readAsDataURL(file);
-  });
-
-  appendMessage("📸 Photo uploaded successfully!", "user");
-
-  fetch("/message", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      conversationHistory,
-      images: uploadedImages,
-      trigger_summary: true
-    })
-  })
-  .then(res => res.json())
-  .then(data => {
-    if (data && data.reply) {
-      appendMessage(data.reply, "bot");
-      conversationHistory.push({ role: "assistant", content: data.reply });
-      document.dispatchEvent(new CustomEvent("aiReply", {
-        detail: { message: data.reply }
-      }));
-    }
-  })
-  .catch((err) => {
-    appendMessage("❌ Error sending photo message.", "bot");
-    console.error(err);
-  });
-});
-
-document.addEventListener("aiReply", function(e) {
-  const msg = e.detail.message?.toLowerCase() || "";
-  const intentBtns = document.getElementById("photo-intent-buttons");
-  if (
-    msg.includes("photo") ||
-    msg.includes("upload a photo") ||
-    msg.includes("garage image")
-  ) {
-    if (intentBtns) intentBtns.style.display = "flex";
-  }
-});
-
-document.getElementById("intent-yes").addEventListener("click", () => {
-  document.getElementById("photo-intent-buttons").style.display = "none";
-  document.getElementById("file-upload").click(); // auto-trigger file input
-});
-
-document.getElementById("intent-no").addEventListener("click", () => {
-  const userMessage = "No, I’d like to skip the photo upload.";
-  appendMessage(userMessage, "user");
-  conversationHistory.push({ role: "user", content: userMessage });
-
-  const check = document.getElementById("checkmark");
-  if (check) {
-    check.style.display = "block";
-    check.style.animation = "pop 0.8s ease-out forwards";
-    setTimeout(() => {
-      check.style.display = "none";
-    }, 800);
-  }
-
-  fetch("/message", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      conversationHistory,
-      trigger_summary: true
-    })
-  })
-  .then((res) => res.json())
-  .then((data) => {
-    if (data && data.reply) {
-      appendMessage(data.reply, "bot");
-      document.dispatchEvent(new CustomEvent("aiReply", {
-        detail: { message: data.reply }
-      }));
-      conversationHistory.push({ role: "assistant", content: data.reply });
-    }
-  })
-  .catch((err) => {
-    appendMessage("❌ Error sending message.", "bot");
-    console.error(err);
-  });
-});
-</script><script>
-document.addEventListener("aiReply", function(e) {
-  const msg = e.detail.message?.toLowerCase() || "";
-  const actionBtns = document.getElementById("upload-action-buttons");
-  if (
-    msg.includes("photo") ||
-    msg.includes("upload") ||
-    msg.includes("picture") ||
-    msg.includes("image")
-  ) {
-    if (actionBtns) actionBtns.style.display = "flex";
-  }
-});
-</script></head>
+</style></head>
 <body>
 <div id="app">
 <input accept="image/*" id="file-upload" style="display: none;" type="file"/>
@@ -1110,15 +916,6 @@ document.addEventListener("aiReply", function(e) {
 </div><div class="chat-box" id="chat-box">
 <div class="message bot">👋 Hey there! Before we get started, I have a few quick questions to help design your perfect garage.</div>
 </div><div id="typing" style="display:none;">Solomon is typing...</div><form class="form-col" id="chat-form" onsubmit="event.preventDefault();">
-<div id="uploadCardContainer" style="display: none;">
-<div id="dropzone">Click or drag a photo here</div>
-<input accept="image/*" id="fileInput" type="file"/>
-<img id="preview"/>
-<div class="buttons">
-<button disabled="" id="uploadBtn">Upload</button>
-<button id="skipBtn" onclick="handleSkip()">Skip</button>
-</div>
-</div>
 <style>
 #input-wrapper {
   max-width: 642px;
@@ -1199,7 +996,6 @@ document.addEventListener("aiReply", function(e) {
   background-color: #8a121a;
 }
 </style>
-
 <div id="photo-intent-buttons" style="display: none; justify-content: center; gap: 16px; margin-bottom: 12px;">
 <button id="intent-yes" style="padding: 8px 16px; background: #B91B21; color: white; border: none; border-radius: 8px; cursor: pointer;">Yes</button>
 <button id="intent-no" style="padding: 8px 16px; background: #6b7280; color: white; border: none; border-radius: 8px; cursor: pointer;">No</button>
@@ -1213,176 +1009,112 @@ document.addEventListener("aiReply", function(e) {
 </form></div></div>
 <div id="summary-download" style="display: none; margin-top: 20px; text-align: center;"><button id="download-summary" type="button">📄 Download My Submission</button></div>
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-  const inputField = document.getElementById('input-field');
-  const sendButton = document.getElementById('send-button');
-  // Enable text wrapping
-  inputField.style.whiteSpace = 'pre-wrap';
-  inputField.style.wordBreak = 'break-word';
-  // Send on Enter key
-  inputField.addEventListener('keydown', function (e) {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      sendButton.click();
-    }
-  });
-});
-</script><script>
-function highlightUploadPrompt() {
-  const label = document.getElementById("upload-label");
-  if (label) {
-    label.classList.add("highlight");
-  }
-}
-function removeUploadHighlight() {
-  const label = document.getElementById("upload-label");
-  if (label) {
-    label.classList.remove("highlight");
-  }
-}
-</script><script>
-
 document.addEventListener("DOMContentLoaded", function () {
   const inputField = document.getElementById("input-field");
   const sendButton = document.getElementById("send-button");
-  const chatBox = document.getElementById("chat-box");
-  
-  
-  
-  function appendMessage(message, sender) {
-    const bubble = document.createElement("div");
-    bubble.className = "message " + sender;
-    bubble.innerText = message;
-    chatBox.appendChild(bubble);
-    chatBox.scrollTop = chatBox.scrollHeight;
-  }
-  function sendMessage(text) {
-    if (!text || text.trim() === "" || isSending) return;
-    isSending = true;
-    appendMessage(text, "user");
-    conversationHistory.push({ role: "user", content: text });
-    document.getElementById("typing").style.display = "block";
-    fetch("/message", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ conversationHistory, images: uploadedImages, trigger_summary: false })
-    })
-    .then(res => res.json())
-    .then(data => {
-      document.getElementById("typing").style.display = "none";
-      if (data && data.reply) {
-        appendMessage(data.reply, "bot");
-        document.dispatchEvent(new CustomEvent("aiReply", {
-          detail: { message: data.reply }
-        }));
-        conversationHistory.push({ role: "assistant", content: data.reply });
-      }
-    })
-    .catch(err => {
-      document.getElementById("typing").style.display = "none";
-      appendMessage("❌ There was an error sending your message.", "bot");
-    })
-    .finally(() => {
-      isSending = false;
-    });
-  }
-  sendButton.addEventListener("click", function (event) {
-    event.preventDefault();
-    const text = inputField.innerText.trim();
-    sendMessage(text);
-    inputField.innerText = "";
-  });
-  inputField.addEventListener("keydown", function (e) {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      sendButton.click();
-    }
-  });
-});
-</script><script>
+  const fileUpload = document.getElementById("file-upload");
+  const preview = document.getElementById("preview-thumbnails");
+  const intentBtns = document.getElementById("photo-intent-buttons");
+  const conversationHistory = [];
+  const uploadedImages = [];
 
-document.addEventListener("DOMContentLoaded", function () {
-  const fileInput = document.getElementById("file-upload");
-  const previewContainer = document.getElementById("preview-thumbnails");
-  const submitBtn = document.getElementById("submit-project-button");
-  fileInput.addEventListener("change", function (event) {
-    uploadedImages = [];
-    previewContainer.innerHTML = "";
-    const files = event.target.files;
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        const imgData = e.target.result;
-        if (!uploadedImages.includes(imgData)) {
-          uploadedImages.push(imgData);
-          const wrapper = document.createElement("div");
-          wrapper.className = "thumbnail-wrapper";
-          const img = document.createElement("img");
-          img.src = imgData;
-          img.style.width = "64px";
-          img.style.height = "64px";
-          img.style.objectFit = "cover";
-          const removeBtn = document.createElement("button");
-          removeBtn.innerText = "×";
-          removeBtn.className = "remove-btn";
-          removeBtn.onclick = () => {
-            wrapper.remove();
-            uploadedImages = uploadedImages.filter(x => x !== imgData);
-            if (uploadedImages.length === 0) {
-              submitBtn.style.display = "none";
-            }
-          };
-          wrapper.appendChild(img);
-          wrapper.appendChild(removeBtn);
-          previewContainer.appendChild(wrapper);
-        }
-        if (uploadedImages.length > 0) {
-          submitBtn.style.display = "block";
-        }
-      };
-      reader.readAsDataURL(file);
+  // Handle AI replies that ask about photo uploads
+  document.addEventListener("aiReply", function(e) {
+    const msg = e.detail.message?.toLowerCase() || "";
+    if (
+      msg.includes("photo") ||
+      msg.includes("upload a photo") ||
+      msg.includes("garage image")
+    ) {
+      intentBtns.style.display = "flex";
     }
   });
-  submitBtn.addEventListener("click", function () {
-    if (uploadedImages.length > 0) {
-      uploadedImages.forEach(img => {
-        appendMessage('<img src="' + img + '" class="chat-image" />', "user");
+
+  // YES button: triggers file picker
+  document.getElementById("intent-yes").addEventListener("click", () => {
+    intentBtns.style.display = "none";
+    fileUpload.click();
+  });
+
+  // NO button: sends skip message and triggers summary
+  document.getElementById("intent-no").addEventListener("click", () => {
+    const message = "No, I’d like to skip the photo upload.";
+    appendMessage(message, "user");
+    conversationHistory.push({ role: "user", content: message });
+    triggerSolomonSummary(conversationHistory);
+  });
+
+  // Handle text sending
+  sendButton.addEventListener("click", () => {
+    const text = inputField.innerText.trim();
+    if (text) {
+      appendMessage(text, "user");
+      conversationHistory.push({ role: "user", content: text });
+      inputField.innerText = "";
+      fetch("/message", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ conversationHistory })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.reply) {
+          appendMessage(data.reply, "bot");
+          conversationHistory.push({ role: "assistant", content: data.reply });
+          document.dispatchEvent(new CustomEvent("aiReply", {
+            detail: { message: data.reply }
+          }));
+        }
       });
     }
+  });
+
+  // Photo upload and auto-summary
+  fileUpload.addEventListener("change", function () {
+    const files = Array.from(this.files);
+    files.forEach(file => {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        uploadedImages.push(e.target.result);
+        const img = document.createElement("img");
+        img.src = e.target.result;
+        img.className = "chat-image";
+        preview.appendChild(img);
+      };
+      reader.readAsDataURL(file);
+    });
+
     appendMessage("📸 Photo uploaded successfully!", "user");
-    if (!uploadedImages || uploadedImages.length === 0) return;
-    isSending = true;
-    document.getElementById("typing").style.display = "block";
+    triggerSolomonSummary(conversationHistory, uploadedImages);
+  });
+
+  function appendMessage(content, type) {
+    const container = document.createElement("div");
+    container.className = "message " + type;
+    container.innerHTML = content;
+    document.getElementById("chat-box").appendChild(container);
+    container.scrollIntoView({ behavior: "smooth" });
+  }
+
+  function triggerSolomonSummary(history, images = []) {
     fetch("/message", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ conversationHistory, images: uploadedImages, trigger_summary: true })
+      body: JSON.stringify({
+        conversationHistory: history,
+        images: images,
+        trigger_summary: true
+      })
     })
     .then(res => res.json())
     .then(data => {
-      document.getElementById("typing").style.display = "none";
       if (data && data.reply) {
         appendMessage(data.reply, "bot");
         conversationHistory.push({ role: "assistant", content: data.reply });
       }
-    })
-    .catch(() => {
-      document.getElementById("typing").style.display = "none";
-      appendMessage("❌ There was an error submitting your project.", "bot");
-    })
-    .finally(() => {
-      isSending = false;
     });
-  });
+  }
 });
-</script>
-<script>
-document.getElementById('skip-upload').addEventListener('click', () => {
-    const inputField = document.getElementById('input-field');
-    inputField.innerText = "No thank you";
-    document.getElementById('send-button').click();
-});
-</script>
-</body>
+</script></body>
 </html>
+
