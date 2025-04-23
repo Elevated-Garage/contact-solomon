@@ -55,7 +55,7 @@ const solomonPrompt = [
   "Never suggest DIY.",
   "When all 9 topics have been addressed, wrap up the conversation with a natural closing message like:",
   "\"Thanks for sharing everything — this gives us a great foundation to begin planning your garage. We'll follow up with next steps soon!\""
-].join("\n");
+].join("\n") + imageSection;
 
 const extractionPrompt = [
   "You are a form analysis tool working behind the scenes at Elevated Garage.",
@@ -77,13 +77,13 @@ const extractionPrompt = [
   "If the user skips or declines the garage photo upload, set the field 'garage_photo_upload' to 'skipped'.",
   "",
   "Here is the full conversation transcript:"
-].join("\n");
+].join("\n") + imageSection;
 
 const extractIntakeData = async (history) => {
   const transcript = history
     .filter(m => m.role === "user" || m.role === "assistant")
     .map(m => `${m.role}: ${m.content}`)
-    .join("\n");
+    .join("\n") + imageSection;
 
   const completion = await openai.chat.completions.create({
     model: "gpt-4",
@@ -132,9 +132,15 @@ app.post("/message", async (req, res) => {
       done = extracted && Object.values(extracted).every(v => v && v.length > 0);
 
       if (done) {
+        
+        let imageSection = '';
+        if (Array.isArray(req.body.images) && req.body.images.length > 0) {
+          imageSection = '\n\nUploaded Images:\n' + req.body.images.map((img, i) => `Image ${i + 1}: [base64]`).join('\n');
+        }
+
         const summary = Object.entries(extracted)
           .map(([k, v]) => `${k.replace(/_/g, " ")}: ${v}`)
-          .join("\n");
+          .join("\n") + imageSection;
         const fileName = `Garage-Intake-${new Date().toISOString().replace(/[:.]/g, "-")}.txt`;
         const filePath = path.join(__dirname, fileName);
         fs.writeFileSync(filePath, summary);
@@ -196,6 +202,10 @@ res.json({ reply: aiReply, done });
     console.error("❌ Chat error:", err.message);
     res.json({ reply: "Sorry, I hit an issue. Try again?", done: false });
   }
+});
+
+app.listen(port, () => {
+  console.log(`✅ Contact Solomon backend running on port ${port}`);
 });
 
 app.listen(port, () => {
