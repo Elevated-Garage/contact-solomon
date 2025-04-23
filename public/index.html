@@ -922,6 +922,19 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 });
+</script><script>
+document.addEventListener("aiReply", function(e) {
+  const msg = e.detail.message?.toLowerCase() || "";
+  const actionBtns = document.getElementById("upload-action-buttons");
+  if (
+    msg.includes("photo") ||
+    msg.includes("upload") ||
+    msg.includes("picture") ||
+    msg.includes("image")
+  ) {
+    if (actionBtns) actionBtns.style.display = "flex";
+  }
+});
 </script></head>
 <body>
 <div id="app">
@@ -1096,7 +1109,20 @@ document.addEventListener("DOMContentLoaded", function () {
     .then(data => {
       document.getElementById("typing").style.display = "none";
       if (data && data.reply) {
+        const reply = data.reply?.toLowerCase() || "";
+        const actionBtns = document.getElementById("upload-action-buttons");
+        if (
+          reply.includes("photo") ||
+          reply.includes("upload") ||
+          reply.includes("picture") ||
+          reply.includes("image")
+        ) {
+          if (actionBtns) actionBtns.style.display = "flex";
+        }
         appendMessage(data.reply, "bot");
+        document.dispatchEvent(new CustomEvent("aiReply", {
+          detail: { message: data.reply }
+        }));
         conversationHistory.push({ role: "assistant", content: data.reply });
       }
     })
