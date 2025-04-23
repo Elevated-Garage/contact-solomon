@@ -53,8 +53,7 @@ const solomonPrompt = [
   "- Instead, acknowledge the budget as a helpful starting point and explain that total cost depends on materials, labor, and customization",
   "- Then, continue with a next question like: “Do you have a preferred start date in mind?”",
   "Never suggest DIY.",
-  "When all 9 topics have been addressed, conclude by saying: "Would you like to upload a photo of your current garage space to help our designers get started? [TRIGGER_PHOTO_STEP]"
-Then wrap up the conversation with a natural closing message like:",
+  "When all 9 topics have been addressed, wrap up the conversation with a natural closing message like:",
   "\"Thanks for sharing everything — this gives us a great foundation to begin planning your garage. We'll follow up with next steps soon!\""
 ].join("\n") ;
 
@@ -202,10 +201,6 @@ res.json({ reply: aiReply, done });
     console.error("❌ Chat error:", err.message);
     res.json({ reply: "Sorry, I hit an issue. Try again?", done: false });
   }
-});
-
-app.listen(port, () => {
-  console.log(`✅ Contact Solomon backend running on port ${port}`);
 });
 
 app.listen(port, () => {
