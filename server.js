@@ -125,10 +125,28 @@ app.post("/message", async (req, res) => {
     });
 
     const aiReply = completion.choices[0].message.content;
+    // Smart detection of photo skip or upload based on last user message
+    const lastUserMsg = [...conversationHistory].reverse().find(m => m.role === "user")?.content?.toLowerCase() || "";
+
+    const skipPhrases = [
+      "no thank you", "skip the photo", "skip photo upload", "i don’t have a picture",
+      "not right now", "can i skip", "no photo", "i’d rather not", "i’ll send it later"
+    ];
+    const uploadPhrases = [
+      "photo uploaded", "uploaded a photo", "just uploaded", "attached the photo", "sent a picture"
+    ];
+
+    const shouldTriggerSmart = skipPhrases.some(p => lastUserMsg.includes(p)) ||
+                               uploadPhrases.some(p => lastUserMsg.includes(p));
+
+    if (shouldTriggerSmart) {
+      console.log("🧠 Smart phrase detected:", lastUserMsg);
+    }
+
 
     let done = false;
 
-    if (trigger_summary === true) {
+    if (trigger_summary === true || shouldTriggerSmart) {
       const extracted = await extractIntakeData(conversationHistory);
       done = extracted && Object.values(extracted).every(v => v && v.length > 0);
 
@@ -206,4 +224,3 @@ res.json({ reply: aiReply, done });
 app.listen(port, () => {
   console.log(`✅ Contact Solomon backend running on port ${port}`);
 });
-
