@@ -3,6 +3,9 @@ const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const OpenAI = require("openai");
+const { google } = require("googleapis");
+const fs = require("fs");
+const path = require("path");
 require("dotenv").config();
 
 const app = express();
@@ -10,12 +13,17 @@ app.use(cors());
 app.use(bodyParser.json());
 const port = 10000;
 
-// Use OpenAI SDK v4-compatible initialization
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
+// GPT-4 Initialization
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-// Dummy extraction function — replace with your actual logic
+// Google Drive Setup
+const auth = new google.auth.GoogleAuth({
+  keyFile: process.env.GOOGLE_CREDENTIALS,
+  scopes: ["https://www.googleapis.com/auth/drive.file"]
+});
+const drive = google.drive({ version: "v3", auth });
+
+// Dummy intake extraction logic
 const extractIntakeData = async (conversation) => {
   return {
     full_name: "example",
@@ -31,6 +39,7 @@ const extractIntakeData = async (conversation) => {
   };
 };
 
+// Solomon prompt for GPT-4
 const solomonPrompt = [
   "You are Solomon, a professional and friendly garage design assistant for Elevated Garage that respects user answers.",
   "If the user uploads a photo, thank them and let them know the Elevated Garage team will review it. Do NOT say you cannot view images. Just acknowledge the upload and continue.",
@@ -65,11 +74,9 @@ const solomonPrompt = [
   "\"Thanks for sharing everything — this gives us a great foundation to begin planning your garage. We'll follow up with next steps soon!\""
 ].join("\n");
 
+// GPT interaction endpoint
 app.post("/message", async (req, res) => {
-  console.log("📨 /message hit");
-
   const { conversationHistory } = req.body;
-  console.log("📋 Raw input:", JSON.stringify(conversationHistory, null, 2));
 
   if (!conversationHistory || !Array.isArray(conversationHistory)) {
     return res.status(400).json({ success: false, error: "Invalid conversation history format." });
@@ -90,11 +97,43 @@ app.post("/message", async (req, res) => {
 
     return res.json({ reply: aiReply, done });
   } catch (err) {
-    console.error("❌ GPT fallback:", err.message);
-    return res.json({
-      reply: "Thanks! What would you like to add next?",
-      done: false
+    console.error("❌ GPT error:", err.message);
+    return res.json({ reply: "Thanks! What would you like to add next?", done: false });
+  }
+});
+
+// Upload intake summary to Google Drive
+app.post("/submit-summary", async (req, res) => {
+  const { summaryText } = req.body;
+
+  if (!summaryText) {
+    return res.status(400).json({ success: false, error: "Missing summaryText in body." });
+  }
+
+  try {
+    const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+    const fileName = `Garage-Intake-${timestamp}.txt`;
+    const filePath = path.join(__dirname, fileName);
+    fs.writeFileSync(filePath, summaryText);
+
+    const driveResponse = await drive.files.create({
+      requestBody: {
+        name: fileName,
+        mimeType: "text/plain",
+        parents: [process.env.GOOGLE_DRIVE_FOLDER_ID]
+      },
+      media: {
+        mimeType: "text/plain",
+        body: fs.createReadStream(filePath)
+      }
     });
+
+    fs.unlinkSync(filePath); // clean up
+
+    res.json({ success: true, fileId: driveResponse.data.id });
+  } catch (err) {
+    console.error("❌ Drive upload error:", err.message);
+    res.status(500).json({ success: false, error: "Failed to upload to Drive." });
   }
 });
 
