@@ -172,11 +172,7 @@ app.post("/message", async (req, res) => {
       for (let i = 0; i < req.body.images.length; i++) {
         const base64Data = req.body.images[i].split(";base64,").pop();
         const fileExtension = req.body.images[i].includes("image/png") ? "png" : "jpg";
-        const fileName = `Garage-Photo-${new Date().toISOString().replace(/[:.]/g, "-")}
-
-console.log("✅ GPT summary extracted and submitted via trigger_summary flag.");
-    
-    ${i + 1}.${fileExtension}`;
+        const fileName = `Garage-Photo-${new Date().toISOString().replace(/[:.]/g, "-")}-${i + 1}.${fileExtension}`;
         const filePath = path.join(__dirname, fileName);
         fs.writeFileSync(filePath, base64Data, { encoding: "base64" });
 
@@ -205,6 +201,10 @@ res.json({ reply: aiReply, done });
     console.error("❌ Chat error:", err.message);
     res.json({ reply: "Sorry, I hit an issue. Try again?", done: false });
   }
+});
+
+app.listen(port, () => {
+  console.log(`✅ Contact Solomon backend running on port ${port}`);
 });
 
 app.listen(port, () => {
