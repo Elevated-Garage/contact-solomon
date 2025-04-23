@@ -153,12 +153,14 @@ app.post("/message", async (req, res) => {
           });
           fs.unlinkSync(filePath);
           console.log("✅ Intake summary uploaded:", upload.data.id);
+        console.log("📨 Intake summary triggered by AI — data complete and uploaded.");
         } catch (uploadErr) {
           console.error("❌ Upload failed:", uploadErr.message);
         }
       }
     }
 
+    console.log("✅ GPT summary extracted and submitted via trigger_summary flag.");
     res.json({ reply: aiReply, done });
   } catch (err) {
     console.error("❌ Chat error:", err.message);
