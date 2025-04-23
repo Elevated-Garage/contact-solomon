@@ -1008,6 +1008,7 @@ body.solomon-embedded .form-wrapper {
 </div>
 </form></div></div>
 <div id="summary-download" style="display: none; margin-top: 20px; text-align: center;"><button id="download-summary" type="button">📄 Download My Submission</button></div>
+<!-- FIXED HTML with corrected ID reference -->
 <script>
 document.addEventListener("DOMContentLoaded", function () {
   const inputField = document.getElementById("input-field");
@@ -1021,25 +1022,22 @@ document.addEventListener("DOMContentLoaded", function () {
   // Handle AI replies that ask about photo uploads
   document.addEventListener("aiReply", function(e) {
     const msg = e.detail.message?.toLowerCase() || "";
-const triggerPhrases = [
-  "[trigger_photo_step]",
-  "upload a photo",
-  "garage photo",
-  "photo of your garage",
-  "photo of your space",
-  "image of your garage",
-  "help our designers"
-];
+    const triggerPhrases = [
+      "[trigger_photo_step]",
+      "upload a photo",
+      "garage photo",
+      "photo of your garage",
+      "photo of your space",
+      "image of your garage",
+      "help our designers"
+    ];
 
-const shouldTrigger = triggerPhrases.some(phrase => msg.includes(phrase));
-if (shouldTrigger) {
-  const intentBtns = document.getElementById("intent-btns");
-  if (intentBtns) intentBtns.style.display = "flex";
-}
+    const shouldTrigger = triggerPhrases.some(phrase => msg.includes(phrase));
+    if (shouldTrigger) {
+      intentBtns.style.display = "flex";
+    }
 
-    if (
-      msg.includes("[trigger_photo_step]")
-    ) {
+    if (msg.includes("[trigger_photo_step]")) {
       intentBtns.style.display = "flex";
     }
   });
