@@ -13,7 +13,6 @@ app.use(cors());
 app.use(bodyParser.json());
 const port = 10000;
 
-// GPT-4 Initialization
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 // Google Drive Setup
@@ -23,23 +22,7 @@ const auth = new google.auth.GoogleAuth({
 });
 const drive = google.drive({ version: "v3", auth });
 
-// Dummy intake extraction logic
-const extractIntakeData = async (conversation) => {
-  return {
-    full_name: "example",
-    email: "example@example.com",
-    phone: "1234567890",
-    garage_goals: "clean garage",
-    square_footage: "400",
-    must_have_features: "cabinets",
-    budget: "10k",
-    start_date: "May",
-    final_notes: "none",
-    garage_photo_upload: "skipped"
-  };
-};
-
-// Solomon prompt for GPT-4
+// Solomon's conversational prompt
 const solomonPrompt = [
   "You are Solomon, a professional and friendly garage design assistant for Elevated Garage that respects user answers.",
   "If the user uploads a photo, thank them and let them know the Elevated Garage team will review it. Do NOT say you cannot view images. Just acknowledge the upload and continue.",
@@ -74,7 +57,53 @@ const solomonPrompt = [
   "\"Thanks for sharing everything — this gives us a great foundation to begin planning your garage. We'll follow up with next steps soon!\""
 ].join("\n");
 
-// GPT interaction endpoint
+// AI-enhanced extraction of intake answers
+const extractIntakeData = async (conversationHistory) => {
+  const prompt = [
+    "You are a form analysis tool working behind the scenes at Elevated Garage.",
+    "You are NOT a chatbot. Do NOT greet the user or respond conversationally.",
+    "Your job is to extract key information from a transcript of a conversation between the user and Solomon, a conversational AI assistant.",
+    "Return a structured JSON object containing these 10 fields:",
+    "- full_name",
+    "- email",
+    "- phone",
+    "- garage_goals",
+    "- square_footage",
+    "- must_have_features",
+    "- budget",
+    "- start_date",
+    "- final_notes",
+    "- garage_photo_upload",
+    "Respond ONLY with a valid JSON object. No text before or after. No assistant tag. No markdown formatting.",
+    "Use natural language understanding to infer vague answers (e.g., 'probably 400ish square feet').",
+    "If the user skips or declines the garage photo upload, set the field 'garage_photo_upload' to 'skipped'.",
+    "",
+    "Here is the full conversation transcript:"
+  ].join("\n");
+
+  const transcript = conversationHistory
+    .filter(entry => entry.role === "user" || entry.role === "assistant")
+    .map(entry => `${entry.role}: ${entry.content}`)
+    .join("\n");
+
+  const completion = await openai.chat.completions.create({
+    model: "gpt-4",
+    messages: [
+      { role: "system", content: prompt },
+      { role: "user", content: transcript }
+    ],
+    temperature: 0
+  });
+
+  try {
+    return JSON.parse(completion.choices[0].message.content);
+  } catch (err) {
+    console.error("❌ Failed to parse extracted data:", err.message);
+    return {};
+  }
+};
+
+// GPT-powered chat logic
 app.post("/message", async (req, res) => {
   const { conversationHistory } = req.body;
 
@@ -95,14 +124,42 @@ app.post("/message", async (req, res) => {
     const extractedData = await extractIntakeData(conversationHistory);
     const done = extractedData && Object.values(extractedData).every(val => val && val.length > 0);
 
+    
+    if (done) {
+      const summaryLines = Object.entries(extractedData)
+        .map(([key, value]) => `${key.replace(/_/g, ' ')}: ${value}`)
+        .join("\n");
+      const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+      const fileName = `Garage-Intake-${timestamp}.txt`;
+      const filePath = path.join(__dirname, fileName);
+      fs.writeFileSync(filePath, summaryLines);
+      try {
+        const driveResponse = await drive.files.create({
+          requestBody: {
+            name: fileName,
+            mimeType: "text/plain",
+            parents: [process.env.GOOGLE_DRIVE_FOLDER_ID]
+          },
+          media: {
+            mimeType: "text/plain",
+            body: fs.createReadStream(filePath)
+          }
+        });
+        fs.unlinkSync(filePath); // clean up
+        console.log("✅ Intake summary uploaded:", driveResponse.data.id);
+      } catch (uploadErr) {
+        console.error("❌ Upload failed:", uploadErr.message);
+      }
+    }
     return res.json({ reply: aiReply, done });
+    
   } catch (err) {
     console.error("❌ GPT error:", err.message);
     return res.json({ reply: "Thanks! What would you like to add next?", done: false });
   }
 });
 
-// Upload intake summary to Google Drive
+// Summary upload to Google Drive
 app.post("/submit-summary", async (req, res) => {
   const { summaryText } = req.body;
 
@@ -128,7 +185,7 @@ app.post("/submit-summary", async (req, res) => {
       }
     });
 
-    fs.unlinkSync(filePath); // clean up
+    fs.unlinkSync(filePath); // cleanup
 
     res.json({ success: true, fileId: driveResponse.data.id });
   } catch (err) {
