@@ -161,11 +161,45 @@ app.post("/message", async (req, res) => {
     }
 
     console.log("✅ GPT summary extracted and submitted via trigger_summary flag.");
-    res.json({ reply: aiReply, done });
+    
+    // Handle image uploads (if any)
+    if (Array.isArray(req.body.images)) {
+      for (let i = 0; i < req.body.images.length; i++) {
+        const base64Data = req.body.images[i].split(";base64,").pop();
+        const fileExtension = req.body.images[i].includes("image/png") ? "png" : "jpg";
+        const fileName = `Garage-Photo-${new Date().toISOString().replace(/[:.]/g, "-")}-${i + 1}.${fileExtension}`;
+        const filePath = path.join(__dirname, fileName);
+        fs.writeFileSync(filePath, base64Data, { encoding: "base64" });
+
+        try {
+          const upload = await drive.files.create({
+            requestBody: {
+              name: fileName,
+              mimeType: `image/${fileExtension}`,
+              parents: [process.env.GOOGLE_DRIVE_FOLDER_ID]
+            },
+            media: {
+              mimeType: `image/${fileExtension}`,
+              body: fs.createReadStream(filePath)
+            }
+          });
+          fs.unlinkSync(filePath);
+          console.log(`📸 Uploaded image ${i + 1} to Drive:`, upload.data.id);
+        } catch (uploadErr) {
+          console.error(`❌ Failed to upload image ${i + 1}:`, uploadErr.message);
+        }
+      }
+    }
+
+res.json({ reply: aiReply, done });
   } catch (err) {
     console.error("❌ Chat error:", err.message);
     res.json({ reply: "Sorry, I hit an issue. Try again?", done: false });
   }
+});
+
+app.listen(port, () => {
+  console.log(`✅ Contact Solomon backend running on port ${port}`);
 });
 
 app.listen(port, () => {
