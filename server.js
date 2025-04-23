@@ -2,7 +2,7 @@
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
-const { Configuration, OpenAIApi } = require("openai");
+const OpenAI = require("openai");
 require("dotenv").config();
 
 const app = express();
@@ -10,12 +10,26 @@ app.use(cors());
 app.use(bodyParser.json());
 const port = 10000;
 
-const configuration = new Configuration({
-  apiKey: process.env.OPENAI_API_KEY,
+// Use OpenAI SDK v4-compatible initialization
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY
 });
-const openai = new OpenAIApi(configuration);
 
-const extractIntakeData = require("./extractIntakeData"); // Assume this exists in your project
+// Dummy extraction function — replace with your actual logic
+const extractIntakeData = async (conversation) => {
+  return {
+    full_name: "example",
+    email: "example@example.com",
+    phone: "1234567890",
+    garage_goals: "clean garage",
+    square_footage: "400",
+    must_have_features: "cabinets",
+    budget: "10k",
+    start_date: "May",
+    final_notes: "none",
+    garage_photo_upload: "skipped"
+  };
+};
 
 const solomonPrompt = [
   "You are Solomon, a professional and friendly garage design assistant for Elevated Garage that respects user answers.",
