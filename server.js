@@ -9,7 +9,7 @@ const path = require("path");
 require("dotenv").config();
 
 const app = express();
-const port = 10000;
+const port = process.env.PORT || 10000;
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -196,10 +196,6 @@ res.json({ reply: aiReply, done });
     console.error("❌ Chat error:", err.message);
     res.json({ reply: "Sorry, I hit an issue. Try again?", done: false });
   }
-});
-
-app.listen(port, () => {
-  console.log(`✅ Contact Solomon backend running on port ${port}`);
 });
 
 app.listen(port, () => {
