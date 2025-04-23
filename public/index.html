@@ -938,7 +938,7 @@ body.solomon-embedded .form-wrapper {
 <div contenteditable="true" id="input-field" placeholder="Type your message...">Solomon, can you help me design my garage?</div>
 <button id="send-button" style="width: 64.59px; height: 31.5px; padding: 0;">Send</button>
 </div>
-<button class="submit-button" id="submit-project-button" style="display: none;">📤 Submit Project</button>
+<button class="submit-button" id="submit-project-button" style="display: none;">Submit Project</button>
 </form>
 </div>
 <div id="summary-download" style="display: none; margin-top: 20px; text-align: center;"><button id="download-summary" type="button">📄 Download My Submission</button></div>
@@ -958,36 +958,6 @@ document.addEventListener('DOMContentLoaded', function () {
       sendButton.click();
     }
   });
-});
-</script><script>
-document.getElementById("file-upload").addEventListener("change", function(event) {
-  const previewContainer = document.getElementById("preview-thumbnails");
-  previewContainer.innerHTML = "";
-  const files = event.target.files;
-  for (let i = 0; i < files.length; i++) {
-    const file = files[i];
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      const wrapper = document.createElement("div");
-      wrapper.className = "thumbnail-wrapper";
-
-      const img = document.createElement("img");
-      img.src = e.target.result;
-      img.style.width = "64px";
-      img.style.height = "64px";
-      img.style.objectFit = "cover";
-
-      const removeBtn = document.createElement("button");
-      removeBtn.innerText = "×";
-      removeBtn.className = "remove-btn";
-      removeBtn.onclick = () => wrapper.remove();
-
-      wrapper.appendChild(img);
-      wrapper.appendChild(removeBtn);
-      previewContainer.appendChild(wrapper);
-    };
-    reader.readAsDataURL(file);
-  }
 });
 </script><script>
 function highlightUploadPrompt() {
@@ -1064,48 +1034,13 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 </script><script>
-document.getElementById("file-upload").addEventListener("change", function(event) {
-  const previewContainer = document.getElementById("preview-thumbnails");
-  previewContainer.innerHTML = "";
-  uploadedImages = []; // reset previous uploads
-  const files = event.target.files;
-  for (let i = 0; i < files.length; i++) {
-    const file = files[i];
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      const wrapper = document.createElement("div");
-      wrapper.className = "thumbnail-wrapper";
-
-      const img = document.createElement("img");
-      img.src = e.target.result;
-      img.style.width = "64px";
-      img.style.height = "64px";
-      img.style.objectFit = "cover";
-
-      const removeBtn = document.createElement("button");
-      removeBtn.innerText = "×";
-      removeBtn.className = "remove-btn";
-      removeBtn.onclick = () => {
-        wrapper.remove();
-        uploadedImages = uploadedImages.filter(x => x !== e.target.result);
-      };
-
-      uploadedImages.push(e.target.result);
-      wrapper.appendChild(img);
-      wrapper.appendChild(removeBtn);
-      previewContainer.appendChild(wrapper);
-    };
-    reader.readAsDataURL(file);
-  }
-});
-</script><script>
 document.addEventListener("DOMContentLoaded", function () {
   const fileInput = document.getElementById("file-upload");
   const previewContainer = document.getElementById("preview-thumbnails");
   const submitBtn = document.getElementById("submit-project-button");
 
   fileInput.addEventListener("change", function (event) {
-    uploadedImages = [];  // Clear previous
+    uploadedImages = [];
     previewContainer.innerHTML = "";
 
     const files = event.target.files;
@@ -1183,3 +1118,4 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 </script></body>
 </html>
+
