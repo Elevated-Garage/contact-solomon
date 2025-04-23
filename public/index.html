@@ -939,7 +939,6 @@ body.solomon-embedded .form-wrapper {
 <button id="send-button" style="width: 64.59px; height: 31.5px; padding: 0;">Send</button>
 </div>
 <button class="submit-button" id="submit-project-button" style="display: none;">📤 Submit Project</button>
-
 </form>
 </div>
 <div id="summary-download" style="display: none; margin-top: 20px; text-align: center;"><button id="download-summary" type="button">📄 Download My Submission</button></div>
@@ -1101,16 +1100,58 @@ document.getElementById("file-upload").addEventListener("change", function(event
 });
 </script><script>
 document.addEventListener("DOMContentLoaded", function () {
-  const submitBtn = document.getElementById("submit-project-button");
+  const fileInput = document.getElementById("file-upload");
   const previewContainer = document.getElementById("preview-thumbnails");
+  const submitBtn = document.getElementById("submit-project-button");
 
-  function maybeToggleSubmitButton() {
-    if (uploadedImages && uploadedImages.length > 0) {
-      submitBtn.style.display = "block";
-    } else {
-      submitBtn.style.display = "none";
+  fileInput.addEventListener("change", function (event) {
+    uploadedImages = [];  // Clear previous
+    previewContainer.innerHTML = "";
+
+    const files = event.target.files;
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const reader = new FileReader();
+
+      reader.onload = function (e) {
+        const imgData = e.target.result;
+
+        if (!uploadedImages.includes(imgData)) {
+          uploadedImages.push(imgData);
+
+          const wrapper = document.createElement("div");
+          wrapper.className = "thumbnail-wrapper";
+
+          const img = document.createElement("img");
+          img.src = imgData;
+          img.style.width = "64px";
+          img.style.height = "64px";
+          img.style.objectFit = "cover";
+
+          const removeBtn = document.createElement("button");
+          removeBtn.innerText = "×";
+          removeBtn.className = "remove-btn";
+          removeBtn.onclick = () => {
+            wrapper.remove();
+            uploadedImages = uploadedImages.filter(x => x !== imgData);
+            if (uploadedImages.length === 0) {
+              submitBtn.style.display = "none";
+            }
+          };
+
+          wrapper.appendChild(img);
+          wrapper.appendChild(removeBtn);
+          previewContainer.appendChild(wrapper);
+        }
+
+        if (uploadedImages.length > 0) {
+          submitBtn.style.display = "block";
+        }
+      };
+
+      reader.readAsDataURL(file);
     }
-  }
+  });
 
   submitBtn.addEventListener("click", function () {
     if (!uploadedImages || uploadedImages.length === 0) return;
@@ -1139,12 +1180,6 @@ document.addEventListener("DOMContentLoaded", function () {
       isSending = false;
     });
   });
-
-  const originalChangeHandler = document.getElementById("file-upload").onchange;
-  document.getElementById("file-upload").addEventListener("change", function (event) {
-    setTimeout(() => maybeToggleSubmitButton(), 200);
-  });
 });
 </script></body>
 </html>
-
