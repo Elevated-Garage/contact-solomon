@@ -75,7 +75,6 @@ function generateSummaryPDF(summaryText, outputPath, imagePath = null) {
     stream.on("error", reject);
   });
 }
-};
 
 const solomonPrompt = [
   "You are Solomon, a professional and friendly garage design assistant for Elevated Garage that respects user answers.",
