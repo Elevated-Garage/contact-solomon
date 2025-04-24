@@ -9,7 +9,7 @@ const PDFDocument = require("pdfkit");
 require("dotenv").config();
 
 const app = express();
-const port = process.env.PORT || Math.floor(10000 + Math.random() * 1000);
+const port = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(bodyParser.json({ limit: "10mb" })); // Allow large JSON payloads for base64 images
@@ -243,10 +243,6 @@ app.post("/message", async (req, res) => {
     console.error("❌ Chat error:", err.message);
     res.json({ reply: "Sorry, I hit an issue. Try again?", done: false });
   }
-});
-
-app.listen(port, () => {
-  console.log(`✅ Contact Solomon backend running on port ${port}`);
 });
 
 app.listen(port, () => {
