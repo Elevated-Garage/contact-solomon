@@ -1078,7 +1078,13 @@ const shouldTrigger = triggerKeywords.some(keyword => msg.includes(keyword)) &&
           appendMessage(data.reply, "bot");
           conversationHistory.push({ role: "assistant", content: data.reply });
 
-      
+          document.dispatchEvent(new CustomEvent("aiReply", {
+            detail: { message: data.reply }
+          }));
+        }
+      });
+    }
+  });
           document.dispatchEvent(new CustomEvent("aiReply", {
             detail: { message: data.reply }
           }));
@@ -1123,20 +1129,22 @@ fileUpload.addEventListener("change", function () {
     container.scrollIntoView({ behavior: "smooth" });
   }
 
-  function triggerSolomonSummary(history, images = []) {
-    const formData = new FormData();
-formData.append("conversationHistory", JSON.stringify(history));
-Array.from(fileUpload.files).forEach(file => formData.append("photos", file));
-formData.append("trigger_summary", "true"); // if triggering a PDF
-fetch("/submit", {
-      method: "POST",
-      body: formData
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (data && data.reply) {
-        appendMessage(data.reply, "bot");
-        conversationHistory.push({ role: "assistant", content: data.reply });
+  
+function triggerSolomonSummary(history, images = []) {
+  const formData = new FormData();
+  formData.append("conversationHistory", JSON.stringify(history));
+  Array.from(fileUpload.files).forEach(file => formData.append("photos", file));
+  formData.append("trigger_summary", "true");
+
+  fetch("/submit", {
+    method: "POST",
+    body: formData
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data && data.reply) {
+      appendMessage(data.reply, "bot");
+      conversationHistory.push({ role: "assistant", content: data.reply }); 
       }
     });
   }
@@ -1144,6 +1152,7 @@ fetch("/submit", {
 </script></div>
 </body>
 </html>
+
 
 
 
