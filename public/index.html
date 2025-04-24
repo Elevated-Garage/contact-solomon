@@ -1053,7 +1053,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const message = "No, I’d like to skip the photo upload.";
     appendMessage(message, "user");
     conversationHistory.push({ role: "user", content: message });
-    triggerSolomonSummary(conversationHistory);
+    triggerSolomonSummary(conversationHistory, uploadedImages);
   });
 
   // Handle text sending
