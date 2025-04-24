@@ -162,8 +162,8 @@ const extractIntakeData = async (history) => {
     console.error("❌ Failed to parse extracted data:", err.message);
     console.error("Returned content:", raw);
     return {};
-  }
-};
+  });
+}
 
 app.post("/message", async (req, res) => {
   const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
