@@ -1120,7 +1120,8 @@ fileUpload.addEventListener("change", function () {
     container.className = "message " + type;
     container.innerHTML = content;
     document.getElementById("chat-box").appendChild(container);
-    container.scrollIntoView({ behavior: "smooth" });
+    const chatBox = document.getElementById("chat-box");
+chatBox.scrollTop = chatBox.scrollHeight;
   }
 
   function triggerSolomonSummary(history, images = []) {
@@ -1144,3 +1145,4 @@ fileUpload.addEventListener("change", function () {
 });
 </script></body>
 </html>
+
