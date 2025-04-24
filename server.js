@@ -150,7 +150,6 @@ const extractIntakeData = async (history) => {
     ],
     temperature: 0
     });
-    });
   });
 
   let raw = completion.choices[0].message.content.trim();
