@@ -201,9 +201,11 @@ app.post("/message", async (req, res) => {
 
 app.listen(port, () => {
   console.log(`✅ Contact Solomon backend running on port ${port}`);
-});
-
-
-app.listen(port, () => {
-  console.log(`✅ Contact Solomon backend running on port ${port}`);
+}).on('error', (err) => {
+  if (err.code === 'EADDRINUSE') {
+    console.error(`❌ Port ${port} is already in use. Please restart your environment or change the port.`);
+    process.exit(1);
+  } else {
+    throw err;
+  }
 });
