@@ -9,6 +9,7 @@ const PDFDocument = require("pdfkit");
 const { google } = require("googleapis");
 const { OpenAI } = require("openai");
 require("dotenv").config();
+app.use(express.static(path.join(__dirname, "public")));
 
 const app = express();
 const port = process.env.PORT || 10000;
