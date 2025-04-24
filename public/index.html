@@ -1011,6 +1011,7 @@ body.solomon-embedded .form-wrapper {
 <!-- FIXED HTML with corrected ID reference -->
 <script>
 document.addEventListener("DOMContentLoaded", function () {
+  let photoPromptShown = false;
   const inputField = document.getElementById("input-field");
   const sendButton = document.getElementById("send-button");
   const fileUpload = document.getElementById("file-upload");
@@ -1022,18 +1023,13 @@ document.addEventListener("DOMContentLoaded", function () {
   // Handle AI replies that ask about photo uploads
   document.addEventListener("aiReply", function(e) {
     const msg = e.detail.message?.toLowerCase() || "";
-    const triggerPhrases = [
-      "[trigger_photo_step]",
-      "upload a photo",
-      "garage photo",
-      "photo of your garage",
-      "photo of your space",
-      "image of your garage",
-      "help our designers"
-    ];
+    
+const triggerKeywords = ["photo", "upload", "garage", "picture", "image", "space"];
+const shouldTrigger = triggerKeywords.some(keyword => msg.includes(keyword)) &&
+                      msg.includes("garage") && msg.includes("photo");
 
-    const shouldTrigger = triggerPhrases.some(phrase => msg.includes(phrase));
-    if (shouldTrigger) {
+    if (!photoPromptShown && shouldTrigger) {
+        photoPromptShown = true;
       intentBtns.style.display = "flex";
     }
 
