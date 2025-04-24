@@ -1078,13 +1078,7 @@ const shouldTrigger = triggerKeywords.some(keyword => msg.includes(keyword)) &&
           appendMessage(data.reply, "bot");
           conversationHistory.push({ role: "assistant", content: data.reply });
 
-          document.dispatchEvent(new CustomEvent("aiReply", {
-            detail: { message: data.reply }
-          }));
-        }
-      });
-    }
-  });
+      
           document.dispatchEvent(new CustomEvent("aiReply", {
             detail: { message: data.reply }
           }));
