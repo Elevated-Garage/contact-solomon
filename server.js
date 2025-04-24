@@ -6,7 +6,6 @@ const { google } = require("googleapis");
 const fs = require("fs");
 const path = require("path");
 const PDFDocument = require("pdfkit");
-const path = require("path");
 const PDFDocument = require("pdfkit");
 require("dotenv").config();
 
