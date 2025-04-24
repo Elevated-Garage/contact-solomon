@@ -1,271 +1,1146 @@
-const express = require("express");
-const cors = require("cors");
-const bodyParser = require("body-parser");
-const OpenAI = require("openai");
-const { google } = require("googleapis");
-const fs = require("fs");
-const path = require("path");
-const PDFDocument = require("pdfkit");
-require("dotenv").config();
+<!DOCTYPE html>
 
-const app = express();
-const port = process.env.PORT || Math.floor(10000 + Math.random() * 1000);
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Let’s Elevate Your Garage!</title>
+<style>
+.message.user { background-color: #B91B21; color: white; align-self: flex-end; padding: 10px; margin: 8px 0; border-radius: 12px; max-width: 80%; }
 
-app.use(cors());
-app.use(bodyParser.json({ limit: "10mb" })); // Allow large JSON payloads for base64 images
-app.use(express.static(path.join(__dirname, "public")));
+.range-container {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  padding: 20px 24px;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 20px;
+}
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+.range-slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 12px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #B91B21, #EB6000);
+  position: relative;
+  outline: none;
+  transition: background 0.3s ease;
+  box-shadow: 0 0 10px rgba(185,27,33,0.5);
+}
 
-const auth = new google.auth.GoogleAuth({
-  keyFile: process.env.GOOGLE_CREDENTIALS,
-  scopes: ["https://www.googleapis.com/auth/drive.file"]
-});
-const drive = google.drive({ version: "v3", auth });
+.range-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 30px;
+  width: 30px;
+  background: rgba(255,255,255,0.6);
+  backdrop-filter: blur(4px);
+  border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 0 0 10px rgba(0,0,0,0.25);
+  margin-top: -9px;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
 
-function generateSummaryPDF(summaryText, outputPath, imagePath = null) {
-  return new Promise((resolve, reject) => {
-    const doc = new PDFDocument();
-    const stream = fs.createWriteStream(outputPath);
-    doc.pipe(stream);
+.range-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  background: rgba(255,255,255,0.85);
+}
 
-    doc.font("Helvetica-Bold").fontSize(16).text("Elevated Garage Project Summary", {
-      align: "center",
-      underline: true
-    });
+.range-slider::-moz-range-thumb {
+  height: 30px;
+  width: 30px;
+  background: rgba(255,255,255,0.6);
+  border: 2px solid #fff;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(0,0,0,0.25);
+}
 
-    doc.moveDown();
-    doc.font("Helvetica").fontSize(12).text(summaryText, {
-      width: 500,
-      align: "left"
-    });
+.range-value {
+  font-size: 18px;
+  color: #ffffff;
+  font-weight: 600;
+  font-family: inherit;
+  letter-spacing: 0.3px;
+  text-shadow: 0 0 4px rgba(0,0,0,0.3);
+}
 
-    if (imagePath && fs.existsSync(imagePath)) {
-      doc.addPage();
-      doc.fontSize(14).text("Uploaded Garage Photo:", { align: "left" });
-      doc.image(imagePath, {
-        fit: [500, 350],
-        align: "center",
-        valign: "center"
+
+
+.range-container {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(8px);
+  padding: 16px 20px;
+  border-radius: 14px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05), 0 2px 12px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.range-slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.15);
+  position: relative;
+}
+
+.range-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 24px;
+  width: 24px;
+  background: #B91B21;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  transition: background 0.2s ease, transform 0.2s ease;
+  position: relative;
+  margin-top: -9px;
+}
+
+.range-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  background: #D9262F;
+}
+
+.range-slider::-moz-range-thumb {
+  height: 24px;
+  width: 24px;
+  background: #B91B21;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+.range-value {
+  font-size: 17px;
+  color: white;
+  font-weight: 500;
+  font-family: inherit;
+}
+
+
+
+.range-container {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  padding: 14px 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.range-slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 10px;
+  border-radius: 6px;
+  background: linear-gradient(to right, #B91B21, #EB6000);
+  outline: none;
+  transition: background 0.3s ease;
+  position: relative;
+  margin: 10px 0;
+}
+
+.range-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 4px;
+  height: 24px;
+  background: white;
+  border: none;
+  border-radius: 2px;
+  margin-top: -7px;
+  box-shadow: 0 0 3px rgba(0,0,0,0.2);
+  cursor: pointer;
+}
+
+.range-slider::-webkit-slider-thumb:hover {
+  background: #f5f5f5;
+}
+
+.range-slider::-moz-range-thumb {
+  width: 4px;
+  height: 24px;
+  background: white;
+  border: none;
+  border-radius: 2px;
+  box-shadow: 0 0 3px rgba(0,0,0,0.2);
+  cursor: pointer;
+}
+
+.range-value {
+  font-size: 16px;
+  color: white;
+  font-weight: 500;
+  font-family: inherit;
+}
+
+
+
+.range-container {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  padding: 14px 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.range-slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 10px;
+  border-radius: 6px;
+  background: linear-gradient(to right, #B91B21, #EB6000);
+  outline: none;
+  transition: background 0.3s ease;
+  position: relative;
+  margin: 10px 0;
+}
+
+.range-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 4px;
+  height: 24px;
+  background: white;
+  border: none;
+  border-radius: 2px;
+  margin-top: -7px; /* centers 24px thumb on 10px track */
+  box-shadow: 0 0 3px rgba(0,0,0,0.2);
+  cursor: pointer;
+}
+
+.range-slider::-webkit-slider-thumb:hover {
+  background: #f5f5f5;
+}
+
+.range-slider::-moz-range-thumb {
+  width: 4px;
+  height: 24px;
+  background: white;
+  border: none;
+  border-radius: 2px;
+  box-shadow: 0 0 3px rgba(0,0,0,0.2);
+  cursor: pointer;
+}
+
+.range-value {
+  font-size: 16px;
+  color: white;
+  font-weight: 500;
+  font-family: inherit;
+}
+
+
+
+.range-slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 4px;
+  background: linear-gradient(to right, #B91B21, #EB6000);
+  outline: none;
+  margin-top: 6px;
+}
+
+.range-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: white;
+  border: 2px solid #B91B21;
+  cursor: pointer;
+  box-shadow: 0 0 4px rgba(0,0,0,0.2);
+  transition: transform 0.2s ease;
+}
+
+.range-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+.range-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: white;
+  border: 2px solid #B91B21;
+  cursor: pointer;
+  box-shadow: 0 0 4px rgba(0,0,0,0.2);
+}
+
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100vw;
+      height: 680px;
+      font-family: 'Segoe UI', sans-serif;
+      background: transparent;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      box-sizing: border-box;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: url('https://assets.zyrosite.com/YNqPvxrOE7FXXPyr/see-through-logo-ALpeo5rB8WTewJPP.png') center center no-repeat;
+      background-size: 75%;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.3;
+      filter: contrast(1.2);
+    }
+
+    .header, .chat-box, form, #typing, #preview {
+      position: relative;
+      z-index: 1;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 0.15rem;
+      padding-top: 1rem;
+      position: relative;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 2.2rem;
+      color: #B91B21;
+      position: relative;
+    }
+
+    .header h1::before {
+      content: "";
+      position: absolute;
+      top: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 480px;
+      height: 100px;
+      background: radial-gradient(circle, rgba(185,27,33,0.3) 0%, rgba(185,27,33,0) 80%);
+      filter: blur(36px);
+      z-index: -1;
+      border-radius: 30px;
+    }
+
+    .header p {
+        color: white !important;
+          font-size: 1rem;
+          position: relative;
+          z-index: 2;
+    }
+
+    .chat-box {
+      flex-grow: 1;
+      width: 100%;
+      max-width: 800px;
+      min-height: 280px; max-height: 480px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      padding: 0.25rem;
+      margin-bottom: 0.15rem;
+    }
+
+    .message {
+      padding: 0.8rem 1rem;
+      border-radius: 18px;
+      margin-bottom: 0.6rem;
+      max-width: 80%;
+      line-height: 1.4;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+    }
+
+    .bot {
+      background: #fce7e7;
+      color: #B91B21;
+      align-self: flex-start;
+    }
+
+    .user {
+      background: #eee;
+      color: #333;
+      align-self: flex-end;
+    }
+
+    .form-col {
+      width: 100%;
+      max-width: 800px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+      margin-bottom: 0.15rem;
+      padding: 0;
+    }
+
+    input[type="text"], input[type="file"] {
+      padding: 0.7rem;
+      font-size: 1rem;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    button {
+      padding: 0.7rem 1.2rem;
+      background: #B91B21;
+      border: none;
+      color: white;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      align-self: center;
+      width: 50%;
+    }
+
+    button:hover {
+      background: #99171b;
+    }
+
+    #typing {
+      font-style: italic;
+      font-size: 0.9rem;
+      color: #B91B21;
+      margin-top: 0.5rem;
+    }
+
+    #preview {
+      max-height: 90px;
+      margin-top: 0.5rem;
+    }
+  
+.chat-box {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;  /* IE 10+ */
+}
+.chat-box::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+
+input[type="date"] {
+  padding: 10px 14px;
+  font-size: 16px;
+  font-family: inherit;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  color: white;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+input[type="date"]:hover {
+  border-color: #B91B21;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+}
+
+
+input[type="range"] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 4px;
+  background: #ccc;
+  outline: none;
+  transition: background 0.2s;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #B91B21;
+  cursor: pointer;
+  border: none;
+  margin-top: -6px;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #B91B21;
+  cursor: pointer;
+  border: none;
+}
+
+
+#user-input {
+  overflow-y: auto;
+  min-height: 36px;
+  max-height: 120px;
+  height: 36px;
+  resize: none;
+}
+
+/* Upload highlight animation */
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(185, 27, 33, 0.6); }
+  70% { box-shadow: 0 0 0 10px rgba(185, 27, 33, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(185, 27, 33, 0); }
+}
+.upload-highlight {
+  animation: pulse 1.5s ease-out 3;
+  border-radius: 50%;
+}
+
+/* Thumbnail preview styles */
+.thumbnail-preview {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+  padding: 4px 0;
+}
+.thumbnail-preview img {
+  width: 36px;
+  height: 36px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.thumbnail-preview {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
+  padding: 4px 0;
+}
+.thumbnail-preview .thumbnail-wrapper {
+  position: relative;
+  width: 64px;
+  height: 64px;
+}
+.thumbnail-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+.thumbnail-preview .remove-btn {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background-color: #B91B21;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  font-size: 12px;
+  cursor: pointer;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.thumbnail-preview .thumbnail-wrapper {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  flex-shrink: 0;
+}
+.thumbnail-preview img {
+  display: block;
+  width: 64px !important;
+  height: 64px !important;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.remove-btn {
+  background: none;
+  border: none;
+  color: #B91B21;
+  font-size: 20px;
+  font-weight: bold;
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+.thumbnail-wrapper {
+  position: relative;
+  display: inline-block;
+  margin-right: 8px;
+}
+
+@keyframes highlightPulse {
+  0% { box-shadow: 0 0 0 0 rgba(185, 27, 33, 0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(185, 27, 33, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(185, 27, 33, 0); }
+}
+#upload-label.highlight {
+  animation: highlightPulse 1.5s ease-out infinite;
+  border-radius: 6px;
+}
+</style>
+<style>
+.message.user { background-color: #B91B21; color: white; align-self: flex-end; padding: 10px; margin: 8px 0; border-radius: 12px; max-width: 80%; }
+  .send-button:hover, .upload-button:hover {
+    transform: scale(1.2);
+    transition: transform 0.2s ease-in-out;
+  }
+
+.chat-box {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;  /* IE 10+ */
+}
+.chat-box::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+
+input[type="date"] {
+  padding: 10px 14px;
+  font-size: 16px;
+  font-family: inherit;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  color: white;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+input[type="date"]:hover {
+  border-color: #B91B21;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+}
+
+
+input[type="range"] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 4px;
+  background: #ccc;
+  outline: none;
+  transition: background 0.2s;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #B91B21;
+  cursor: pointer;
+  border: none;
+  margin-top: -6px;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #B91B21;
+  cursor: pointer;
+  border: none;
+}
+
+</style>
+<style>
+.message.user { background-color: #B91B21; color: white; align-self: flex-end; padding: 10px; margin: 8px 0; border-radius: 12px; max-width: 80%; }
+button.ai-style-change-1 {
+  width: 100px;
+  height: 30px;
+  padding: 5px;
+  display: inline-block;
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  font-size: 14px;
+  line-height: 1;
+  background: #B91B21;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+</style>
+<style>
+.message.user { background-color: #B91B21; color: white; align-self: flex-end; padding: 10px; margin: 8px 0; border-radius: 12px; max-width: 80%; }
+.submit-button {
+  background: linear-gradient(145deg, #B91B21, #a3171d);
+  color: white;
+  padding: 14px 32px;
+  font-size: 16px;
+  border: none;
+  border-radius: 40px;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(185, 27, 33, 0.4);
+  transition: all 0.25s ease-in-out;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  margin: 20px auto 0 auto;
+  margin-top: 20px;
+}
+.submit-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(185, 27, 33, 0.6);
+  background: linear-gradient(145deg, #c8232b, #B91B21);
+}
+.submit-button:active {
+  transform: scale(0.98);
+  box-shadow: 0 2px 10px rgba(185, 27, 33, 0.3);
+}
+<style>
+.message.user { background-color: #B91B21; color: white; align-self: flex-end; padding: 10px; margin: 8px 0; border-radius: 12px; max-width: 80%; }
+/* Apply fullscreen layout ONLY when embedded */
+body.solomon-embedded,
+body.solomon-embedded html {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+}
+
+body.solomon-embedded #app,
+body.solomon-embedded .form-wrapper {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+</style>
+<style>#user-input {
+  overflow-y: auto;
+}</style><style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f9f9f9;
+      margin: 0;
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    #uploadCardContainer {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+      max-width: 500px;
+      width: 100%;
+    }
+
+    #dropzone {
+      border: 2px dashed #B91B21;
+      border-radius: 12px;
+      padding: 30px;
+      text-align: center;
+      color: #B91B21;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    #dropzone:hover {
+      background: #fef3f3;
+    }
+
+    #preview {
+      display: none;
+      margin-top: 16px;
+      max-width: 100%;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .buttons {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 1rem;
+    }
+
+    #uploadBtn {
+      background: #B91B21;
+      color: white;
+      margin-right: 12px;
+    }
+
+    #uploadBtn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    #skipBtn {
+      background: transparent;
+      color: #555;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+  </style><style>
+#main-centered-container {
+  max-width: 720px;
+  margin: 0 auto;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#input-wrapper {
+  justify-content: flex-start !important;
+  gap: 12px;
+}
+
+#input-field {
+  caret-color: transparent;
+  user-select: none;
+  flex: 1;
+}
+</style><style>
+#main-centered-container {
+  max-width: 720px;
+  margin: 0 auto;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#input-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  max-width: 642px;
+  padding: 8px 12px;
+  border: 2px solid #B91B21;
+  border-radius: 12px;
+  background: white;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.05);
+}
+
+#input-field {
+  caret-color: transparent;
+  user-select: none;
+  flex-grow: 1;
+  padding: 8px;
+  font-size: 16px;
+  border: none;
+  outline: none;
+  background: transparent;
+}
+
+.plus-button,
+#send-button {
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  border-radius: 8px;
+  background-color: #f3f4f6;
+  border: none;
+  cursor: pointer;
+}
+</style><style>
+@keyframes pop {
+  0% { transform: scale(0); opacity: 0; }
+  50% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(1); opacity: 0; }
+}
+</style></head>
+<body>
+<div id="app">
+<input accept="image/*" id="file-upload" style="display: none;" type="file"/>
+<div id="main-centered-container"><div class="header">
+<h1>Let’s Elevate Your Garage!</h1>
+<p>Your smart garage designer is standing by—let’s build your vision together.</p>
+</div><div class="chat-box" id="chat-box">
+<div class="message bot">👋 Hey there! Before we get started, I have a few quick questions to help design your perfect garage.</div>
+</div><div id="typing" style="display:none;">Solomon is typing...</div><form class="form-col" id="chat-form" onsubmit="event.preventDefault();">
+<style>
+#input-wrapper {
+  max-width: 642px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border: 2px solid #B91B21;
+  border-radius: 20px;
+  padding: 10px 16px;
+  margin: 20px;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+  height: 42.4px;
+}
+
+#file-upload {
+  display: none;
+}
+
+#upload-label {
+  cursor: pointer;
+  font-size: 24px;
+  color: #B91B21;
+  transition: color 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#upload-label:hover {
+  color: #8a121a;
+}
+
+#input-field {
+  caret-color: transparent;
+  user-select: none;
+  flex-grow: 1;
+  min-height: 40px;
+  max-height: 120px;
+  overflow-y: auto;
+  padding: 10px;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #000;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+}
+
+#input-field:empty:before {
+  content: attr(placeholder);
+  color: #888;
+  pointer-events: none;
+}
+
+#send-button {
+  background-color: #B91B21;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 16px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+  font-size: 14px;
+  height: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#send-button:hover {
+  background-color: #8a121a;
+}
+</style>
+<div id="photo-intent-buttons" style="display: none; justify-content: center; gap: 16px; margin-bottom: 12px;">
+<button id="intent-yes" style="padding: 8px 16px; background: #B91B21; color: white; border: none; border-radius: 8px; cursor: pointer;">Yes</button>
+<button id="intent-no" style="padding: 8px 16px; background: #6b7280; color: white; border: none; border-radius: 8px; cursor: pointer;">No</button>
+</div>
+<div id="input-wrapper"><div class="thumbnail-preview" id="preview-thumbnails"></div>
+<label class="upload-button" for="file-upload" style="font-size: 40px; cursor: pointer; user-select: none; color: #B91B21;"><span style="color: white;">+</span></label>
+<input id="file-upload" multiple="" type="file"/>
+<div contenteditable="true" id="input-field" placeholder="Type your message...">Solomon, can you help me design my garage?</div>
+<button id="send-button" style="width: 64.59px; height: 31.5px; padding: 0;">Send</button>
+</div>
+</form></div></div>
+<div id="summary-download" style="display: none; margin-top: 20px; text-align: center;"><button id="download-summary" type="button">📄 Download My Submission</button></div>
+<!-- FIXED HTML with corrected ID reference -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const inputField = document.getElementById("input-field");
+  const sendButton = document.getElementById("send-button");
+  const fileUpload = document.getElementById("file-upload");
+  const preview = document.getElementById("preview-thumbnails");
+  const intentBtns = document.getElementById("photo-intent-buttons");
+  const conversationHistory = [];
+  const uploadedImages = [];
+
+  // Handle AI replies that ask about photo uploads
+  document.addEventListener("aiReply", function(e) {
+    const msg = e.detail.message?.toLowerCase() || "";
+    const triggerPhrases = [
+      "[trigger_photo_step]",
+      "upload a photo",
+      "garage photo",
+      "photo of your garage",
+      "photo of your space",
+      "image of your garage",
+      "help our designers"
+    ];
+
+    const shouldTrigger =
+      triggerPhrases.some(phrase => msg.includes(phrase)) ||
+      (msg.includes("photo") && msg.includes("garage")) ||
+      msg.includes("send a picture") ||
+      msg.includes("upload image") ||
+      msg.includes("garage snapshot") ||
+      msg.includes("attach a photo");
+    if (shouldTrigger) {
+      intentBtns.style.display = "flex";
+    }
+
+    if (msg.includes("[trigger_photo_step]")) {
+      intentBtns.style.display = "flex";
+    }
+  });
+
+  // YES button: triggers file picker
+  document.getElementById("intent-yes").addEventListener("click", () => {
+    intentBtns.style.display = "none";
+    fileUpload.click();
+  });
+
+  // NO button: sends skip message and triggers summary
+  document.getElementById("intent-no").addEventListener("click", () => {
+    const message = "No, I’d like to skip the photo upload.";
+    appendMessage(message, "user");
+    conversationHistory.push({ role: "user", content: message });
+    triggerSolomonSummary(conversationHistory, uploadedImages);
+  });
+
+  // Handle text sending
+  sendButton.addEventListener("click", () => {
+    const text = inputField.innerText.trim();
+    if (text) {
+      appendMessage(text, "user");
+      conversationHistory.push({ role: "user", content: text });
+      inputField.innerText = "";
+      fetch("/message", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ conversationHistory })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.reply) {
+          appendMessage(data.reply, "bot");
+          conversationHistory.push({ role: "assistant", content: data.reply });
+          document.dispatchEvent(new CustomEvent("aiReply", {
+            detail: { message: data.reply }
+          }));
+        }
       });
     }
-
-    doc.end();
-    stream.on("finish", () => resolve());
-    stream.on("error", reject);
-  });
-};
-
-const solomonPrompt = [
-  "You are Solomon, a professional and friendly garage design assistant for Elevated Garage that respects user answers.",
-  "If the user uploads a photo, thank them and let them know the Elevated Garage team will review it. Do NOT say you cannot view images. Just acknowledge the upload and continue.",
-  "If the user skips the upload, say that's okay and move on normally.",
-  "Start the conversation warmly. Your first priority is to get contact information early in the conversation — ideally right after your opening.",
-  "Ask for:",
-  "- Full Name",
-  "- Email Address",
-  "- Phone Number",
-  "Only after collecting that, begin learning about garage goals, layout, and features.",
-  "You must ensure the following key topics are covered before ending the conversation. Please treat \"Garage Photo Upload\" as the **final** required question, and only bring it up after all others have been answered.",
-  "1. Full Name",
-  "2. Email Address",
-  "3. Phone Number",
-  "4. Garage Goals",
-  "5. Estimated Square Footage of Space",
-  "6. Must-Have Features",
-  "7. Budget Range",
-  "8. Preferred Start Date",
-  "9. Final Notes",
-  "10. Garage Photo Upload",
-  "Do not ask all of these at once.",
-  "Weave them into the conversation naturally — one at a time — based on where the discussion is heading.",
-  "Treat them as checkpoints, not a list.",
-  "When discussing budget:",
-  "- First, offer a general ballpark material-only price range only if the user asks",
-  "- Never suggest the budget is “more than enough” or “will definitely cover everything”",
-  "- Instead, acknowledge the budget as a helpful starting point and explain that total cost depends on materials, labor, and customization",
-  "- Then, continue with a next question like: “Do you have a preferred start date in mind?”",
-  "Never suggest DIY.",
-  "When all 9 topics have been addressed, wrap up the conversation with a natural closing message like:",
-  "\"Thanks for sharing everything — this gives us a great foundation to begin planning your garage. We'll follow up with next steps soon!\""
-].join("\n");
-
-const extractionPrompt = [
-  "You are a form analysis tool working behind the scenes at Elevated Garage.",
-  "You are NOT a chatbot. Do NOT greet the user or respond conversationally.",
-  "Your job is to extract key information from a transcript of a conversation between the user and Solomon, a conversational AI assistant.",
-  "Return a structured JSON object containing these 10 fields:",
-  "- full_name",
-  "- email",
-  "- phone",
-  "- garage_goals",
-  "- square_footage",
-  "- must_have_features",
-  "- budget",
-  "- start_date",
-  "- final_notes",
-  "- garage_photo_upload",
-  "Respond ONLY with a valid JSON object. No text before or after. No assistant tag. No markdown formatting.",
-  "Use natural language understanding to infer vague answers (e.g., 'probably 400ish square feet').",
-  "If the user skips or declines the garage photo upload, set the field 'garage_photo_upload' to 'skipped'.",
-  "",
-  "Here is the full conversation transcript:"
-].join("\n");
-
-const extractIntakeData = async (history) => {
-  const transcript = history
-    .filter(m => m.role === "user" || m.role === "assistant")
-    .map(m => `${m.role}: ${m.content}`)
-    .join("\n");
-
-  const completion = await openai.chat.completions.create({
-    model: "gpt-4",
-    messages: [
-      { role: "system", content: extractionPrompt },
-      { role: "user", content: transcript }
-    ],
-    temperature: 0
   });
 
-  let raw = completion.choices[0].message.content.trim();
-  const firstBrace = raw.indexOf("{");
-  if (firstBrace > 0) raw = raw.slice(firstBrace);
+  // Photo upload and auto-summary
+  
+fileUpload.addEventListener("change", function () {
+  const files = Array.from(this.files);
+  let filesRead = 0;
 
-  try {
-    return JSON.parse(raw);
-  } catch (err) {
-    console.error("❌ Failed to parse extracted data:", err.message);
-    console.error("Returned content:", raw);
-    return {};
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      uploadedImages.push(e.target.result);
+
+      const img = document.createElement("img");
+      img.src = e.target.result;
+      img.className = "chat-image";
+      preview.appendChild(img);
+
+      filesRead++;
+      if (filesRead === files.length) {
+        appendMessage("📸 Photo uploaded successfully!", "user");
+        conversationHistory.push({ role: "user", content: "Photo uploaded." });
+        triggerSolomonSummary(conversationHistory, uploadedImages);
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+
+  });
+
+  function appendMessage(content, type) {
+    const container = document.createElement("div");
+    container.className = "message " + type;
+    container.innerHTML = content;
+    document.getElementById("chat-box").appendChild(container);
+    container.scrollIntoView({ behavior: "smooth" });
   }
-};
 
-app.post("/message", async (req, res) => {
-  let uploadedImagePath = null;
-  const { conversationHistory, trigger_summary } = req.body;
-
-  if (!Array.isArray(conversationHistory)) {
-    return res.status(400).json({ error: "Invalid history format." });
-  }
-
-  console.log("🪵 Incoming images:", req.body.images?.length || 0);
-  if (Array.isArray(req.body.images) && req.body.images.length > 0) {
-    console.log("🧪 Base64 image preview:", req.body.images[0].substring(0, 100) + "...");
-  }
-
-  try {
-    const lastUserMsg = [...conversationHistory].reverse().find(m => m.role === "user")?.content?.toLowerCase() || "";
-
-    const skipPhrases = ["no thank you", "skip the photo", "skip photo upload", "i don’t have a picture", "not right now", "can i skip", "no photo", "i’d rather not", "i’ll send it later"];
-    const uploadPhrases = ["photo uploaded", "uploaded a photo", "just uploaded", "attached the photo", "sent a picture"];
-
-    const shouldTriggerSmart = skipPhrases.some(p => lastUserMsg.includes(p)) ||
-                               uploadPhrases.some(p => lastUserMsg.includes(p));
-
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4",
-      messages: [
-        { role: "system", content: solomonPrompt },
-        ...conversationHistory
-      ]
+  function triggerSolomonSummary(history, images = []) {
+    fetch("/message", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        conversationHistory: history,
+        images: images,
+        trigger_summary: true
+      })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data && data.reply) {
+        appendMessage(data.reply, "bot");
+        conversationHistory.push({ role: "assistant", content: data.reply });
+      }
     });
-
-    const aiReply = completion.choices[0].message.content;
-    let done = false;
-
-    let extracted = {};
-    if (trigger_summary === true || shouldTriggerSmart) {
-      extracted = await extractIntakeData(conversationHistory);
-      done = extracted && Object.values(extracted).every(v => v && v.length > 0);
-
-      // ⛑️ Force patch garage_photo_upload if images exist
-      if (done && Array.isArray(req.body.images) && req.body.images.length > 0) {
-        extracted.garage_photo_upload = "photo uploaded";
-      }
-
-      if (done) {
-        const summaryText = Object.entries(extracted)
-          .map(([k, v]) => `${k.replace(/_/g, " ")}: ${v}`)
-          .join("\n");
-
-        const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-
-        const summaryPath = path.join(__dirname, `Garage-Intake-${timestamp}.txt`);
-        fs.writeFileSync(summaryPath, summaryText);
-
-        try {
-          const uploadText = await drive.files.create({
-            requestBody: {
-              name: `Garage-Intake-${timestamp}.txt`,
-              mimeType: "text/plain",
-              parents: [process.env.GOOGLE_DRIVE_FOLDER_ID]
-            },
-            media: {
-              mimeType: "text/plain",
-              body: fs.createReadStream(summaryPath)
-            }
-          });
-          fs.unlinkSync(summaryPath);
-          console.log("✅ Intake summary uploaded:", uploadText.data.id);
-
-          const pdfPath = path.join(__dirname, `Garage Project Summary - ${timestamp}.pdf`);
-        let uploadedImagePath = null;
-          await generateSummaryPDF(summaryText, pdfPath, uploadedImagePath);
-          const uploadPDF = await drive.files.create({
-            requestBody: {
-              name: `Garage Project Summary - ${timestamp}.pdf`,
-              mimeType: "application/pdf",
-              parents: [process.env.GOOGLE_DRIVE_FOLDER_ID]
-            },
-            media: {
-              mimeType: "application/pdf",
-              body: fs.createReadStream(pdfPath)
-            }
-          });
-          fs.unlinkSync(pdfPath);
-          console.log("📄 PDF uploaded:", uploadPDF.data.id);
-        } catch (uploadErr) {
-          console.error("❌ Upload failed:", uploadErr.message);
-        }
-      }
-    }
-
-  if (Array.isArray(req.body.images)) {
-      for (let i = 0; i < req.body.images.length; i++) {
-        const base64Data = req.body.images[i].split(";base64,").pop();
-        const fileExtension = req.body.images[i].includes("image/png") ? "png" : "jpg";
-        const fileName = `Garage-Photo-${new Date().toISOString().replace(/[:.]/g, "-")}-${i + 1}.${fileExtension}`;
-        const filePath = path.join(__dirname, fileName);
-        fs.writeFileSync(filePath, base64Data, { encoding: "base64" });
-        if (!uploadedImagePath) uploadedImagePath = filePath;
-
-        try {
-          const upload = await drive.files.create({
-            requestBody: {
-              name: fileName,
-              mimeType: `image/${fileExtension}`,
-              parents: [process.env.GOOGLE_DRIVE_FOLDER_ID]
-            },
-            media: {
-              mimeType: `image/${fileExtension}`,
-              body: fs.createReadStream(filePath)
-            }
-          });
-          fs.unlinkSync(filePath);
-          console.log(`📸 Uploaded image ${i + 1} to Drive:`, upload.data.id);
-        } catch (uploadErr) {
-          console.error(`❌ Failed to upload image ${i + 1}:`, uploadErr.message);
-        }
-      }
-    }
-
-    res.json({ reply: aiReply, done });
-  } catch (err) {
-    console.error("❌ Chat error:", err.message);
-    res.json({ reply: "Sorry, I hit an issue. Try again?", done: false });
   }
 });
-
-app.listen(port, () => {
-  console.log(`✅ Contact Solomon backend running on port ${port}`);
-});
+</script></body>
+</html>
