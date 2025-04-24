@@ -25,28 +25,49 @@ const drive = google.drive({ version: "v3", auth });
 
 function generateSummaryPDF(summaryText, outputPath, imagePath = null) {
   return new Promise((resolve, reject) => {
-    const doc = new PDFDocument();
+    const doc = new PDFDocument({ size: 'LETTER', margin: 50 });
     const stream = fs.createWriteStream(outputPath);
     doc.pipe(stream);
 
-    doc.font("Helvetica-Bold").fontSize(16).text("Elevated Garage Project Summary", {
+    // Add watermark
+    if (fs.existsSync("/mnt/data/Elevated Garage Icon Final.png")) {
+      doc.image("/mnt/data/Elevated Garage Icon Final.png", 150, 200, { width: 300, opacity: 0.1 });
+    }
+
+    // Add centered logo
+    if (fs.existsSync("/mnt/data/9.png")) {
+      const logoWidth = 150;
+      const centerX = (612 - logoWidth) / 2; // PDF width for letter size is 612 pts
+      doc.image("/mnt/data/9.png", centerX, 60, { width: logoWidth });
+      doc.moveDown(5);
+    }
+
+    doc.moveDown();
+    doc.font("Helvetica-Bold").fontSize(16).text("ELEVATED GARAGE PROJECT SUMMARY", {
       align: "center",
       underline: true
     });
+    doc.moveDown(2);
 
-    doc.moveDown();
-    doc.font("Helvetica").fontSize(12).text(summaryText, {
-      width: 500,
-      align: "left"
+    // Format and write each line with bold headers
+    summaryText.split("
+").forEach(line => {
+      const [label, ...rest] = line.split(": ");
+      if (label && rest.length > 0) {
+        doc.font("Helvetica-Bold").text(label.toUpperCase() + ":", { continued: true });
+        doc.font("Helvetica").text(" " + rest.join(": "));
+      } else {
+        doc.text(line);
+      }
     });
 
+    // Add image (if available) at the bottom of the same page
     if (imagePath && fs.existsSync(imagePath)) {
-      doc.addPage();
-      doc.fontSize(14).text("Uploaded Garage Photo:", { align: "left" });
+      doc.moveDown(2);
+      doc.font("Helvetica-Bold").text("GARAGE PHOTO (IF AVAILABLE):");
       doc.image(imagePath, {
-        fit: [500, 350],
-        align: "center",
-        valign: "center"
+        fit: [500, 300],
+        align: "center"
       });
     }
 
@@ -54,6 +75,7 @@ function generateSummaryPDF(summaryText, outputPath, imagePath = null) {
     stream.on("finish", () => resolve());
     stream.on("error", reject);
   });
+}
 };
 
 const solomonPrompt = [
