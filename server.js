@@ -1,4 +1,56 @@
 
+const fs = require('fs');
+const PDFDocument = require('pdfkit');
+
+function generateSummaryPDF(summaryText, outputPath) {
+  return new Promise((resolve, reject) => {
+    const doc = new PDFDocument();
+    const stream = fs.createWriteStream(outputPath);
+    doc.pipe(stream);
+    doc.font('Helvetica').fontSize(12).text(summaryText, {
+      width: 500,
+      align: 'left'
+    });
+    doc.end();
+    stream.on('finish', () => resolve());
+    stream.on('error', reject);
+  });
+}
+
+async function createDriveFolder(name) {
+  const res = await drive.files.create({
+    resource: {
+      name,
+      mimeType: 'application/vnd.google-apps.folder',
+      parents: [process.env.DRIVE_PARENT_FOLDER_ID],
+    },
+    fields: 'id',
+  });
+  return res.data.id;
+}
+
+
+
+const PDFDocument = require('pdfkit');
+const fs = require('fs');
+
+function generateSummaryPDF(summaryText, outputPath) {
+  return new Promise((resolve, reject) => {
+    const doc = new PDFDocument();
+    const stream = fs.createWriteStream(outputPath);
+    doc.pipe(stream);
+    doc.font('Helvetica').fontSize(12).text(summaryText, {
+      width: 500,
+      align: 'left'
+    });
+    doc.end();
+    stream.on('finish', () => resolve());
+    stream.on('error', reject);
+  });
+}
+
+
+
 const PDFDocument = require('pdfkit');
 const fs = require('fs');
 
@@ -243,4 +295,22 @@ res.json({ reply: aiReply, done });
 
 app.listen(port, () => {
   console.log(`✅ Contact Solomon backend running on port ${port}`);
+});
+
+// Generate PDF and upload to same folder
+const pdfPath = `./Garage Project Summary - ${timestamp}.pdf`;
+await generateSummaryPDF(summaryText, pdfPath);
+
+const pdfFileMetadata = {
+  name: `Garage Project Summary - ${timestamp}.pdf`,
+  parents: [folderId],
+};
+const pdfMedia = {
+  mimeType: 'application/pdf',
+  body: fs.createReadStream(pdfPath),
+};
+await drive.files.create({
+  resource: pdfFileMetadata,
+  media: pdfMedia,
+  fields: 'id',
 });
