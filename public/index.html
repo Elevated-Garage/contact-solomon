@@ -294,7 +294,7 @@
       margin: 0;
       padding: 0;
       width: 100vw;
-      height: 680px;
+      height: 100vh;
       font-family: 'Segoe UI', sans-serif;
       background: transparent;
       display: flex;
@@ -908,6 +908,7 @@ body.solomon-embedded .form-wrapper {
 }
 </style></head>
 <body>
+<div id="scroll-wrapper" style="height: 100vh; overflow-y: auto; -webkit-overflow-scrolling: touch; scroll-behavior: smooth;">
 <div id="app">
 <input accept="image/*" id="file-upload" style="display: none;" type="file"/>
 <div id="main-centered-container"><div class="header">
@@ -1132,7 +1133,10 @@ fileUpload.addEventListener("change", function () {
     });
   }
 });
-</script></body>
+</script></div>
+</body>
 </html>
+
+
 
 
