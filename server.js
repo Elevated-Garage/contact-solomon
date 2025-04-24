@@ -174,7 +174,9 @@ app.post("/message", async (req, res) => {
     let done = false;
 
     let extracted = {};
-    if (trigger_summary === true || shouldTriggerSmart) {
+    
+
+if (trigger_summary === true || shouldTriggerSmart) {
       extracted = await extractIntakeData(conversationHistory);
       done = extracted && Object.values(extracted).every(v => v && v.length > 0);
 
