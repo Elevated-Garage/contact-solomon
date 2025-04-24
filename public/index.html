@@ -1097,6 +1097,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     appendMessage("📸 Photo uploaded successfully!", "user");
+    conversationHistory.push({ role: "user", content: "Photo uploaded." });
     triggerSolomonSummary(conversationHistory, uploadedImages);
   });
 
@@ -1129,3 +1130,4 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 </script></body>
 </html>
+
