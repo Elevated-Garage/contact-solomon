@@ -1056,22 +1056,35 @@ const shouldTrigger = triggerKeywords.some(keyword => msg.includes(keyword)) &&
   // Handle text sending
   sendButton.addEventListener("click", () => {
     const text = inputField.innerText.trim();
-    if (text) {
+    if (text.length > 0) {
       appendMessage(text, "user");
       conversationHistory.push({ role: "user", content: text });
       inputField.innerText = "";
-      const formData = new FormData();
-formData.append("summaryText", "User garage summary goes here...");
-Array.from(fileUpload.files).forEach(file => formData.append("photos", file));
-fetch("/submit", {
+
+      fetch("/message", {
         method: "POST",
-        body: formData
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          conversationHistory,
+          images: uploadedImages,
+          trigger_summary: false
+        })
       })
       .then(res => res.json())
       .then(data => {
         if (data && data.reply) {
           appendMessage(data.reply, "bot");
           conversationHistory.push({ role: "assistant", content: data.reply });
+
+          document.dispatchEvent(new CustomEvent("aiReply", {
+            detail: { message: data.reply }
+          }));
+        }
+      });
+    }
+  });
           document.dispatchEvent(new CustomEvent("aiReply", {
             detail: { message: data.reply }
           }));
@@ -1140,6 +1153,7 @@ fetch("/submit", {
 </script></div>
 </body>
 </html>
+
 
 
 
