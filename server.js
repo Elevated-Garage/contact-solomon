@@ -1,34 +1,81 @@
-// Final Solomon Server with Branded PDF + Smart Prompts + Image Upload
 const express = require("express");
-const bodyParser = require("body-parser");
+const multer = require("multer");
+const upload = multer({ storage: multer.memoryStorage() });
 const cors = require("cors");
+const bodyParser = require("body-parser");
+const OpenAI = require("openai");
+const { google } = require("googleapis");
 const fs = require("fs");
 const path = require("path");
-const multer = require("multer");
 const PDFDocument = require("pdfkit");
-const { google } = require("googleapis");
-const { OpenAI } = require("openai");
+const logoPath = path.resolve(__dirname, "9.png");
+const watermarkPath = path.resolve(__dirname, "Elevated Garage Icon Final.png");
 require("dotenv").config();
 
 const app = express();
-const port = process.env.PORT || 10000;
-const upload = multer({ dest: "uploads/" });
+const port = process.env.PORT || Math.floor(10000 + Math.random() * 1000);
+
 app.use(cors());
-app.use(bodyParser.json({ limit: "10mb" }));
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json({ limit: "10mb" })); // Allow large JSON payloads for base64 images
 app.use(express.static(path.join(__dirname, "public")));
+
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
 const auth = new google.auth.GoogleAuth({
-  credentials: {
-    client_email: process.env.GDRIVE_CLIENT_EMAIL,
-    private_key: process.env.GDRIVE_PRIVATE_KEY.replace(/\\n/g, '\n'),
-  },
+  keyFile: process.env.GOOGLE_CREDENTIALS,
   scopes: ["https://www.googleapis.com/auth/drive.file"]
 });
 const drive = google.drive({ version: "v3", auth });
 
-let conversationHistory = [];
-let uploadedImageData = null;
+function generateSummaryPDF(summaryText, outputPath, imagePath = null) {
+  return new Promise((resolve, reject) => {
+    const doc = new PDFDocument({ size: 'LETTER', margin: 50 });
+    const stream = fs.createWriteStream(outputPath);
+    doc.pipe(stream);
+
+    // Add watermark
+    if (fs.existsSync(watermarkPath)) {
+      doc.image(watermarkPath, 150, 200, { width: 300, opacity: 0.1 });
+    }
+    // Add centered logo
+    if (fs.existsSync(logoPath)) {
+      const logoWidth = 150;
+      const centerX = (612 - logoWidth) / 2;
+      doc.image(logoPath, centerX, 60, { width: logoWidth });
+      doc.moveDown(5);
+    doc.moveDown();
+    doc.font("Helvetica-Bold").fontSize(16).text("ELEVATED GARAGE PROJECT SUMMARY", {
+      align: "center",
+      underline: true
+    });
+    doc.moveDown(2);
+
+    // Format and write each line with bold headers
+    summaryText.split("\n").forEach(line => {
+      const [label, ...rest] = line.split(": ");
+      if (label && rest.length > 0) {
+        doc.font("Helvetica-Bold").text(label.toUpperCase() + ":", { continued: true });
+        doc.font("Helvetica").text(" " + rest.join(": "));
+      } else {
+        doc.text(line);
+      }
+    });
+
+    // Add image (if available) at the bottom of the same page
+    if (imagePath && fs.existsSync(imagePath)) {
+      doc.moveDown(2);
+      doc.font("Helvetica-Bold").text("GARAGE PHOTO (IF AVAILABLE):");
+      doc.image(imagePath, {
+        fit: [500, 300],
+        align: "center"
+      });
+    }
+
+    doc.end();
+    stream.on("finish", () => resolve());
+    stream.on("error", reject);
+  });
+}
 
 const solomonPrompt = [
   "You are Solomon, a professional and friendly garage design assistant for Elevated Garage that respects user answers.",
@@ -86,58 +133,58 @@ const extractionPrompt = [
   "Here is the full conversation transcript:"
 ].join("\n");
 
-async function generateSummaryPDF(summaryJSON, imagePath, pdfPath) {
-  return new Promise((resolve, reject) => {
-    const doc = new PDFDocument();
-    const stream = fs.createWriteStream(pdfPath);
-    doc.pipe(stream);
+const extractIntakeData = async (history) => {
+  const transcript = history
+    .filter(m => m.role === "user" || m.role === "assistant")
+    .map(m => `${m.role}: ${m.content}`)
+    .join("\n");
 
-    const logoPath = path.join(__dirname, "assets", "logo.png");
-    const watermarkPath = path.join(__dirname, "assets", "watermark.png");
-
-    if (fs.existsSync(logoPath)) {
-      doc.image(logoPath, 220, 60, { width: 160 });
-    }
-
-    doc.moveDown(4);
-    doc.font("Helvetica-Bold").fontSize(16).text("ELEVATED GARAGE PROJECT SUMMARY", {
-      align: "center",
-      underline: true
-    });
-    doc.moveDown(2);
-
-    if (fs.existsSync(watermarkPath)) {
-      doc.image(watermarkPath, 150, 200, { width: 300, opacity: 0.1 });
-    }
-
-    for (const key in summaryJSON) {
-      const label = key.replace(/_/g, " ").toUpperCase();
-      const value = summaryJSON[key];
-      doc.font("Helvetica-Bold").text(`${label}:`);
-      doc.font("Helvetica").text(value);
-      doc.moveDown();
-    }
-
-    if (imagePath && fs.existsSync(imagePath)) {
-      doc.addPage();
-      doc.font("Helvetica-Bold").text("GARAGE PHOTO (IF AVAILABLE):");
-      doc.moveDown(2);
-      doc.image(imagePath, { fit: [500, 300], align: "center" });
-    }
-
-    doc.end();
-    stream.on("finish", resolve);
-    stream.on("error", reject);
+  const completion = await openai.chat.completions.create({
+    model: "gpt-4",
+    messages: [
+      { role: "system", content: extractionPrompt },
+      { role: "user", content: transcript }
+    ],
+    temperature: 0
   });
-}
+
+  let raw = completion.choices[0].message.content.trim();
+  const firstBrace = raw.indexOf("{");
+  if (firstBrace > 0) raw = raw.slice(firstBrace);
+
+  try {
+    return JSON.parse(raw);
+  } catch (err) {
+    console.error("❌ Failed to parse extracted data:", err.message);
+    console.error("Returned content:", raw);
+    return {};
+  }
+};
 
 app.post("/message", async (req, res) => {
-  try {
-    const userMessage = req.body.message;
-    const imageData = req.body.images?.[0];
-    if (imageData) uploadedImageData = imageData;
+  const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+  let summaryText = "";
+  let pdfPath = "";
+  let uploadedImagePath = null;
+  const { conversationHistory, trigger_summary } = req.body;
 
-    conversationHistory.push({ role: "user", content: userMessage });
+  if (!Array.isArray(conversationHistory)) {
+    return res.status(400).json({ error: "Invalid history format." });
+  }
+
+  console.log("🪵 Incoming images:", req.body.images?.length || 0);
+  if (Array.isArray(req.body.images) && req.body.images.length > 0) {
+    console.log("🧪 Base64 image preview:", req.body.images[0].substring(0, 100) + "...");
+  }
+
+  try {
+    const lastUserMsg = [...conversationHistory].reverse().find(m => m.role === "user")?.content?.toLowerCase() || "";
+
+    const skipPhrases = ["no thank you", "skip the photo", "skip photo upload", "i don’t have a picture", "not right now", "can i skip", "no photo", "i’d rather not", "i’ll send it later"];
+    const uploadPhrases = ["photo uploaded", "uploaded a photo", "just uploaded", "attached the photo", "sent a picture"];
+
+    const shouldTriggerSmart = skipPhrases.some(p => lastUserMsg.includes(p)) ||
+                               uploadPhrases.some(p => lastUserMsg.includes(p));
 
     const completion = await openai.chat.completions.create({
       model: "gpt-4",
@@ -148,64 +195,101 @@ app.post("/message", async (req, res) => {
     });
 
     const aiReply = completion.choices[0].message.content;
-    conversationHistory.push({ role: "assistant", content: aiReply });
+    let done = false;
 
-    const shouldGenerateSummary = /summary complete|here is your intake summary/i.test(aiReply);
-    let responsePayload = { reply: aiReply };
+    let extracted = {};
+    if (trigger_summary === true || shouldTriggerSmart) {
+      extracted = await extractIntakeData(conversationHistory);
+      done = extracted && Object.values(extracted).every(v => v && v.length > 0);
 
-    if (shouldGenerateSummary) {
-      const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-      const photoPath = uploadedImageData ? path.join(__dirname, `garage-${timestamp}.jpg`) : null;
-
-      if (uploadedImageData) {
-        const base64Data = uploadedImageData.replace(/^data:image\/\w+;base64,/, "");
-        fs.writeFileSync(photoPath, base64Data, "base64");
+      // ⛑️ Force patch garage_photo_upload if images exist
+      if (done && Array.isArray(req.body.images) && req.body.images.length > 0) {
+        extracted.garage_photo_upload = "photo uploaded";
       }
 
-      const extractionCompletion = await openai.chat.completions.create({
-        model: "gpt-4",
-        messages: [
-          { role: "system", content: extractionPrompt },
-          { role: "user", content: conversationHistory.map(m => m.content).join("\n") }
-        ]
-      });
+      if (done) {
+        summaryText = Object.entries(extracted)
+          .map(([k, v]) => `${k.replace(/_/g, " ")}: ${v}`)
+          .join("\n");
 
-      const summaryJSON = JSON.parse(extractionCompletion.choices[0].message.content);
-      const summaryPath = path.join(__dirname, `summary-${timestamp}.pdf`);
-      await generateSummaryPDF(summaryJSON, photoPath, summaryPath);
+        const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
 
-      await drive.files.create({
-        requestBody: { name: `Garage Project Summary - ${timestamp}.pdf`, mimeType: "application/pdf" },
-        media: { mimeType: "application/pdf", body: fs.createReadStream(summaryPath) }
-      });
-      fs.unlinkSync(summaryPath);
+        const summaryPath = path.join(__dirname, `Garage-Intake-${timestamp}.txt`);
+        fs.writeFileSync(summaryPath, summaryText);
 
-      if (photoPath && fs.existsSync(photoPath)) {
-        await drive.files.create({
-          requestBody: { name: `Garage Photo - ${timestamp}.jpg`, mimeType: "image/jpeg" },
-          media: { mimeType: "image/jpeg", body: fs.createReadStream(photoPath) }
-        });
-        fs.unlinkSync(photoPath);
+        try {
+          const uploadText = await drive.files.create({
+            requestBody: {
+              name: `Garage-Intake-${timestamp}.txt`,
+              mimeType: "text/plain",
+              parents: [process.env.GOOGLE_DRIVE_FOLDER_ID]
+            },
+            media: {
+              mimeType: "text/plain",
+              body: fs.createReadStream(summaryPath)
+            }
+          });
+          fs.unlinkSync(summaryPath);
+          console.log("✅ Intake summary uploaded:", uploadText.data.id);
+
+        pdfPath = path.join(__dirname, `Garage Project Summary - ${timestamp}.pdf`);
+          await generateSummaryPDF(summaryText, pdfPath, uploadedImagePath);
+          const uploadPDF = await drive.files.create({
+            requestBody: {
+              name: `Garage Project Summary - ${timestamp}.pdf`,
+              mimeType: "application/pdf",
+              parents: [process.env.GOOGLE_DRIVE_FOLDER_ID]
+            },
+            media: {
+              mimeType: "application/pdf",
+              body: fs.createReadStream(pdfPath)
+            }
+          });
+          fs.unlinkSync(pdfPath);
+          console.log("📄 PDF uploaded:", uploadPDF.data.id);
+        } catch (uploadErr) {
+          console.error("❌ Upload failed:", uploadErr.message);
+        }
       }
-
-      conversationHistory = [];
-      uploadedImageData = null;
     }
 
-    res.json(responsePayload);
+  if (Array.isArray(req.body.images)) {
+      for (let i = 0; i < req.body.images.length; i++) {
+        const base64Data = req.body.images[i].split(";base64,").pop();
+        const fileExtension = req.body.images[i].includes("image/png") ? "png" : "jpg";
+        const fileName = `Garage-Photo-${new Date().toISOString().replace(/[:.]/g, "-")}-${i + 1}.${fileExtension}`;
+        const filePath = path.join(__dirname, fileName);
+        fs.writeFileSync(filePath, base64Data, { encoding: "base64" });
+        if (!uploadedImagePath) uploadedImagePath = filePath;
+
+        try {
+          const upload = await drive.files.create({
+            requestBody: {
+              name: fileName,
+              mimeType: `image/${fileExtension}`,
+              parents: [process.env.GOOGLE_DRIVE_FOLDER_ID]
+            },
+            media: {
+              mimeType: `image/${fileExtension}`,
+              body: fs.createReadStream(filePath)
+            }
+          });
+          fs.unlinkSync(filePath);
+          console.log(`📸 Uploaded image ${i + 1} to Drive:`, upload.data.id);
+
+        } catch (uploadErr) {
+          console.error(`❌ Failed to upload image ${i + 1}:`, uploadErr.message);
+        }
+      }
+    }
+
+    res.json({ reply: aiReply, done });
   } catch (err) {
-    console.error("❌ Server error:", err);
-    res.status(500).json({ error: "Internal server error" });
+    console.error("❌ Chat error:", err.message);
+    res.json({ reply: "Sorry, I hit an issue. Try again?", done: false });
   }
 });
 
 app.listen(port, () => {
   console.log(`✅ Contact Solomon backend running on port ${port}`);
-}).on('error', (err) => {
-  if (err.code === 'EADDRINUSE') {
-    console.error(`❌ Port ${port} is already in use. Please restart your environment or change the port.`);
-    process.exit(1);
-  } else {
-    throw err;
-  }
 });
