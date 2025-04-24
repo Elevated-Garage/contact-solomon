@@ -130,6 +130,9 @@ app.post("/message", async (req, res) => {
   }
 
   console.log("🪵 Incoming images:", req.body.images?.length || 0);
+  if (Array.isArray(req.body.images) && req.body.images.length > 0) {
+    console.log("🧪 Base64 image preview:", req.body.images[0].substring(0, 100) + "...");
+  }
 
   try {
     const lastUserMsg = [...conversationHistory].reverse().find(m => m.role === "user")?.content?.toLowerCase() || "";
@@ -240,6 +243,10 @@ app.post("/message", async (req, res) => {
     console.error("❌ Chat error:", err.message);
     res.json({ reply: "Sorry, I hit an issue. Try again?", done: false });
   }
+});
+
+app.listen(port, () => {
+  console.log(`✅ Contact Solomon backend running on port ${port}`);
 });
 
 app.listen(port, () => {
