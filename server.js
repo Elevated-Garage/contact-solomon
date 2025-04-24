@@ -163,6 +163,7 @@ const extractIntakeData = async (history) => {
 };
 
 app.post("/message", async (req, res) => {
+  const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
   let uploadedImagePath = null;
   const { conversationHistory, trigger_summary } = req.body;
 
