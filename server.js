@@ -32,18 +32,15 @@ function generateSummaryPDF(summaryText, outputPath, imagePath = null) {
     doc.pipe(stream);
 
     // Add watermark
-    if (fs.existsSync("/mnt/data/Elevated Garage Icon Final.png")) {
-      doc.image("/mnt/data/Elevated Garage Icon Final.png", 150, 200, { width: 300, opacity: 0.1 });
+    if (fs.existsSync(watermarkPath)) {
+      doc.image(watermarkPath, 150, 200, { width: 300, opacity: 0.1 });
     }
-
     // Add centered logo
-    if (fs.existsSync("/mnt/data/9.png")) {
+    if (fs.existsSync(logoPath)) {
       const logoWidth = 150;
-      const centerX = (612 - logoWidth) / 2; // PDF width for letter size is 612 pts
-      doc.image("/mnt/data/9.png", centerX, 60, { width: logoWidth });
+      const centerX = (612 - logoWidth) / 2;
+      doc.image(logoPath, centerX, 60, { width: logoWidth });
       doc.moveDown(5);
-    }
-
     doc.moveDown();
     doc.font("Helvetica-Bold").fontSize(16).text("ELEVATED GARAGE PROJECT SUMMARY", {
       align: "center",
@@ -294,3 +291,4 @@ app.post("/message", async (req, res) => {
 app.listen(port, () => {
   console.log(`✅ Contact Solomon backend running on port ${port}`);
 });
+
