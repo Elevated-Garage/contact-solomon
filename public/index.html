@@ -1082,23 +1082,31 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // Photo upload and auto-summary
-  fileUpload.addEventListener("change", function () {
-    const files = Array.from(this.files);
-    files.forEach(file => {
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        uploadedImages.push(e.target.result);
-        const img = document.createElement("img");
-        img.src = e.target.result;
-        img.className = "chat-image";
-        preview.appendChild(img);
-      };
-      reader.readAsDataURL(file);
-    });
+  
+fileUpload.addEventListener("change", function () {
+  const files = Array.from(this.files);
+  let filesRead = 0;
 
-    appendMessage("📸 Photo uploaded successfully!", "user");
-    conversationHistory.push({ role: "user", content: "Photo uploaded." });
-    triggerSolomonSummary(conversationHistory, uploadedImages);
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      uploadedImages.push(e.target.result);
+
+      const img = document.createElement("img");
+      img.src = e.target.result;
+      img.className = "chat-image";
+      preview.appendChild(img);
+
+      filesRead++;
+      if (filesRead === files.length) {
+        appendMessage("📸 Photo uploaded successfully!", "user");
+        conversationHistory.push({ role: "user", content: "Photo uploaded." });
+        triggerSolomonSummary(conversationHistory, uploadedImages);
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+
   });
 
   function appendMessage(content, type) {
@@ -1130,4 +1138,5 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 </script></body>
 </html>
+
 
