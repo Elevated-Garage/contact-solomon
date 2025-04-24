@@ -12,7 +12,7 @@ const app = express();
 const port = process.env.PORT || Math.floor(10000 + Math.random() * 1000);
 
 app.use(cors());
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: "10mb" })); // Allow large JSON payloads for base64 images
 app.use(express.static(path.join(__dirname, "public")));
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -28,13 +28,13 @@ function generateSummaryPDF(summaryText, outputPath) {
     const doc = new PDFDocument();
     const stream = fs.createWriteStream(outputPath);
     doc.pipe(stream);
-    doc.font('Helvetica').fontSize(12).text(summaryText, {
+    doc.font("Helvetica").fontSize(12).text(summaryText, {
       width: 500,
-      align: 'left'
+      align: "left"
     });
     doc.end();
-    stream.on('finish', () => resolve());
-    stream.on('error', reject);
+    stream.on("finish", () => resolve());
+    stream.on("error", reject);
   });
 }
 
@@ -129,6 +129,8 @@ app.post("/message", async (req, res) => {
     return res.status(400).json({ error: "Invalid history format." });
   }
 
+  console.log("🪵 Incoming images:", req.body.images?.length || 0);
+
   try {
     const lastUserMsg = [...conversationHistory].reverse().find(m => m.role === "user")?.content?.toLowerCase() || "";
 
@@ -149,9 +151,15 @@ app.post("/message", async (req, res) => {
     const aiReply = completion.choices[0].message.content;
     let done = false;
 
+    let extracted = {};
     if (trigger_summary === true || shouldTriggerSmart) {
-      const extracted = await extractIntakeData(conversationHistory);
+      extracted = await extractIntakeData(conversationHistory);
       done = extracted && Object.values(extracted).every(v => v && v.length > 0);
+
+      // ⛑️ Force patch garage_photo_upload if images exist
+      if (done && Array.isArray(req.body.images) && req.body.images.length > 0) {
+        extracted.garage_photo_upload = "photo uploaded";
+      }
 
       if (done) {
         const summaryText = Object.entries(extracted)
@@ -178,7 +186,6 @@ app.post("/message", async (req, res) => {
           fs.unlinkSync(summaryPath);
           console.log("✅ Intake summary uploaded:", uploadText.data.id);
 
-          // Generate PDF
           const pdfPath = path.join(__dirname, `Garage Project Summary - ${timestamp}.pdf`);
           await generateSummaryPDF(summaryText, pdfPath);
           const uploadPDF = await drive.files.create({
@@ -238,4 +245,3 @@ app.post("/message", async (req, res) => {
 app.listen(port, () => {
   console.log(`✅ Contact Solomon backend running on port ${port}`);
 });
-
