@@ -50,8 +50,7 @@ function generateSummaryPDF(summaryText, outputPath, imagePath = null) {
     doc.moveDown(2);
 
     // Format and write each line with bold headers
-    summaryText.split("
-").forEach(line => {
+    summaryText.split("\n").forEach(line => {
       const [label, ...rest] = line.split(": ");
       if (label && rest.length > 0) {
         doc.font("Helvetica-Bold").text(label.toUpperCase() + ":", { continued: true });
