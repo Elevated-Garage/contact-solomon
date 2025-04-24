@@ -1,4 +1,24 @@
 
+const PDFDocument = require('pdfkit');
+const fs = require('fs');
+
+function generateSummaryPDF(summaryText, outputPath) {
+  return new Promise((resolve, reject) => {
+    const doc = new PDFDocument();
+    const stream = fs.createWriteStream(outputPath);
+    doc.pipe(stream);
+    doc.font('Helvetica').fontSize(12).text(summaryText, {
+      width: 500,
+      align: 'left'
+    });
+    doc.end();
+    stream.on('finish', () => resolve());
+    stream.on('error', reject);
+  });
+}
+
+
+
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
