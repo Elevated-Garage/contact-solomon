@@ -1,6 +1,4 @@
 const express = require("express");
-const multer = require("multer");
-const upload = multer({ storage: multer.memoryStorage() });
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const OpenAI = require("openai");
@@ -34,23 +32,27 @@ function generateSummaryPDF(summaryText, outputPath, imagePath = null) {
     doc.pipe(stream);
 
     // Add watermark
+
+    // Add watermark
     if (fs.existsSync(watermarkPath)) {
       doc.image(watermarkPath, 150, 200, { width: 300, opacity: 0.1 });
     }
+
     // Add centered logo
     if (fs.existsSync(logoPath)) {
       const logoWidth = 150;
       const centerX = (612 - logoWidth) / 2;
       doc.image(logoPath, centerX, 60, { width: logoWidth });
       doc.moveDown(5);
-    doc.moveDown();
+    }
+
     doc.font("Helvetica-Bold").fontSize(16).text("ELEVATED GARAGE PROJECT SUMMARY", {
       align: "center",
-      underline: true
     });
     doc.moveDown(2);
+  });
+  doc.moveDown(2);
 
-    // Format and write each line with bold headers
     summaryText.split("\n").forEach(line => {
       const [label, ...rest] = line.split(": ");
       if (label && rest.length > 0) {
@@ -59,16 +61,18 @@ function generateSummaryPDF(summaryText, outputPath, imagePath = null) {
       } else {
         doc.text(line);
       }
-    });
 
     // Add image (if available) at the bottom of the same page
     if (imagePath && fs.existsSync(imagePath)) {
       doc.moveDown(2);
       doc.font("Helvetica-Bold").text("GARAGE PHOTO (IF AVAILABLE):");
-      doc.image(imagePath, {
-        fit: [500, 300],
-        align: "center"
-      });
+
+      doc.moveDown(2);
+    doc.image(imagePath, {
+      fit: [500, 300],
+      align: "center"
+    });
+    });
     }
 
     doc.end();
@@ -146,6 +150,8 @@ const extractIntakeData = async (history) => {
       { role: "user", content: transcript }
     ],
     temperature: 0
+    });
+    });
   });
 
   let raw = completion.choices[0].message.content.trim();
@@ -192,7 +198,6 @@ app.post("/message", async (req, res) => {
         { role: "system", content: solomonPrompt },
         ...conversationHistory
       ]
-    });
 
     const aiReply = completion.choices[0].message.content;
     let done = false;
@@ -228,7 +233,6 @@ app.post("/message", async (req, res) => {
               mimeType: "text/plain",
               body: fs.createReadStream(summaryPath)
             }
-          });
           fs.unlinkSync(summaryPath);
           console.log("✅ Intake summary uploaded:", uploadText.data.id);
 
@@ -244,7 +248,6 @@ app.post("/message", async (req, res) => {
               mimeType: "application/pdf",
               body: fs.createReadStream(pdfPath)
             }
-          });
           fs.unlinkSync(pdfPath);
           console.log("📄 PDF uploaded:", uploadPDF.data.id);
         } catch (uploadErr) {
@@ -271,9 +274,9 @@ app.post("/message", async (req, res) => {
             },
             media: {
               mimeType: `image/${fileExtension}`,
-              body: fs.createReadStream(filePath)
+      body: fs.createReadStream(filePath)
+    });
             }
-          });
           fs.unlinkSync(filePath);
           console.log(`📸 Uploaded image ${i + 1} to Drive:`, upload.data.id);
 
@@ -288,8 +291,8 @@ app.post("/message", async (req, res) => {
     console.error("❌ Chat error:", err.message);
     res.json({ reply: "Sorry, I hit an issue. Try again?", done: false });
   }
-});
 
 app.listen(port, () => {
   console.log(`✅ Contact Solomon backend running on port ${port}`);
+
 });
