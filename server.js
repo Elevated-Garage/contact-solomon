@@ -164,6 +164,8 @@ const extractIntakeData = async (history) => {
 
 app.post("/message", async (req, res) => {
   const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+  let summaryText = "";
+  let pdfPath = "";
   let uploadedImagePath = null;
   const { conversationHistory, trigger_summary } = req.body;
 
@@ -274,7 +276,6 @@ app.post("/message", async (req, res) => {
           });
           fs.unlinkSync(filePath);
           console.log(`📸 Uploaded image ${i + 1} to Drive:`, upload.data.id);
-
           const pdfPath = path.join(__dirname, `Garage Project Summary - ${timestamp}.pdf`);
           await generateSummaryPDF(summaryText, pdfPath, uploadedImagePath);
           const uploadPDF = await drive.files.create({
@@ -290,6 +291,7 @@ app.post("/message", async (req, res) => {
           });
           fs.unlinkSync(pdfPath);
           console.log("📄 PDF uploaded:", uploadPDF.data.id);
+
         } catch (uploadErr) {
           console.error(`❌ Failed to upload image ${i + 1}:`, uploadErr.message);
         }
