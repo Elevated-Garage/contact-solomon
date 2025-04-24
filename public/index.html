@@ -1131,12 +1131,10 @@ fileUpload.addEventListener("change", function () {
 
   function triggerSolomonSummary(history, images = []) {
     const formData = new FormData();
-formData.append("summaryText", "User garage summary goes here...");
-Array.from(fileUpload.files).forEach(file => formData.append("photos", file));
 const formData = new FormData();
 formData.append("conversationHistory", JSON.stringify(history));
-images.forEach((image, i) => formData.append("photos", fileUpload.files[i]));
-formData.append("trigger_summary", "true");
+Array.from(fileUpload.files).forEach(file => formData.append("photos", file));
+formData.append("trigger_summary", "true"); // if triggering a PDF
 fetch("/submit", {
       method: "POST",
       body: formData
