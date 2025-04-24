@@ -1,5 +1,3 @@
-const multer = require("multer");
-const upload = multer({ dest: "uploads/" });
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
@@ -31,24 +29,6 @@ function generateSummaryPDF(summaryText, outputPath, imagePath = null) {
     const stream = fs.createWriteStream(outputPath);
     doc.pipe(stream);
 
-    // Add header image (9.png)
-    const headerPath = path.join(__dirname, "assets/9.png");
-    if (fs.existsSync(headerPath)) {
-      doc.image(headerPath, { width: 500, align: "center" });
-      doc.moveDown(1);
-    }
-
-    // Add watermark image (Elevated Garage Icon Final.png)
-    const watermarkPath = path.join(__dirname, "assets/Elevated Garage Icon Final.png");
-    if (fs.existsSync(watermarkPath)) {
-      const watermarkX = (doc.page.width - 300) / 2;
-      const watermarkY = (doc.page.height - 300) / 2;
-      doc.image(watermarkPath, watermarkX, watermarkY, {
-        width: 300,
-        opacity: 0.1
-      });
-    }
-
     doc.font("Helvetica-Bold").fontSize(16).text("Elevated Garage Project Summary", {
       align: "center",
       underline: true
@@ -74,7 +54,7 @@ function generateSummaryPDF(summaryText, outputPath, imagePath = null) {
     stream.on("finish", () => resolve());
     stream.on("error", reject);
   });
-}
+};
 
 const solomonPrompt = [
   "You are Solomon, a professional and friendly garage design assistant for Elevated Garage that respects user answers.",
