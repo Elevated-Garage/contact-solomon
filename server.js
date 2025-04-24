@@ -72,7 +72,6 @@ function generateSummaryPDF(summaryText, outputPath, imagePath = null) {
       fit: [500, 300],
       align: "center"
     });
-    });
     }
 
     doc.end();
