@@ -6,8 +6,7 @@ const { google } = require("googleapis");
 const fs = require("fs");
 const path = require("path");
 const PDFDocument = require("pdfkit");
-const logoPath = path.resolve(__dirname, "9.png");
-const watermarkPath = path.resolve(__dirname, "Elevated Garage Icon Final.png");
+const PDFDocument = require("pdfkit");
 require("dotenv").config();
 
 const app = express();
@@ -32,27 +31,26 @@ function generateSummaryPDF(summaryText, outputPath, imagePath = null) {
     doc.pipe(stream);
 
     // Add watermark
-
-    // Add watermark
-    if (fs.existsSync(watermarkPath)) {
-      doc.image(watermarkPath, 150, 200, { width: 300, opacity: 0.1 });
+    if (fs.existsSync("/mnt/data/Elevated Garage Icon Final.png")) {
+      doc.image("/mnt/data/Elevated Garage Icon Final.png", 150, 200, { width: 300, opacity: 0.1 });
     }
 
     // Add centered logo
-    if (fs.existsSync(logoPath)) {
+    if (fs.existsSync("/mnt/data/9.png")) {
       const logoWidth = 150;
-      const centerX = (612 - logoWidth) / 2;
-      doc.image(logoPath, centerX, 60, { width: logoWidth });
+      const centerX = (612 - logoWidth) / 2; // PDF width for letter size is 612 pts
+      doc.image("/mnt/data/9.png", centerX, 60, { width: logoWidth });
       doc.moveDown(5);
     }
 
+    doc.moveDown();
     doc.font("Helvetica-Bold").fontSize(16).text("ELEVATED GARAGE PROJECT SUMMARY", {
       align: "center",
+      underline: true
     });
     doc.moveDown(2);
-  });
-  doc.moveDown(2);
 
+    // Format and write each line with bold headers
     summaryText.split("\n").forEach(line => {
       const [label, ...rest] = line.split(": ");
       if (label && rest.length > 0) {
@@ -61,17 +59,16 @@ function generateSummaryPDF(summaryText, outputPath, imagePath = null) {
       } else {
         doc.text(line);
       }
+    });
 
     // Add image (if available) at the bottom of the same page
     if (imagePath && fs.existsSync(imagePath)) {
       doc.moveDown(2);
       doc.font("Helvetica-Bold").text("GARAGE PHOTO (IF AVAILABLE):");
-
-      doc.moveDown(2);
-    doc.image(imagePath, {
-      fit: [500, 300],
-      align: "center"
-    });
+      doc.image(imagePath, {
+        fit: [500, 300],
+        align: "center"
+      });
     }
 
     doc.end();
@@ -149,8 +146,7 @@ const extractIntakeData = async (history) => {
       { role: "user", content: transcript }
     ],
     temperature: 0
-    });
-  }
+  });
 
   let raw = completion.choices[0].message.content.trim();
   const firstBrace = raw.indexOf("{");
@@ -162,13 +158,10 @@ const extractIntakeData = async (history) => {
     console.error("❌ Failed to parse extracted data:", err.message);
     console.error("Returned content:", raw);
     return {};
-  });
-}
+  }
+};
 
 app.post("/message", async (req, res) => {
-  const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-  let summaryText = "";
-  let pdfPath = "";
   let uploadedImagePath = null;
   const { conversationHistory, trigger_summary } = req.body;
 
@@ -196,6 +189,7 @@ app.post("/message", async (req, res) => {
         { role: "system", content: solomonPrompt },
         ...conversationHistory
       ]
+    });
 
     const aiReply = completion.choices[0].message.content;
     let done = false;
@@ -211,7 +205,7 @@ app.post("/message", async (req, res) => {
       }
 
       if (done) {
-        summaryText = Object.entries(extracted)
+        const summaryText = Object.entries(extracted)
           .map(([k, v]) => `${k.replace(/_/g, " ")}: ${v}`)
           .join("\n");
 
@@ -231,10 +225,11 @@ app.post("/message", async (req, res) => {
               mimeType: "text/plain",
               body: fs.createReadStream(summaryPath)
             }
+          });
           fs.unlinkSync(summaryPath);
           console.log("✅ Intake summary uploaded:", uploadText.data.id);
 
-        pdfPath = path.join(__dirname, `Garage Project Summary - ${timestamp}.pdf`);
+          const pdfPath = path.join(__dirname, `Garage Project Summary - ${timestamp}.pdf`);
           await generateSummaryPDF(summaryText, pdfPath, uploadedImagePath);
           const uploadPDF = await drive.files.create({
             requestBody: {
@@ -246,6 +241,7 @@ app.post("/message", async (req, res) => {
               mimeType: "application/pdf",
               body: fs.createReadStream(pdfPath)
             }
+          });
           fs.unlinkSync(pdfPath);
           console.log("📄 PDF uploaded:", uploadPDF.data.id);
         } catch (uploadErr) {
@@ -272,12 +268,11 @@ app.post("/message", async (req, res) => {
             },
             media: {
               mimeType: `image/${fileExtension}`,
-      body: fs.createReadStream(filePath)
-    });
+              body: fs.createReadStream(filePath)
             }
+          });
           fs.unlinkSync(filePath);
           console.log(`📸 Uploaded image ${i + 1} to Drive:`, upload.data.id);
-
         } catch (uploadErr) {
           console.error(`❌ Failed to upload image ${i + 1}:`, uploadErr.message);
         }
@@ -289,8 +284,8 @@ app.post("/message", async (req, res) => {
     console.error("❌ Chat error:", err.message);
     res.json({ reply: "Sorry, I hit an issue. Try again?", done: false });
   }
+});
 
 app.listen(port, () => {
   console.log(`✅ Contact Solomon backend running on port ${port}`);
-
 });
