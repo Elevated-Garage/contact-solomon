@@ -233,6 +233,7 @@ app.post("/message", async (req, res) => {
           fs.unlinkSync(summaryPath);
           console.log("✅ Intake summary uploaded:", uploadText.data.id);
 
+        pdfPath = path.join(__dirname, `Garage Project Summary - ${timestamp}.pdf`);
           await generateSummaryPDF(summaryText, pdfPath, uploadedImagePath);
           const uploadPDF = await drive.files.create({
             requestBody: {
