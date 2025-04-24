@@ -141,6 +141,7 @@ const extractIntakeData = async (history) => {
 };
 
 app.post("/message", async (req, res) => {
+  let uploadedImagePath = null;
   const { conversationHistory, trigger_summary } = req.body;
 
   if (!Array.isArray(conversationHistory)) {
