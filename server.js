@@ -208,7 +208,7 @@ app.post("/message", async (req, res) => {
           console.log("✅ Intake summary uploaded:", uploadText.data.id);
 
           const pdfPath = path.join(__dirname, `Garage Project Summary - ${timestamp}.pdf`);
-          await generateSummaryPDF(summaryText, pdfPath, fs.existsSync(filePath) ? filePath : null);
+          await generateSummaryPDF(summaryText, pdfPath, uploadedImagePath);
           const uploadPDF = await drive.files.create({
             requestBody: {
               name: `Garage Project Summary - ${timestamp}.pdf`,
@@ -228,13 +228,15 @@ app.post("/message", async (req, res) => {
       }
     }
 
-    if (Array.isArray(req.body.images)) {
+    let uploadedImagePath = null;
+  if (Array.isArray(req.body.images)) {
       for (let i = 0; i < req.body.images.length; i++) {
         const base64Data = req.body.images[i].split(";base64,").pop();
         const fileExtension = req.body.images[i].includes("image/png") ? "png" : "jpg";
         const fileName = `Garage-Photo-${new Date().toISOString().replace(/[:.]/g, "-")}-${i + 1}.${fileExtension}`;
         const filePath = path.join(__dirname, fileName);
         fs.writeFileSync(filePath, base64Data, { encoding: "base64" });
+        if (!uploadedImagePath) uploadedImagePath = filePath;
 
         try {
           const upload = await drive.files.create({
