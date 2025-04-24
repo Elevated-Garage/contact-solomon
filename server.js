@@ -4,6 +4,7 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const fs = require("fs");
 const path = require("path");
+app.use(express.static(path.join(__dirname, 'public')));
 const multer = require("multer");
 const PDFDocument = require("pdfkit");
 const { google } = require("googleapis");
