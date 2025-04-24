@@ -31,7 +31,6 @@ async function createDriveFolder(name) {
 
 
 
-const PDFDocument = require('pdfkit');
 const fs = require('fs');
 
 function generateSummaryPDF(summaryText, outputPath) {
@@ -51,7 +50,6 @@ function generateSummaryPDF(summaryText, outputPath) {
 
 
 
-const PDFDocument = require('pdfkit');
 const fs = require('fs');
 
 function generateSummaryPDF(summaryText, outputPath) {
