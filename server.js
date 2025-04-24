@@ -9,7 +9,6 @@ const PDFDocument = require("pdfkit");
 const { google } = require("googleapis");
 const { OpenAI } = require("openai");
 require("dotenv").config();
-app.use(express.static(path.join(__dirname, "public")));
 
 const app = express();
 const port = process.env.PORT || 10000;
@@ -17,7 +16,7 @@ const upload = multer({ dest: "uploads/" });
 app.use(cors());
 app.use(bodyParser.json({ limit: "10mb" }));
 app.use(bodyParser.urlencoded({ extended: true }));
-
+app.use(express.static(path.join(__dirname, "public")));
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const auth = new google.auth.GoogleAuth({
   credentials: {
