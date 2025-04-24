@@ -209,7 +209,7 @@ app.post("/message", async (req, res) => {
       }
 
       if (done) {
-        const summaryText = Object.entries(extracted)
+        summaryText = Object.entries(extracted)
           .map(([k, v]) => `${k.replace(/_/g, " ")}: ${v}`)
           .join("\n");
 
@@ -276,21 +276,6 @@ app.post("/message", async (req, res) => {
           });
           fs.unlinkSync(filePath);
           console.log(`📸 Uploaded image ${i + 1} to Drive:`, upload.data.id);
-          const pdfPath = path.join(__dirname, `Garage Project Summary - ${timestamp}.pdf`);
-          await generateSummaryPDF(summaryText, pdfPath, uploadedImagePath);
-          const uploadPDF = await drive.files.create({
-            requestBody: {
-              name: `Garage Project Summary - ${timestamp}.pdf`,
-              mimeType: "application/pdf",
-              parents: [process.env.GOOGLE_DRIVE_FOLDER_ID]
-            },
-            media: {
-              mimeType: "application/pdf",
-              body: fs.createReadStream(pdfPath)
-            }
-          });
-          fs.unlinkSync(pdfPath);
-          console.log("📄 PDF uploaded:", uploadPDF.data.id);
 
         } catch (uploadErr) {
           console.error(`❌ Failed to upload image ${i + 1}:`, uploadErr.message);
