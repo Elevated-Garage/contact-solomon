@@ -9,7 +9,7 @@ const PDFDocument = require("pdfkit");
 require("dotenv").config();
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || Math.floor(10000 + Math.random() * 1000);
 
 app.use(cors());
 app.use(bodyParser.json({ limit: "10mb" })); // Allow large JSON payloads for base64 images
@@ -23,19 +23,38 @@ const auth = new google.auth.GoogleAuth({
 });
 const drive = google.drive({ version: "v3", auth });
 
-function generateSummaryPDF(summaryText, outputPath) {
+function generateSummaryPDF(summaryText, outputPath, imagePath = null) {
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument();
     const stream = fs.createWriteStream(outputPath);
     doc.pipe(stream);
+
+    doc.font("Helvetica-Bold").fontSize(16).text("Elevated Garage Project Summary", {
+      align: "center",
+      underline: true
+    });
+
+    doc.moveDown();
     doc.font("Helvetica").fontSize(12).text(summaryText, {
       width: 500,
       align: "left"
     });
+
+    if (imagePath && fs.existsSync(imagePath)) {
+      doc.addPage();
+      doc.fontSize(14).text("Uploaded Garage Photo:", { align: "left" });
+      doc.image(imagePath, {
+        fit: [500, 350],
+        align: "center",
+        valign: "center"
+      });
+    }
+
     doc.end();
     stream.on("finish", () => resolve());
     stream.on("error", reject);
   });
+};
 }
 
 const solomonPrompt = [
@@ -190,7 +209,7 @@ app.post("/message", async (req, res) => {
           console.log("✅ Intake summary uploaded:", uploadText.data.id);
 
           const pdfPath = path.join(__dirname, `Garage Project Summary - ${timestamp}.pdf`);
-          await generateSummaryPDF(summaryText, pdfPath);
+          await generateSummaryPDF(summaryText, pdfPath, fs.existsSync(filePath) ? filePath : null);
           const uploadPDF = await drive.files.create({
             requestBody: {
               name: `Garage Project Summary - ${timestamp}.pdf`,
