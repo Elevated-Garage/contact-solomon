@@ -1065,7 +1065,6 @@ formData.append("summaryText", "User garage summary goes here...");
 Array.from(fileUpload.files).forEach(file => formData.append("photos", file));
 fetch("/submit", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: formData
       })
       .then(res => res.json())
@@ -1121,14 +1120,13 @@ fileUpload.addEventListener("change", function () {
     const formData = new FormData();
 formData.append("summaryText", "User garage summary goes here...");
 Array.from(fileUpload.files).forEach(file => formData.append("photos", file));
+const formData = new FormData();
+formData.append("conversationHistory", JSON.stringify(history));
+images.forEach((image, i) => formData.append("photos", fileUpload.files[i]));
+formData.append("trigger_summary", "true");
 fetch("/submit", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        conversationHistory: history,
-        images: images,
-        trigger_summary: true
-      })
+      body: formData
     })
     .then(res => res.json())
     .then(data => {
