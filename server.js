@@ -1,74 +1,3 @@
-
-const fs = require('fs');
-const PDFDocument = require('pdfkit');
-
-function generateSummaryPDF(summaryText, outputPath) {
-  return new Promise((resolve, reject) => {
-    const doc = new PDFDocument();
-    const stream = fs.createWriteStream(outputPath);
-    doc.pipe(stream);
-    doc.font('Helvetica').fontSize(12).text(summaryText, {
-      width: 500,
-      align: 'left'
-    });
-    doc.end();
-    stream.on('finish', () => resolve());
-    stream.on('error', reject);
-  });
-}
-
-async function createDriveFolder(name) {
-  const res = await drive.files.create({
-    resource: {
-      name,
-      mimeType: 'application/vnd.google-apps.folder',
-      parents: [process.env.DRIVE_PARENT_FOLDER_ID],
-    },
-    fields: 'id',
-  });
-  return res.data.id;
-}
-
-
-
-const fs = require('fs');
-
-function generateSummaryPDF(summaryText, outputPath) {
-  return new Promise((resolve, reject) => {
-    const doc = new PDFDocument();
-    const stream = fs.createWriteStream(outputPath);
-    doc.pipe(stream);
-    doc.font('Helvetica').fontSize(12).text(summaryText, {
-      width: 500,
-      align: 'left'
-    });
-    doc.end();
-    stream.on('finish', () => resolve());
-    stream.on('error', reject);
-  });
-}
-
-
-
-const fs = require('fs');
-
-function generateSummaryPDF(summaryText, outputPath) {
-  return new Promise((resolve, reject) => {
-    const doc = new PDFDocument();
-    const stream = fs.createWriteStream(outputPath);
-    doc.pipe(stream);
-    doc.font('Helvetica').fontSize(12).text(summaryText, {
-      width: 500,
-      align: 'left'
-    });
-    doc.end();
-    stream.on('finish', () => resolve());
-    stream.on('error', reject);
-  });
-}
-
-
-
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
@@ -76,6 +5,7 @@ const OpenAI = require("openai");
 const { google } = require("googleapis");
 const fs = require("fs");
 const path = require("path");
+const PDFDocument = require("pdfkit");
 require("dotenv").config();
 
 const app = express();
@@ -92,6 +22,21 @@ const auth = new google.auth.GoogleAuth({
   scopes: ["https://www.googleapis.com/auth/drive.file"]
 });
 const drive = google.drive({ version: "v3", auth });
+
+function generateSummaryPDF(summaryText, outputPath) {
+  return new Promise((resolve, reject) => {
+    const doc = new PDFDocument();
+    const stream = fs.createWriteStream(outputPath);
+    doc.pipe(stream);
+    doc.font('Helvetica').fontSize(12).text(summaryText, {
+      width: 500,
+      align: 'left'
+    });
+    doc.end();
+    stream.on('finish', () => resolve());
+    stream.on('error', reject);
+  });
+}
 
 const solomonPrompt = [
   "You are Solomon, a professional and friendly garage design assistant for Elevated Garage that respects user answers.",
@@ -125,7 +70,7 @@ const solomonPrompt = [
   "Never suggest DIY.",
   "When all 9 topics have been addressed, wrap up the conversation with a natural closing message like:",
   "\"Thanks for sharing everything — this gives us a great foundation to begin planning your garage. We'll follow up with next steps soon!\""
-].join("\n") ;
+].join("\n");
 
 const extractionPrompt = [
   "You are a form analysis tool working behind the scenes at Elevated Garage.",
@@ -147,13 +92,13 @@ const extractionPrompt = [
   "If the user skips or declines the garage photo upload, set the field 'garage_photo_upload' to 'skipped'.",
   "",
   "Here is the full conversation transcript:"
-].join("\n") ;
+].join("\n");
 
 const extractIntakeData = async (history) => {
   const transcript = history
     .filter(m => m.role === "user" || m.role === "assistant")
     .map(m => `${m.role}: ${m.content}`)
-    .join("\n") ;
+    .join("\n");
 
   const completion = await openai.chat.completions.create({
     model: "gpt-4",
@@ -178,7 +123,6 @@ const extractIntakeData = async (history) => {
 };
 
 app.post("/message", async (req, res) => {
-  let imageSection = '';
   const { conversationHistory, trigger_summary } = req.body;
 
   if (!Array.isArray(conversationHistory)) {
@@ -186,34 +130,23 @@ app.post("/message", async (req, res) => {
   }
 
   try {
+    const lastUserMsg = [...conversationHistory].reverse().find(m => m.role === "user")?.content?.toLowerCase() || "";
+
+    const skipPhrases = ["no thank you", "skip the photo", "skip photo upload", "i don’t have a picture", "not right now", "can i skip", "no photo", "i’d rather not", "i’ll send it later"];
+    const uploadPhrases = ["photo uploaded", "uploaded a photo", "just uploaded", "attached the photo", "sent a picture"];
+
+    const shouldTriggerSmart = skipPhrases.some(p => lastUserMsg.includes(p)) ||
+                               uploadPhrases.some(p => lastUserMsg.includes(p));
+
     const completion = await openai.chat.completions.create({
       model: "gpt-4",
       messages: [
-        { role: "system", content: solomonPrompt + imageSection },
+        { role: "system", content: solomonPrompt },
         ...conversationHistory
       ]
     });
 
     const aiReply = completion.choices[0].message.content;
-    // Smart detection of photo skip or upload based on last user message
-    const lastUserMsg = [...conversationHistory].reverse().find(m => m.role === "user")?.content?.toLowerCase() || "";
-
-    const skipPhrases = [
-      "no thank you", "skip the photo", "skip photo upload", "i don’t have a picture",
-      "not right now", "can i skip", "no photo", "i’d rather not", "i’ll send it later"
-    ];
-    const uploadPhrases = [
-      "photo uploaded", "uploaded a photo", "just uploaded", "attached the photo", "sent a picture"
-    ];
-
-    const shouldTriggerSmart = skipPhrases.some(p => lastUserMsg.includes(p)) ||
-                               uploadPhrases.some(p => lastUserMsg.includes(p));
-
-    if (shouldTriggerSmart) {
-      console.log("🧠 Smart phrase detected:", lastUserMsg);
-    }
-
-
     let done = false;
 
     if (trigger_summary === true || shouldTriggerSmart) {
@@ -221,41 +154,52 @@ app.post("/message", async (req, res) => {
       done = extracted && Object.values(extracted).every(v => v && v.length > 0);
 
       if (done) {
-        
-        
-        if (Array.isArray(req.body.images) && req.body.images.length > 0) {
-          imageSection = '\n\nUploaded Images:\n' + req.body.images.map((img, i) => `Image ${i + 1}: [base64]`).join('\n');
-        }
-
-        const summary = Object.entries(extracted)
+        const summaryText = Object.entries(extracted)
           .map(([k, v]) => `${k.replace(/_/g, " ")}: ${v}`)
-          .join("\n") ;
-        const fileName = `Garage-Intake-${new Date().toISOString().replace(/[:.]/g, "-")}.txt`;
-        const filePath = path.join(__dirname, fileName);
-        fs.writeFileSync(filePath, summary);
+          .join("\n");
+
+        const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+
+        const summaryPath = path.join(__dirname, `Garage-Intake-${timestamp}.txt`);
+        fs.writeFileSync(summaryPath, summaryText);
 
         try {
-          const upload = await drive.files.create({
+          const uploadText = await drive.files.create({
             requestBody: {
-              name: fileName,
+              name: `Garage-Intake-${timestamp}.txt`,
               mimeType: "text/plain",
               parents: [process.env.GOOGLE_DRIVE_FOLDER_ID]
             },
             media: {
               mimeType: "text/plain",
-              body: fs.createReadStream(filePath)
+              body: fs.createReadStream(summaryPath)
             }
           });
-          fs.unlinkSync(filePath);
-          console.log("✅ Intake summary uploaded:", upload.data.id);
-        console.log("📨 Intake summary triggered by AI — data complete and uploaded.");
+          fs.unlinkSync(summaryPath);
+          console.log("✅ Intake summary uploaded:", uploadText.data.id);
+
+          // Generate PDF
+          const pdfPath = path.join(__dirname, `Garage Project Summary - ${timestamp}.pdf`);
+          await generateSummaryPDF(summaryText, pdfPath);
+          const uploadPDF = await drive.files.create({
+            requestBody: {
+              name: `Garage Project Summary - ${timestamp}.pdf`,
+              mimeType: "application/pdf",
+              parents: [process.env.GOOGLE_DRIVE_FOLDER_ID]
+            },
+            media: {
+              mimeType: "application/pdf",
+              body: fs.createReadStream(pdfPath)
+            }
+          });
+          fs.unlinkSync(pdfPath);
+          console.log("📄 PDF uploaded:", uploadPDF.data.id);
         } catch (uploadErr) {
           console.error("❌ Upload failed:", uploadErr.message);
         }
       }
     }
 
-    // Handle image uploads (if any)
     if (Array.isArray(req.body.images)) {
       for (let i = 0; i < req.body.images.length; i++) {
         const base64Data = req.body.images[i].split(";base64,").pop();
@@ -284,7 +228,7 @@ app.post("/message", async (req, res) => {
       }
     }
 
-res.json({ reply: aiReply, done });
+    res.json({ reply: aiReply, done });
   } catch (err) {
     console.error("❌ Chat error:", err.message);
     res.json({ reply: "Sorry, I hit an issue. Try again?", done: false });
@@ -295,20 +239,3 @@ app.listen(port, () => {
   console.log(`✅ Contact Solomon backend running on port ${port}`);
 });
 
-// Generate PDF and upload to same folder
-const pdfPath = `./Garage Project Summary - ${timestamp}.pdf`;
-await generateSummaryPDF(summaryText, pdfPath);
-
-const pdfFileMetadata = {
-  name: `Garage Project Summary - ${timestamp}.pdf`,
-  parents: [folderId],
-};
-const pdfMedia = {
-  mimeType: 'application/pdf',
-  body: fs.createReadStream(pdfPath),
-};
-await drive.files.create({
-  resource: pdfFileMetadata,
-  media: pdfMedia,
-  fields: 'id',
-});
