@@ -1060,10 +1060,13 @@ const shouldTrigger = triggerKeywords.some(keyword => msg.includes(keyword)) &&
       appendMessage(text, "user");
       conversationHistory.push({ role: "user", content: text });
       inputField.innerText = "";
-      fetch("/message", {
+      const formData = new FormData();
+formData.append("summaryText", "User garage summary goes here...");
+Array.from(fileUpload.files).forEach(file => formData.append("photos", file));
+fetch("/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ conversationHistory })
+        body: formData
       })
       .then(res => res.json())
       .then(data => {
@@ -1115,7 +1118,10 @@ fileUpload.addEventListener("change", function () {
   }
 
   function triggerSolomonSummary(history, images = []) {
-    fetch("/message", {
+    const formData = new FormData();
+formData.append("summaryText", "User garage summary goes here...");
+Array.from(fileUpload.files).forEach(file => formData.append("photos", file));
+fetch("/submit", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
