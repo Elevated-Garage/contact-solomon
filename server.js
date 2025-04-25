@@ -141,6 +141,7 @@ const extractIntakeData = async (history) => {
 };
 
 app.post("/message", async (req, res) => {
+  console.log("📨 Incoming summary request:", req.body);
   let uploadedImagePath = null;
   const { conversationHistory, trigger_summary } = req.body;
 
@@ -178,6 +179,21 @@ app.post("/message", async (req, res) => {
 
 if (trigger_summary === true || shouldTriggerSmart) {
       extracted = await extractIntakeData(conversationHistory);
+    console.log("🧠 Extracted intake data:", extracted);
+    console.log("✅ trigger_summary:", trigger_summary);
+    
+    const requiredFields = ["name", "email", "phone", "goals", "square_footage", "must_have_features", "budget", "start_date"];
+    const missing = requiredFields.filter(field => !extracted[field]);
+    console.log("🧠 Missing fields:", missing);
+    
+    if (missing.length > 0) {
+      const fieldPrompt = "Before we move forward, could you let me know: " + missing.join(", ") + "?";
+      return res.json({ reply: fieldPrompt });
+    }
+
+    done = true;
+    console.log("✅ All required fields collected, proceeding with summary...");
+    
       done = extracted && Object.values(extracted).every(v => v && v.length > 0);
 
       // ⛑️ Force patch garage_photo_upload if images exist
