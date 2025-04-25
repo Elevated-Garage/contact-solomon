@@ -1055,7 +1055,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // YES button: triggers file picker
   document.getElementById("intent-yes").addEventListener("click", () => {
     intentBtns.style.display = "none";
-    fileUpload.click();
+    document.getElementById("uploadCardContainer").style.display = "block";
   });
 
   // NO button: sends skip message and triggers summary
