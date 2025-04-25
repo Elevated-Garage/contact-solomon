@@ -23,7 +23,7 @@ const auth = new google.auth.GoogleAuth({
 });
 const drive = google.drive({ version: "v3", auth });
 
-function generateSummaryPDF(summaryText, outputPath, imagePath = null) {
+function generateSummaryPDF(summaryText, outputPath, imagePaths = []) {
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument();
     const stream = fs.createWriteStream(outputPath);
@@ -40,13 +40,17 @@ function generateSummaryPDF(summaryText, outputPath, imagePath = null) {
       align: "left"
     });
 
-    if (imagePath && fs.existsSync(imagePath)) {
-      doc.addPage();
-      doc.fontSize(14).text("Uploaded Garage Photo:", { align: "left" });
-      doc.image(imagePath, {
-        fit: [500, 350],
-        align: "center",
-        valign: "center"
+    if (Array.isArray(imagePaths) && imagePaths.length > 0) {
+      imagePaths.forEach((imgPath, index) => {
+        if (fs.existsSync(imgPath)) {
+          doc.addPage();
+          doc.fontSize(14).text("Garage Photo " + (index + 1), { align: "left" });
+          doc.image(imgPath, {
+            fit: [500, 350],
+            align: "center",
+            valign: "center"
+          });
+        }
       });
     }
 
@@ -54,7 +58,7 @@ function generateSummaryPDF(summaryText, outputPath, imagePath = null) {
     stream.on("finish", () => resolve());
     stream.on("error", reject);
   });
-};
+}
 
 const solomonPrompt = [
   "You are Solomon, a professional and friendly garage design assistant for Elevated Garage that respects user answers.",
@@ -152,7 +156,7 @@ const extractIntakeData = async (history) => {
 
 app.post("/message", async (req, res) => {
   console.log("📨 Incoming summary request:", req.body);
-  let uploadedImagePath = null;
+  let uploadedImagePaths = [];
   const { conversationHistory, trigger_summary } = req.body;
 
   if (!Array.isArray(conversationHistory)) {
@@ -256,8 +260,8 @@ if (trigger_summary === true || shouldTriggerSmart) {
           console.log("✅ Intake summary uploaded:", uploadText.data.id);
 
           const pdfPath = path.join(__dirname, `Garage Project Summary - ${timestamp}.pdf`);
-        let uploadedImagePath = null;
-          await generateSummaryPDF(summaryText, pdfPath, uploadedImagePath);
+        let uploadedImagePaths = [];
+          await generateSummaryPDF(summaryText, pdfPath, uploadedImagePaths);
           const uploadPDF = await drive.files.create({
             requestBody: {
               name: `Garage Project Summary - ${timestamp}.pdf`,
@@ -284,7 +288,7 @@ if (trigger_summary === true || shouldTriggerSmart) {
         const fileName = `Garage-Photo-${new Date().toISOString().replace(/[:.]/g, "-")}-${i + 1}.${fileExtension}`;
         const filePath = path.join(__dirname, fileName);
         fs.writeFileSync(filePath, base64Data, { encoding: "base64" });
-        if (!uploadedImagePath) uploadedImagePath = filePath;
+        uploadedImagePaths.push(filePath);
 
         try {
           const upload = await drive.files.create({
