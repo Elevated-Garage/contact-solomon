@@ -1124,25 +1124,36 @@ fileUpload.addEventListener("change", function () {
 chatBox.scrollTo({ top: chatBox.scrollHeight, behavior: "smooth" });
   }
 
-  function triggerSolomonSummary(history, images = []) {
-    fetch("/message", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        conversationHistory: history,
-        images: images,
-        trigger_summary: true
-      })
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (data && data.reply) {
-        appendMessage(data.reply, "bot");
-        conversationHistory.push({ role: "assistant", content: data.reply });
-      }
-    });
-  }
+  
+function triggerSolomonSummary(history, images = []) {
+  const payload = {
+    conversationHistory: history,
+    images: images,
+    trigger_summary: true
+  };
+  console.log("🚀 Sending summary payload:", payload);
+
+  fetch("/message", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  })
+  .then(res => res.json())
+  .then(data => {
+    console.log("📩 Server replied:", data);
+    if (data && data.reply) {
+      appendMessage(data.reply, "bot");
+      conversationHistory.push({ role: "assistant", content: data.reply });
+    } else {
+      console.warn("❌ No valid reply from server.");
+    }
+  })
+  .catch(err => {
+    console.error("🚨 Error submitting summary:", err);
+  });
+}
 });
 </script></body>
 </html>
+
 
