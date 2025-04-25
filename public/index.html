@@ -1065,5 +1065,54 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 });
+</script><script>
+document.addEventListener("DOMContentLoaded", function () {
+  const sendButton = document.getElementById("send-button");
+  const inputField = document.getElementById("input-field");
+  const chatBox = document.getElementById("chat-box");
+  window.conversationHistory = [];
+
+  if (sendButton && inputField) {
+    sendButton.addEventListener("click", async function () {
+      const userInput = inputField.innerText.trim();
+      if (!userInput) return;
+
+      const userDiv = document.createElement("div");
+      userDiv.className = "message user";
+      userDiv.innerText = userInput;
+      chatBox.appendChild(userDiv);
+      chatBox.scrollTo({ top: chatBox.scrollHeight, behavior: "smooth" });
+
+      window.conversationHistory.push({ role: "user", content: userInput });
+
+      inputField.innerText = "";
+
+      try {
+        const response = await fetch("/message", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ conversationHistory: window.conversationHistory })
+        });
+        const data = await response.json();
+
+        if (data && data.reply) {
+          const botDiv = document.createElement("div");
+          botDiv.className = "message bot";
+          botDiv.innerHTML = data.reply;
+          chatBox.appendChild(botDiv);
+          chatBox.scrollTo({ top: chatBox.scrollHeight, behavior: "smooth" });
+
+          window.conversationHistory.push({ role: "assistant", content: data.reply });
+
+          const event = new CustomEvent("aiReply", { detail: { message: data.reply } });
+          document.dispatchEvent(event);
+        }
+      } catch (error) {
+        console.error("❌ Error sending message:", error);
+      }
+    });
+  }
+});
 </script></body>
 </html>
+
