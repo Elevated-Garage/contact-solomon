@@ -1055,7 +1055,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // YES button: triggers file picker
   document.getElementById("intent-yes").addEventListener("click", () => {
     intentBtns.style.display = "none";
-    document.getElementById("uploadCardContainer").style.display = "block";
+    fileUpload.click();
   });
 
   // NO button: sends skip message and triggers summary
@@ -1159,4 +1159,5 @@ function triggerSolomonSummary(history, images = []) {
 });
 </script></body>
 </html>
+
 
