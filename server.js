@@ -118,7 +118,17 @@ const extractIntakeData = async (history) => {
     .map(m => `${m.role}: ${m.content}`)
     .join("\n");
 
-  const completion = await openai.chat.completions.create({
+  
+    if (Array.isArray(req.body.images) && req.body.images.length > 0) {
+      const alreadyMentionedUpload = conversationHistory.some(m => typeof m.content === "string" && m.content.toLowerCase().includes("photo uploaded"));
+      if (!alreadyMentionedUpload) {
+        conversationHistory.push({ role: "user", content: "Photo uploaded." });
+        console.log("🧠 Injected 'Photo uploaded.' message into conversation history");
+      }
+    }
+
+
+    const completion = await openai.chat.completions.create({
     model: "gpt-4",
     messages: [
       { role: "system", content: extractionPrompt },
@@ -162,6 +172,16 @@ app.post("/message", async (req, res) => {
 
     const shouldTriggerSmart = skipPhrases.some(p => lastUserMsg.includes(p)) ||
                                uploadPhrases.some(p => lastUserMsg.includes(p));
+
+    
+    if (Array.isArray(req.body.images) && req.body.images.length > 0) {
+      const alreadyMentionedUpload = conversationHistory.some(m => typeof m.content === "string" && m.content.toLowerCase().includes("photo uploaded"));
+      if (!alreadyMentionedUpload) {
+        conversationHistory.push({ role: "user", content: "Photo uploaded." });
+        console.log("🧠 Injected 'Photo uploaded.' message into conversation history");
+      }
+    }
+
 
     const completion = await openai.chat.completions.create({
       model: "gpt-4",
