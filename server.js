@@ -182,7 +182,16 @@ if (trigger_summary === true || shouldTriggerSmart) {
     console.log("🧠 Extracted intake data:", extracted);
     console.log("✅ trigger_summary:", trigger_summary);
     
-    const requiredFields = ["name", "email", "phone", "goals", "square_footage", "must_have_features", "budget", "start_date"];
+    const requiredFields = [
+  "full_name",
+  "email",
+  "phone",
+  "garage_goals",
+  "square_footage",
+  "must_have_features",
+  "budget",
+  "start_date"
+];
     const missing = requiredFields.filter(field => !extracted[field]);
     console.log("🧠 Missing fields:", missing);
     
