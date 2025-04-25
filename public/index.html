@@ -996,10 +996,6 @@ body.solomon-embedded .form-wrapper {
   background-color: #8a121a;
 }
 </style>
-<div id="photo-intent-buttons" style="display: none; justify-content: center; gap: 16px; margin-bottom: 12px;">
-<button id="intent-yes" style="padding: 8px 16px; background: #B91B21; color: white; border: none; border-radius: 8px; cursor: pointer;">Yes</button>
-<button id="intent-no" style="padding: 8px 16px; background: #6b7280; color: white; border: none; border-radius: 8px; cursor: pointer;">No</button>
-</div>
 <div id="photo-uploader" style="display: none; margin-top: 20px;">
 <div class="upload-box" style="background:white; padding: 30px; border-radius:12px; box-shadow: 0 2px 12px rgba(0,0,0,0.15); text-align:center;">
 <h3 style="color:#B91B21; margin-bottom: 20px;">Upload Photos</h3>
@@ -1023,7 +1019,6 @@ body.solomon-embedded .form-wrapper {
 </div>
 </div>
 </div>
-
 <div id="input-wrapper"><div class="thumbnail-preview" id="preview-thumbnails"></div>
 <label class="upload-button" for="file-upload" style="font-size: 40px; cursor: pointer; user-select: none; color: #B91B21;"><span style="color: white;">+</span></label>
 <input id="file-upload" multiple="" type="file"/>
@@ -1039,7 +1034,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const sendButton = document.getElementById("send-button");
   const fileUpload = document.getElementById("file-upload");
   const preview = document.getElementById("preview-thumbnails");
-  const intentBtns = document.getElementById("photo-intent-buttons");
+  
   const conversationHistory = [];
   const uploadedImages = [];
 
@@ -1067,23 +1062,19 @@ document.addEventListener("DOMContentLoaded", function () {
       console.log("🛑 Blocking photo intent until missing fields are answered.");
       return; // Don't show photo options
     }
+    
     if (shouldTrigger) {
-      intentBtns.style.display = "flex";
+      uploader.style.display = "block";
     }
 
-    if (msg.includes("[trigger_photo_step]")) {
-      intentBtns.style.display = "flex";
-    }
+    
   });
 
   // YES button: triggers file picker
-  document.getElementById("intent-yes").addEventListener("click", () => {
-    intentBtns.style.display = "none";
     fileUpload.click();
   });
 
   // NO button: sends skip message and triggers summary
-  document.getElementById("intent-no").addEventListener("click", () => {
     const message = "No, I’d like to skip the photo upload.";
     appendMessage(message, "user");
     conversationHistory.push({ role: "user", content: message });
@@ -1183,33 +1174,50 @@ function triggerSolomonSummary(history, images = []) {
 });
 </script><script>
 document.addEventListener("DOMContentLoaded", function () {
-  const dragArea = document.getElementById("drag-area");
-  const fileInput = document.getElementById("fileElem");
+  const inputField = document.getElementById("input-field");
+  const sendButton = document.getElementById("send-button");
+  const conversationHistory = [];
   const preview = document.getElementById("thumbnail-preview");
+  const fileInput = document.getElementById("fileElem");
   const uploader = document.getElementById("photo-uploader");
   const checkButton = document.getElementById("photo-submit");
   const skipButton = document.getElementById("photo-skip");
-  const conversationHistory = [];
   const uploadedImages = [];
 
-  // Trigger click on drag area
-  dragArea.addEventListener("click", () => fileInput.click());
+  sendButton.addEventListener("click", () => {
+    const text = inputField.innerText.trim();
+    if (text) {
+      appendMessage(text, "user");
+      conversationHistory.push({ role: "user", content: text });
+      inputField.innerText = "";
 
-  dragArea.addEventListener("dragover", (e) => {
-    e.preventDefault();
-    dragArea.style.background = "#ffe8e8";
+      fetch("/message", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ conversationHistory })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.reply) {
+          appendMessage(data.reply, "bot");
+          conversationHistory.push({ role: "assistant", content: data.reply });
+
+          document.dispatchEvent(new CustomEvent("aiReply", {
+            detail: { message: data.reply }
+          }));
+        }
+      });
+    }
   });
 
-  dragArea.addEventListener("dragleave", () => {
-    dragArea.style.background = "#fff0f0";
-  });
-
-  dragArea.addEventListener("drop", (e) => {
-    e.preventDefault();
-    dragArea.style.background = "#fff0f0";
-    fileInput.files = e.dataTransfer.files;
-    showPreviews();
-  });
+  function appendMessage(content, type) {
+    const container = document.createElement("div");
+    container.className = "message " + type;
+    container.innerHTML = content;
+    document.getElementById("chat-box").appendChild(container);
+    const chatBox = document.getElementById("chat-box");
+    chatBox.scrollTo({ top: chatBox.scrollHeight, behavior: "smooth" });
+  }
 
   fileInput.addEventListener("change", showPreviews);
 
@@ -1234,7 +1242,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // Submit
   checkButton.addEventListener("click", () => {
     appendMessage("📸 Photo uploaded successfully!", "user");
     conversationHistory.push({ role: "user", content: "Photo uploaded." });
@@ -1242,31 +1249,12 @@ document.addEventListener("DOMContentLoaded", function () {
     uploader.style.display = "none";
   });
 
-  // Skip
   skipButton.addEventListener("click", () => {
     appendMessage("No, I’d like to skip the photo upload.", "user");
     conversationHistory.push({ role: "user", content: "No photo will be uploaded." });
     triggerSolomonSummary(conversationHistory, []);
     uploader.style.display = "none";
   });
-
-  // Trigger by AI
-  document.addEventListener("aiReply", function (e) {
-    const msg = e.detail.message?.toLowerCase() || "";
-    const triggers = ["upload a photo", "garage photo", "photo of your garage", "photo of your space", "[trigger_photo_step]"];
-    if (triggers.some(phrase => msg.includes(phrase))) {
-      uploader.style.display = "block";
-    }
-  });
-
-  function appendMessage(content, type) {
-    const container = document.createElement("div");
-    container.className = "message " + type;
-    container.innerHTML = content;
-    document.getElementById("chat-box").appendChild(container);
-    const chatBox = document.getElementById("chat-box");
-    chatBox.scrollTo({ top: chatBox.scrollHeight, behavior: "smooth" });
-  }
 
   function triggerSolomonSummary(history, images = []) {
     const payload = {
@@ -1285,6 +1273,14 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
   }
+
+  document.addEventListener("aiReply", function (e) {
+    const msg = e.detail.message?.toLowerCase() || "";
+    const triggers = ["upload a photo", "garage photo", "photo of your garage", "photo of your space", "[trigger_photo_step]"];
+    if (triggers.some(phrase => msg.includes(phrase))) {
+      uploader.style.display = "block";
+    }
+  });
 });
 </script></body>
 </html>
