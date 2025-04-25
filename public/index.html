@@ -1039,6 +1039,10 @@ document.addEventListener("DOMContentLoaded", function () {
       msg.includes("upload image") ||
       msg.includes("garage snapshot") ||
       msg.includes("attach a photo");
+    if (msg.includes("could you let me know:")) {
+      console.log("🛑 Blocking photo intent until missing fields are answered.");
+      return; // Don't show photo options
+    }
     if (shouldTrigger) {
       intentBtns.style.display = "flex";
     }
