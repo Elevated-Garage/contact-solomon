@@ -1191,81 +1191,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 });
 </script>
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-  const dragArea = document.getElementById("drag-area");
-  const fileInput = document.getElementById("fileElem");
 
-  if (dragArea && fileInput) {
-    dragArea.addEventListener("click", () => {
-      fileInput.click();
-    });
-
-    fileInput.addEventListener("change", function(event) {
-      const files = event.target.files;
-      let thumbnailWrapper = document.getElementById("thumbnail-wrapper");
-
-      if (!thumbnailWrapper) {
-        thumbnailWrapper = document.createElement("div");
-        thumbnailWrapper.id = "thumbnail-wrapper";
-        thumbnailWrapper.style.display = "flex";
-        thumbnailWrapper.style.flexWrap = "wrap";
-        thumbnailWrapper.style.justifyContent = "center";
-        thumbnailWrapper.style.gap = "10px";
-        thumbnailWrapper.style.marginTop = "10px";
-        dragArea.appendChild(thumbnailWrapper);
-      }
-
-      Array.from(files).forEach(file => {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          const container = document.createElement('div');
-          container.className = 'thumbnail-container';
-          container.style.position = 'relative';
-          container.style.width = '80px';
-          container.style.height = '80px';
-
-          const img = document.createElement('img');
-          img.className = 'thumbnail';
-          img.src = e.target.result;
-          img.style.width = '100%';
-          img.style.height = '100%';
-          img.style.objectFit = 'cover';
-          img.style.borderRadius = '6px';
-          img.style.boxShadow = '0 2px 6px rgba(0,0,0,0.15)';
-
-          const removeButton = document.createElement('button');
-          removeButton.className = 'remove-button';
-          removeButton.innerHTML = '&times;';
-          removeButton.style.position = 'absolute';
-          removeButton.style.top = '-8px';
-          removeButton.style.right = '-8px';
-          removeButton.style.background = '#B91B21';
-          removeButton.style.color = 'white';
-          removeButton.style.border = 'none';
-          removeButton.style.borderRadius = '50%';
-          removeButton.style.width = '20px';
-          removeButton.style.height = '20px';
-          removeButton.style.cursor = 'pointer';
-          removeButton.style.fontSize = '14px';
-          removeButton.style.lineHeight = '20px';
-          removeButton.style.display = 'flex';
-          removeButton.style.alignItems = 'center';
-          removeButton.style.justifyContent = 'center';
-          removeButton.onclick = function() {
-            container.remove();
-          };
-
-          container.appendChild(img);
-          container.appendChild(removeButton);
-          thumbnailWrapper.appendChild(container);
-        };
-        reader.readAsDataURL(file);
-      });
-    });
-  }
-});
-</script>
 
 
 <script>
@@ -1276,9 +1202,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
   if (dragArea && fileInput) {
     dragArea.addEventListener("click", (e) => {
-      // Fix: Only open file picker if clicking real drag area background, not thumbnails or remove buttons
       if (e.target.closest('.remove-button') || e.target.closest('.thumbnail-container')) {
-        e.stopPropagation(); // Stop accidental bubbling
+        e.stopPropagation();
         return;
       }
       fileInput.click();
@@ -1301,7 +1226,7 @@ document.addEventListener("DOMContentLoaded", function () {
           removeButton.className = 'remove-button';
           removeButton.innerHTML = '&times;';
           removeButton.onclick = function(event) {
-            event.stopPropagation(); // Prevent click bubbling up
+            event.stopPropagation();
             container.remove();
           };
 
@@ -1351,4 +1276,5 @@ document.addEventListener("DOMContentLoaded", function () {
 </script>
 </body>
 </html>
+
 
