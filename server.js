@@ -381,7 +381,7 @@ app.post("/submit-final-intake", async (req, res) => {
     if (latestConversationHistory.length === 0) {
       console.error("❌ No conversation history available to generate summary.");
       return res.status(400).send("No conversation history available.");
-    }
+  
 
     // Step 1: Extract structured intake data
     const intakeData = await extractIntakeData(latestConversationHistory);
