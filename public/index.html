@@ -1190,17 +1190,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 });
-</script><script>
-document.getElementById("photo-submit").addEventListener("click", () => {
-  const files = document.getElementById("fileElem").files;
-  console.log("✔ Submitting files:", files);
-  // submitPhotos(files); // <-- hook into your real function
-});
-
-document.getElementById("photo-skip").addEventListener("click", () => {
-  console.log("❌ Skipping photo upload.");
-  // skipPhotos(); // <-- trigger AI summary or move forward
-});
 </script>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
@@ -1277,5 +1266,75 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 });
 </script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const dragArea = document.getElementById("drag-area");
+  const fileInput = document.getElementById("fileElem");
+  const thumbnailWrapper = document.getElementById("thumbnail-wrapper");
+
+  if (dragArea && fileInput) {
+    dragArea.addEventListener("click", () => {
+      fileInput.click();
+    });
+
+    fileInput.addEventListener("change", function(event) {
+      const files = event.target.files;
+
+      Array.from(files).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const container = document.createElement('div');
+          container.className = 'thumbnail-container';
+
+          const img = document.createElement('img');
+          img.className = 'thumbnail';
+          img.src = e.target.result;
+
+          const removeButton = document.createElement('button');
+          removeButton.className = 'remove-button';
+          removeButton.innerHTML = '&times;';
+          removeButton.onclick = function() {
+            container.remove();
+          };
+
+          container.appendChild(img);
+          container.appendChild(removeButton);
+          thumbnailWrapper.appendChild(container);
+        };
+        reader.readAsDataURL(file);
+      });
+    });
+
+    // Injected Fetch Logic
+    document.getElementById("photo-submit").addEventListener("click", async () => {
+      const files = fileInput.files;
+      if (files.length > 0) {
+        const formData = new FormData();
+        Array.from(files).forEach(file => formData.append('photos', file));
+        try {
+          const response = await fetch("/upload-photos", {
+            method: "POST",
+            body: formData
+          });
+          console.log("✔ Photos submitted successfully!");
+        } catch (error) {
+          console.error("❌ Error submitting photos:", error);
+        }
+      }
+    });
+
+    document.getElementById("photo-skip").addEventListener("click", async () => {
+      try {
+        await fetch("/skip-photo-upload", { method: "POST" });
+        console.log("❌ Skipped photo upload successfully!");
+      } catch (error) {
+        console.error("❌ Error skipping photo upload:", error);
+      }
+    });
+  }
+});
+</script>
 </body>
 </html>
+
