@@ -23,6 +23,17 @@ const auth = new google.auth.GoogleAuth({
 });
 const drive = google.drive({ version: "v3", auth });
 
+
+const { Readable } = require("stream"); // <-- ADD THIS
+
+function bufferToStream(buffer) {
+  const readable = new Readable();
+  readable.push(buffer);
+  readable.push(null);
+  return readable;
+}
+
+
 function generateSummaryPDF(summaryText, outputPath, imagePaths = []) {
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument();
@@ -340,7 +351,7 @@ app.post("/upload-photos", upload.array('photos'), async (req, res) => {
         },
         media: {
           mimeType: file.mimetype,
-          body: Buffer.from(file.buffer)
+          body: bufferToStream(file.buffer) // <-- USE STREAM instead of Buffer
         }
       });
       console.log(`✅ Uploaded photo: ${uploadRes.data.id}`);
@@ -350,12 +361,6 @@ app.post("/upload-photos", upload.array('photos'), async (req, res) => {
     console.error("❌ Photo upload error:", err.message);
     res.status(500).send("Photo upload error");
   }
-});
-
-// Handle skip photo upload
-app.post("/skip-photo-upload", (req, res) => {
-  console.log("❌ User skipped photo upload");
-  res.sendStatus(200);
 });
 
 
