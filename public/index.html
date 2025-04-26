@@ -710,7 +710,6 @@ button.ai-style-change-1 {
   box-sizing: border-box;
 }
 </style>
-
 <style>#user-input {
   overflow-y: auto;
 }</style><style>
@@ -934,13 +933,18 @@ button.ai-style-change-1 {
 <input accept="image/*" class="file-input" id="fileElem" multiple="" type="file"/>
 </div>
 <div style="display: flex; justify-content: center; gap: 20px; margin-top: 10px;">
-<button class="submit-button" id="photo-submit" title="Submit Photos">
-<svg fill="none" height="24" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" viewbox="0 0 24 24" width="24">
+
+
+</div>
+
+<div style="display: flex; justify-content: center; gap: 24px; margin-top: 16px;">
+<button aria-label="Submit Photos" class="submit-button" id="photo-submit" title="Submit Photos">
+<svg fill="none" height="32" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" viewbox="0 0 24 24" width="32">
 <polyline points="20 6 9 17 4 12" stroke="#B91B21"></polyline>
 </svg>
 </button>
-<button class="submit-button skip-button" id="photo-skip" title="Skip">
-<svg fill="none" height="24" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" viewbox="0 0 24 24" width="24">
+<button aria-label="Skip Upload" class="submit-button skip-button" id="photo-skip" title="Skip Upload">
+<svg fill="none" height="32" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" viewbox="0 0 24 24" width="32">
 <line stroke="#B91B21" x1="6" x2="18" y1="6" y2="18"></line>
 <line stroke="#B91B21" x1="6" x2="18" y1="18" y2="6"></line>
 </svg>
@@ -1029,7 +1033,6 @@ button.ai-style-change-1 {
 }
 </style>
 <div id="photo-uploader" style="display: none; margin-top: 20px;">
-
 </div>
 <div id="input-wrapper"><div class="thumbnail-preview" id="preview-thumbnails"></div>
 <label class="upload-button" for="file-upload" style="font-size: 40px; cursor: pointer; user-select: none; color: #B91B21;"><span style="color: white;">+</span></label>
@@ -1124,6 +1127,17 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
   }
+});
+</script><script>
+document.getElementById("photo-submit").addEventListener("click", () => {
+  const files = document.getElementById("fileElem").files;
+  console.log("✔ Submitting files:", files);
+  // submitPhotos(files); // <-- hook into your real function
+});
+
+document.getElementById("photo-skip").addEventListener("click", () => {
+  console.log("❌ Skipping photo upload.");
+  // skipPhotos(); // <-- trigger AI summary or move forward
 });
 </script></body>
 </html>
