@@ -172,7 +172,6 @@ app.post("/message", async (req, res) => {
   const { conversationHistory, trigger_summary } = req.body;
     latestConversationHistory = conversationHistory;
 
-  if (!Array.isArray(conversationHistory)) {
     return res.status(400).json({ error: "Invalid history format." });
     return res.status(400).json({ error: "Invalid history format." });
   console.log("📨 Incoming summary request:", req.body);
@@ -335,7 +334,7 @@ if (trigger_summary === true || shouldTriggerSmart) {
     console.error("❌ Chat error:", err.message);
     res.json({ reply: "Sorry, I hit an issue. Try again?", done: false });
   }
-};
+});
 
 
 // Handle uploaded photos
