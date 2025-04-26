@@ -710,50 +710,7 @@ button.ai-style-change-1 {
   box-sizing: border-box;
 }
 </style>
-<style>
-.message.user { background-color: #B91B21; color: white; align-self: flex-end; padding: 10px; margin: 8px 0; border-radius: 12px; max-width: 80%; }
-.submit-button {
-  background: linear-gradient(145deg, #B91B21, #a3171d);
-  color: white;
-  padding: 14px 32px;
-  font-size: 16px;
-  border: none;
-  border-radius: 40px;
-  cursor: pointer;
-  box-shadow: 0 4px 15px rgba(185, 27, 33, 0.4);
-  transition: all 0.25s ease-in-out;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  margin: 20px auto 0 auto;
-  margin-top: 20px;
-}
-.submit-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 24px rgba(185, 27, 33, 0.6);
-  background: linear-gradient(145deg, #c8232b, #B91B21);
-}
-.submit-button:active {
-  transform: scale(0.98);
-  box-shadow: 0 2px 10px rgba(185, 27, 33, 0.3);
-}
-<style>
-.message.user { background-color: #B91B21; color: white; align-self: flex-end; padding: 10px; margin: 8px 0; border-radius: 12px; max-width: 80%; }
-/* Apply fullscreen layout ONLY when embedded */
-body.solomon-embedded,
-body.solomon-embedded html {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  overflow: auto;
-}
 
-body.solomon-embedded #app,
-body.solomon-embedded .form-wrapper {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-</style>
 <style>#user-input {
   overflow-y: auto;
 }</style><style>
@@ -906,7 +863,61 @@ body.solomon-embedded .form-wrapper {
   50% { transform: scale(1.2); opacity: 1; }
   100% { transform: scale(1); opacity: 0; }
 }
-</style></head>
+</style>
+<style>
+.upload-box {
+  background: white;
+  padding: 40px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  width: 100%;
+  max-width: 400px;
+  margin: 30px auto;
+}
+.upload-box h2 {
+  margin-bottom: 20px;
+  color: #B91B21;
+}
+.drag-area {
+  border: 2px dashed #B91B21;
+  border-radius: 10px;
+  padding: 30px;
+  margin-bottom: 20px;
+  cursor: pointer;
+  background: #fafafa;
+}
+.drag-area.highlight {
+  background: #fff0f0;
+}
+.file-input {
+  display: none;
+}
+.submit-button {
+  background-color: transparent;
+  border: none;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+.submit-button:hover {
+  background-color: #B91B21;
+}
+.submit-button:hover svg polyline,
+.skip-button:hover svg line {
+  stroke: white;
+}
+.submit-button svg polyline,
+.skip-button svg line {
+  stroke: #B91B21;
+}
+</style>
+</head>
 <body>
 <div id="app">
 <input accept="image/*" id="file-upload" style="display: none;" type="file"/>
@@ -915,7 +926,28 @@ body.solomon-embedded .form-wrapper {
 <p>Your smart garage designer is standing by—let’s build your vision together.</p>
 </div><div class="chat-box" id="chat-box">
 <div class="message bot">👋 Hey there! Before we get started, I have a few quick questions to help design your perfect garage.</div>
-</div><div id="typing" style="display:none;">Solomon is typing...</div><form class="form-col" id="chat-form" onsubmit="event.preventDefault();">
+</div>
+<div class="upload-box" id="photo-uploader" style="display: none;">
+<h2>Upload Photos</h2>
+<div class="drag-area" id="drag-area">
+<p>Drag &amp; drop photos here or click to select</p>
+<input accept="image/*" class="file-input" id="fileElem" multiple="" type="file"/>
+</div>
+<div style="display: flex; justify-content: center; gap: 20px; margin-top: 10px;">
+<button class="submit-button" id="photo-submit" title="Submit Photos">
+<svg fill="none" height="24" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" viewbox="0 0 24 24" width="24">
+<polyline points="20 6 9 17 4 12" stroke="#B91B21"></polyline>
+</svg>
+</button>
+<button class="submit-button skip-button" id="photo-skip" title="Skip">
+<svg fill="none" height="24" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" viewbox="0 0 24 24" width="24">
+<line stroke="#B91B21" x1="6" x2="18" y1="6" y2="18"></line>
+<line stroke="#B91B21" x1="6" x2="18" y1="18" y2="6"></line>
+</svg>
+</button>
+</div>
+</div>
+<div id="typing" style="display:none;">Solomon is typing...</div><form class="form-col" id="chat-form" onsubmit="event.preventDefault();">
 <style>
 #input-wrapper {
   max-width: 642px;
@@ -997,27 +1029,7 @@ body.solomon-embedded .form-wrapper {
 }
 </style>
 <div id="photo-uploader" style="display: none; margin-top: 20px;">
-<div class="upload-box" style="background:white; padding: 30px; border-radius:12px; box-shadow: 0 2px 12px rgba(0,0,0,0.15); text-align:center;">
-<h3 style="color:#B91B21; margin-bottom: 20px;">Upload Photos</h3>
-<div id="drag-area" style="border:2px dashed #B91B21; border-radius:10px; padding:20px; cursor:pointer; background:#fff0f0; margin-bottom:16px;">
-<p style="margin:0; color:#B91B21;">Drag &amp; drop or click to select photos</p>
-<input accept="image/*" class="file-input" id="fileElem" multiple="" style="display:none;" type="file"/>
-</div>
-<div class="thumbnail-preview" id="thumbnail-preview" style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;"></div>
-<div style="margin-top: 16px; display:flex; justify-content:center; gap: 12px;">
-<button class="submit-button" id="photo-submit" style="background-color:transparent; border:2px solid transparent; border-radius:50%; width:48px; height:48px; display:flex; align-items:center; justify-content:center;" title="Submit Photos">
-<svg fill="none" height="24" stroke="#B91B21" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" viewbox="0 0 24 24" width="24">
-<polyline points="20 6 9 17 4 12"></polyline>
-</svg>
-</button>
-<button class="submit-button" id="photo-skip" style="background-color:transparent; border:2px solid transparent; border-radius:50%; width:48px; height:48px; display:flex; align-items:center; justify-content:center;" title="Skip Photo">
-<svg fill="none" height="24" stroke="#B91B21" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" viewbox="0 0 24 24" width="24">
-<line x1="6" x2="18" y1="6" y2="18"></line>
-<line x1="6" x2="18" y1="18" y2="6"></line>
-</svg>
-</button>
-</div>
-</div>
+
 </div>
 <div id="input-wrapper"><div class="thumbnail-preview" id="preview-thumbnails"></div>
 <label class="upload-button" for="file-upload" style="font-size: 40px; cursor: pointer; user-select: none; color: #B91B21;"><span style="color: white;">+</span></label>
