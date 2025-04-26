@@ -1195,118 +1195,61 @@ document.addEventListener("DOMContentLoaded", function () {
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-  const fileInput = document.getElementById("fileElem");
   const dragArea = document.getElementById("drag-area");
-  const uploadButton = document.querySelector(".upload-button");
-  const submitButton = document.getElementById("photo-submit");
-  const skipButton = document.getElementById("photo-skip");
-  const thumbnailWrapper = document.getElementById("thumbnail-wrapper");
+  const fileInput = document.getElementById("fileElem");
 
-  let photoFiles = [];
-
-  // Click drag-area to open file picker
-  if (dragArea) {
-   dragArea.addEventListener("click", (e) => {
-  e.preventDefault();
-
-  // Ignore clicks that are actually on the hidden input itself
-  if (e.target !== dragArea) {
-    fileInput.click();
-    return;
-  }
-
-  // Otherwise, if they clicked the drag area background, launch uploader
-  fileInput.click();
-});
-
-
-    // Drag events
-    dragArea.addEventListener("dragover", (e) => {
-      e.preventDefault();
-      dragArea.classList.add("highlight");
-    });
-
-    dragArea.addEventListener("dragleave", (e) => {
-      e.preventDefault();
-      dragArea.classList.remove("highlight");
-    });
-
-    dragArea.addEventListener("drop", (e) => {
-      e.preventDefault();
-      dragArea.classList.remove("highlight");
-      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-        handleFiles(e.dataTransfer.files);
+  if (dragArea && fileInput) {
+    dragArea.addEventListener("click", (e) => {
+      if (e.target.closest('.remove-button') || e.target.closest('.thumbnail-container')) {
+        e.stopPropagation();
+        return;
       }
-    });
-  }
-
-  // Click "+" button to open file picker
-  if (uploadButton) {
-    uploadButton.addEventListener("click", (e) => {
-      e.preventDefault();
       fileInput.click();
     });
-  }
 
-  // Handle selecting files via picker
-  if (fileInput) {
-    fileInput.addEventListener("change", (e) => {
-      if (e.target.files.length > 0) {
-        handleFiles(e.target.files);
-      }
-    });
-  }
+    fileInput.addEventListener("change", function(event) {
+      const files = event.target.files;
+      const thumbnailWrapper = document.getElementById("thumbnail-wrapper");
 
-  // Handle the files (both picker and drag-drop)
-  function handleFiles(files) {
-    Array.from(files).forEach(file => {
-      photoFiles.push(file);
+      Array.from(files).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const container = document.createElement('div');
+          container.className = 'thumbnail-container';
 
-      const container = document.createElement('div');
-      container.className = 'thumbnail-container';
+          const img = document.createElement('img');
+          img.className = 'thumbnail';
+          img.src = e.target.result;
 
-      const img = document.createElement('img');
-      img.className = 'thumbnail';
-      img.src = URL.createObjectURL(file);
+          const removeButton = document.createElement('button');
+          removeButton.className = 'remove-button';
+          removeButton.innerHTML = '&times;';
+          removeButton.onclick = function(event) {
+            event.stopPropagation();
+            container.remove();
+          };
 
-      const removeButton = document.createElement('button');
-      removeButton.className = 'remove-button';
-      removeButton.innerHTML = '&times;';
-      removeButton.onclick = function(event) {
-        event.stopPropagation();
-        container.remove();
-        photoFiles = photoFiles.filter(f => f !== file);
-        if (photoFiles.length === 0) {
-          submitButton.disabled = true;
-        }
-      };
-
-      container.appendChild(img);
-      container.appendChild(removeButton);
-      if (thumbnailWrapper) {
-        thumbnailWrapper.appendChild(container);
-      }
+          container.appendChild(img);
+          container.appendChild(removeButton);
+          if (thumbnailWrapper) {
+            thumbnailWrapper.appendChild(container);
+          }
+        };
+        reader.readAsDataURL(file);
+      });
     });
 
-    if (photoFiles.length > 0) {
-      submitButton.disabled = false;
-    }
-
-    console.log(`📸 Ready to upload: ${photoFiles.length} files.`);
-  }
-
-  // Handle Submit
-  if (submitButton) {
-    submitButton.addEventListener("click", async () => {
-      if (photoFiles.length === 0) {
-        console.log("❌ No photos selected.");
+    document.getElementById("photo-submit").addEventListener("click", async () => {
+      const files = fileInput.files;
+      if (!files.length) {
+        console.log("❌ No files selected.");
         return;
       }
 
       const formData = new FormData();
-      photoFiles.forEach(file => {
+      for (const file of files) {
         formData.append("photos", file);
-      });
+      }
 
       try {
         const res = await fetch("/upload-photos", {
@@ -1317,9 +1260,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (res.ok) {
           console.log("✅ Photos uploaded successfully!");
           await fetch("/submit-final-intake", { method: "POST" });
-          console.log("✅ Final intake summary requested.");
-
-          resetUploader();
+          console.log("✅ Final intake summary requested after photo upload.");
         } else {
           console.error("❌ Photo upload failed.");
         }
@@ -1327,33 +1268,21 @@ document.addEventListener("DOMContentLoaded", function () {
         console.error("❌ Error uploading photos:", err.message);
       }
     });
-  }
 
-  // Handle Skip
-  if (skipButton) {
-    skipButton.addEventListener("click", async () => {
+    document.getElementById("photo-skip").addEventListener("click", async () => {
       try {
         await fetch("/skip-photo-upload", { method: "POST" });
+        console.log("✅ Photo upload skipped.");
         await fetch("/submit-final-intake", { method: "POST" });
-        console.log("✅ Final intake summary requested after skipping.");
-
-        resetUploader();
+        console.log("✅ Final intake summary requested after skipping photo.");
       } catch (err) {
         console.error("❌ Error skipping photo upload:", err.message);
       }
     });
   }
-
-  // Reset uploader function
-  function resetUploader() {
-    photoFiles = [];
-    if (fileInput) fileInput.value = "";
-    if (thumbnailWrapper) thumbnailWrapper.innerHTML = "";
-    if (submitButton) submitButton.disabled = true;
-  }
 });
 </script>
-
 </body>
 </html>
+
 
