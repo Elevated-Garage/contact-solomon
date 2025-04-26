@@ -342,28 +342,4 @@ app.post("/upload-photos", upload.array('photos'), async (req, res) => {
   console.log(`📸 Received ${req.files.length} photos.`);
 
   try {
-    for (const file of req.files) {
-      const uploadRes = await drive.files.create({
-        requestBody: {
-          name: file.originalname,
-          mimeType: file.mimetype,
-          parents: [process.env.GOOGLE_DRIVE_FOLDER_ID]
-        },
-        media: {
-          mimeType: file.mimetype,
-          body: bufferToStream(file.buffer) // <-- USE STREAM instead of Buffer
-        }
-      });
-      console.log(`✅ Uploaded photo: ${uploadRes.data.id}`);
-    }
-    res.sendStatus(200);
-  } catch (err) {
-    console.error("❌ Photo upload error:", err.message);
-    res.status(500).send("Photo upload error");
-  }
-});
-
-
-app.listen(port, () => {
-  console.log(`✅ Contact Solomon backend running on port ${port}`);
-});
+    for
