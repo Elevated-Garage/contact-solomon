@@ -1136,6 +1136,19 @@ document.getElementById("photo-skip").addEventListener("click", () => {
   console.log("❌ Skipping photo upload.");
   // skipPhotos(); // <-- trigger AI summary or move forward
 });
-</script></body>
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const dragArea = document.getElementById("drag-area");
+  const fileInput = document.getElementById("fileElem");
+
+  if (dragArea && fileInput) {
+    dragArea.addEventListener("click", () => {
+      fileInput.click();
+    });
+  }
+});
+</script>
+</body>
 </html>
 
