@@ -1195,91 +1195,109 @@ document.addEventListener("DOMContentLoaded", function () {
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-  const dragArea = document.getElementById("drag-area");
   const fileInput = document.getElementById("fileElem");
+  const submitButton = document.getElementById("photo-submit");
+  const skipButton = document.getElementById("photo-skip");
+  const thumbnailWrapper = document.getElementById("thumbnail-wrapper");
 
-  if (dragArea && fileInput) {
-    dragArea.addEventListener("click", (e) => {
-      if (e.target.closest('.remove-button') || e.target.closest('.thumbnail-container')) {
-        e.stopPropagation();
-        return;
-      }
-      fileInput.click();
-    });
+  let photoFiles = [];
 
-    fileInput.addEventListener("change", function(event) {
-      const files = event.target.files;
-      const thumbnailWrapper = document.getElementById("thumbnail-wrapper");
+  // Disable submit button until at least one file selected
+  submitButton.disabled = true;
 
-      Array.from(files).forEach(file => {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          const container = document.createElement('div');
-          container.className = 'thumbnail-container';
+  // Handle file selection
+  fileInput.addEventListener("change", function (event) {
+    const newFiles = event.target.files;
+    Array.from(newFiles).forEach(file => {
+      photoFiles.push(file);
 
-          const img = document.createElement('img');
-          img.className = 'thumbnail';
-          img.src = e.target.result;
+      // Create thumbnail preview
+      const container = document.createElement('div');
+      container.className = 'thumbnail-container';
 
-          const removeButton = document.createElement('button');
-          removeButton.className = 'remove-button';
-          removeButton.innerHTML = '&times;';
-          removeButton.onclick = function(event) {
-            event.stopPropagation();
-            container.remove();
-          };
+      const img = document.createElement('img');
+      img.className = 'thumbnail';
+      img.src = URL.createObjectURL(file);
 
-          container.appendChild(img);
-          container.appendChild(removeButton);
-          if (thumbnailWrapper) {
-            thumbnailWrapper.appendChild(container);
-          }
-        };
-        reader.readAsDataURL(file);
-      });
-    });
-
-    document.getElementById("photo-submit").addEventListener("click", async () => {
-      const files = fileInput.files;
-      if (!files.length) {
-        console.log("❌ No files selected.");
-        return;
-      }
-
-      const formData = new FormData();
-      for (const file of files) {
-        formData.append("photos", file);
-      }
-
-      try {
-        const res = await fetch("/upload-photos", {
-          method: "POST",
-          body: formData
-        });
-
-        if (res.ok) {
-          console.log("✅ Photos uploaded successfully!");
-          await fetch("/submit-final-intake", { method: "POST" });
-          console.log("✅ Final intake summary requested after photo upload.");
-        } else {
-          console.error("❌ Photo upload failed.");
+      const removeButton = document.createElement('button');
+      removeButton.className = 'remove-button';
+      removeButton.innerHTML = '&times;';
+      removeButton.onclick = function(event) {
+        event.stopPropagation();
+        container.remove();
+        photoFiles = photoFiles.filter(f => f !== file);
+        if (photoFiles.length === 0) {
+          submitButton.disabled = true;
         }
-      } catch (err) {
-        console.error("❌ Error uploading photos:", err.message);
+      };
+
+      container.appendChild(img);
+      container.appendChild(removeButton);
+      if (thumbnailWrapper) {
+        thumbnailWrapper.appendChild(container);
       }
     });
 
-    document.getElementById("photo-skip").addEventListener("click", async () => {
-      try {
-        await fetch("/skip-photo-upload", { method: "POST" });
-        console.log("✅ Photo upload skipped.");
+    if (photoFiles.length > 0) {
+      submitButton.disabled = false;
+    }
+
+    console.log("📦 Current files ready for upload:", photoFiles.length);
+  });
+
+  // Handle photo submit
+  submitButton.addEventListener("click", async () => {
+    if (photoFiles.length === 0) {
+      console.log("❌ No files selected for upload.");
+      return;
+    }
+
+    const formData = new FormData();
+    for (const file of photoFiles) {
+      formData.append("photos", file);
+    }
+
+    try {
+      const res = await fetch("/upload-photos", {
+        method: "POST",
+        body: formData
+      });
+
+      if (res.ok) {
+        console.log("✅ Photos uploaded successfully!");
         await fetch("/submit-final-intake", { method: "POST" });
-        console.log("✅ Final intake summary requested after skipping photo.");
-      } catch (err) {
-        console.error("❌ Error skipping photo upload:", err.message);
+        console.log("✅ Final intake summary requested after photo upload.");
+
+        // Clear after upload
+        photoFiles = [];
+        fileInput.value = "";
+        thumbnailWrapper.innerHTML = "";
+        submitButton.disabled = true;
+      } else {
+        console.error("❌ Photo upload failed.");
       }
-    });
-  }
+    } catch (err) {
+      console.error("❌ Error uploading photos:", err.message);
+    }
+  });
+
+  // Handle skip photo upload
+  skipButton.addEventListener("click", async () => {
+    try {
+      await fetch("/skip-photo-upload", { method: "POST" });
+      console.log("✅ Photo upload skipped.");
+      await fetch("/submit-final-intake", { method: "POST" });
+      console.log("✅ Final intake summary requested after skipping photo.");
+
+      // Clear after skip
+      photoFiles = [];
+      fileInput.value = "";
+      thumbnailWrapper.innerHTML = "";
+      submitButton.disabled = true;
+    } catch (err) {
+      console.error("❌ Error skipping photo upload:", err.message);
+    }
+  });
 });
 </script>
 </body>
