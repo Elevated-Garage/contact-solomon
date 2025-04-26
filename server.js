@@ -364,9 +364,51 @@ app.post("/upload-photos", upload.array('photos'), async (req, res) => {
   }
 });
 // New handler for final intake submission
+
+// === Updated /submit-final-intake Route ===
 app.post("/submit-final-intake", async (req, res) => {
-  console.log("✅ Final intake submission triggered.");
-  res.status(200).json({ message: "Final intake recorded successfully!" });
+  console.log("✅ Final intake submission triggered (building AI summary and uploading PDF).");
+
+  try {
+    if (conversationHistory.length === 0) {
+      console.error("❌ No conversation history available to generate summary.");
+      return res.status(400).send("No conversation history available.");
+    }
+
+    // Step 1: Extract structured intake data
+    const intakeData = await extractIntakeData(conversationHistory);
+
+    // Step 2: Build a written summary text
+    const summaryText = Object.entries(intakeData)
+      .map(([key, value]) => `${key.replace(/_/g, " ")}: ${value}`)
+      .join("\n");
+
+    // Step 3: Generate a PDF file
+    const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+    const summaryPath = path.join(__dirname, `Garage-Intake-${timestamp}.pdf`);
+
+    await generateSummaryPDF(summaryText, summaryPath);
+
+    // Step 4: Upload PDF to Google Drive
+    const uploadResponse = await drive.files.create({
+      requestBody: {
+        name: `Garage-Intake-${timestamp}.pdf`,
+        mimeType: "application/pdf",
+        parents: [process.env.GOOGLE_DRIVE_FOLDER_ID],
+      },
+      media: {
+        mimeType: "application/pdf",
+        body: fs.createReadStream(summaryPath),
+      },
+    });
+
+    console.log(`✅ Final intake summary PDF uploaded: ${uploadResponse.data.id}`);
+    fs.unlinkSync(summaryPath); // Clean up local file
+    res.status(200).send("✅ Final intake summary generated and uploaded successfully.");
+  } catch (error) {
+    console.error("❌ Error during final intake:", error.message);
+    res.status(500).send("❌ Failed to complete final intake process.");
+  }
 });
 
 
