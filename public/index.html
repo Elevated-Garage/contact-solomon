@@ -921,7 +921,72 @@ svg.ai-style-change-5 {
   width: 40.7969px;
   height: 40.7969px;
 }
-</style></head>
+</style>
+<style>
+svg.ai-style-change-5 {
+  width: 48px;
+  height: 48px;
+}
+.submit-button {
+  background-color: transparent;
+  border: none;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin: 0 8px;
+  transition: background-color 0.3s ease;
+}
+.submit-button:hover {
+  background-color: #B91B21;
+}
+.submit-button:hover svg polyline,
+.submit-button:hover svg line {
+  stroke: white;
+}
+.thumbnail {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+.thumbnail-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+.thumbnail-container {
+  position: relative;
+  width: 80px;
+  height: 80px;
+}
+.remove-button {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: #B91B21;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  font-size: 14px;
+  line-height: 20px;
+  text-align: center;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+</style>
+</head>
 <body>
 <div id="app">
 <input accept="image/*" id="file-upload" style="display: none;" type="file"/>
@@ -941,15 +1006,10 @@ svg.ai-style-change-5 {
 </div>
 <div style="display: flex; justify-content: center; gap: 24px; margin-top: 16px;">
 <button aria-label="Submit Photos" class="submit-button" id="photo-submit" title="Submit Photos">
-<svg class="ai-style-change-5" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" viewbox="0 0 24 24">
-<polyline points="20 6 9 17 4 12" stroke="#B91B21"></polyline>
-</svg>
+<svg class="ai-style-change-5" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" viewbox="0 0 24 24"><polyline fill="none" points="20 6 9 17 4 12" stroke="#B91B21" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"></polyline></svg>
 </button>
 <button aria-label="Skip Upload" class="submit-button skip-button" id="photo-skip" title="Skip Upload">
-<svg class="ai-style-change-5" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" viewbox="0 0 24 24">
-<line stroke="#B91B21" x1="6" x2="18" y1="6" y2="18"></line>
-<line stroke="#B91B21" x1="6" x2="18" y1="18" y2="6"></line>
-</svg>
+<svg class="ai-style-change-5" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" viewbox="0 0 24 24"><line stroke="#B91B21" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" x1="6" x2="18" y1="6" y2="18"></line><line stroke="#B91B21" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" x1="6" x2="18" y1="18" y2="6"></line></svg>
 </button>
 </div>
 </div>
@@ -1142,8 +1202,6 @@ document.getElementById("photo-skip").addEventListener("click", () => {
   // skipPhotos(); // <-- trigger AI summary or move forward
 });
 </script>
-
-
 <script>
 document.addEventListener("DOMContentLoaded", function () {
   const dragArea = document.getElementById("drag-area");
