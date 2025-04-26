@@ -1206,10 +1206,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Click drag-area to open file picker
   if (dragArea) {
-    dragArea.addEventListener("click", (e) => {
-      e.preventDefault();
-      fileInput.click();
-    });
+   dragArea.addEventListener("click", (e) => {
+  e.preventDefault();
+
+  // Ignore clicks that are actually on the hidden input itself
+  if (e.target !== dragArea) {
+    fileInput.click();
+    return;
+  }
+
+  // Otherwise, if they clicked the drag area background, launch uploader
+  fileInput.click();
+});
+
 
     // Drag events
     dragArea.addEventListener("dragover", (e) => {
