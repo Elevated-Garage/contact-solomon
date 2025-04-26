@@ -1196,22 +1196,63 @@ document.addEventListener("DOMContentLoaded", function () {
 <script>
 document.addEventListener("DOMContentLoaded", function () {
   const fileInput = document.getElementById("fileElem");
+  const dragArea = document.getElementById("drag-area");
+  const uploadButton = document.querySelector(".upload-button");
   const submitButton = document.getElementById("photo-submit");
   const skipButton = document.getElementById("photo-skip");
   const thumbnailWrapper = document.getElementById("thumbnail-wrapper");
 
   let photoFiles = [];
 
-  // Disable submit button until at least one file selected
-  submitButton.disabled = true;
+  // Click drag-area to open file picker
+  if (dragArea) {
+    dragArea.addEventListener("click", (e) => {
+      e.preventDefault();
+      fileInput.click();
+    });
 
-  // Handle file selection
-  fileInput.addEventListener("change", function (event) {
-    const newFiles = event.target.files;
-    Array.from(newFiles).forEach(file => {
+    // Drag events
+    dragArea.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      dragArea.classList.add("highlight");
+    });
+
+    dragArea.addEventListener("dragleave", (e) => {
+      e.preventDefault();
+      dragArea.classList.remove("highlight");
+    });
+
+    dragArea.addEventListener("drop", (e) => {
+      e.preventDefault();
+      dragArea.classList.remove("highlight");
+      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        handleFiles(e.dataTransfer.files);
+      }
+    });
+  }
+
+  // Click "+" button to open file picker
+  if (uploadButton) {
+    uploadButton.addEventListener("click", (e) => {
+      e.preventDefault();
+      fileInput.click();
+    });
+  }
+
+  // Handle selecting files via picker
+  if (fileInput) {
+    fileInput.addEventListener("change", (e) => {
+      if (e.target.files.length > 0) {
+        handleFiles(e.target.files);
+      }
+    });
+  }
+
+  // Handle the files (both picker and drag-drop)
+  function handleFiles(files) {
+    Array.from(files).forEach(file => {
       photoFiles.push(file);
 
-      // Create thumbnail preview
       const container = document.createElement('div');
       container.className = 'thumbnail-container';
 
@@ -1242,64 +1283,68 @@ document.addEventListener("DOMContentLoaded", function () {
       submitButton.disabled = false;
     }
 
-    console.log("📦 Current files ready for upload:", photoFiles.length);
-  });
+    console.log(`📸 Ready to upload: ${photoFiles.length} files.`);
+  }
 
-  // Handle photo submit
-  submitButton.addEventListener("click", async () => {
-    if (photoFiles.length === 0) {
-      console.log("❌ No files selected for upload.");
-      return;
-    }
+  // Handle Submit
+  if (submitButton) {
+    submitButton.addEventListener("click", async () => {
+      if (photoFiles.length === 0) {
+        console.log("❌ No photos selected.");
+        return;
+      }
 
-    const formData = new FormData();
-    for (const file of photoFiles) {
-      formData.append("photos", file);
-    }
-
-    try {
-      const res = await fetch("/upload-photos", {
-        method: "POST",
-        body: formData
+      const formData = new FormData();
+      photoFiles.forEach(file => {
+        formData.append("photos", file);
       });
 
-      if (res.ok) {
-        console.log("✅ Photos uploaded successfully!");
-        await fetch("/submit-final-intake", { method: "POST" });
-        console.log("✅ Final intake summary requested after photo upload.");
+      try {
+        const res = await fetch("/upload-photos", {
+          method: "POST",
+          body: formData
+        });
 
-        // Clear after upload
-        photoFiles = [];
-        fileInput.value = "";
-        thumbnailWrapper.innerHTML = "";
-        submitButton.disabled = true;
-      } else {
-        console.error("❌ Photo upload failed.");
+        if (res.ok) {
+          console.log("✅ Photos uploaded successfully!");
+          await fetch("/submit-final-intake", { method: "POST" });
+          console.log("✅ Final intake summary requested.");
+
+          resetUploader();
+        } else {
+          console.error("❌ Photo upload failed.");
+        }
+      } catch (err) {
+        console.error("❌ Error uploading photos:", err.message);
       }
-    } catch (err) {
-      console.error("❌ Error uploading photos:", err.message);
-    }
-  });
+    });
+  }
 
-  // Handle skip photo upload
-  skipButton.addEventListener("click", async () => {
-    try {
-      await fetch("/skip-photo-upload", { method: "POST" });
-      console.log("✅ Photo upload skipped.");
-      await fetch("/submit-final-intake", { method: "POST" });
-      console.log("✅ Final intake summary requested after skipping photo.");
+  // Handle Skip
+  if (skipButton) {
+    skipButton.addEventListener("click", async () => {
+      try {
+        await fetch("/skip-photo-upload", { method: "POST" });
+        await fetch("/submit-final-intake", { method: "POST" });
+        console.log("✅ Final intake summary requested after skipping.");
 
-      // Clear after skip
-      photoFiles = [];
-      fileInput.value = "";
-      thumbnailWrapper.innerHTML = "";
-      submitButton.disabled = true;
-    } catch (err) {
-      console.error("❌ Error skipping photo upload:", err.message);
-    }
-  });
+        resetUploader();
+      } catch (err) {
+        console.error("❌ Error skipping photo upload:", err.message);
+      }
+    });
+  }
+
+  // Reset uploader function
+  function resetUploader() {
+    photoFiles = [];
+    if (fileInput) fileInput.value = "";
+    if (thumbnailWrapper) thumbnailWrapper.innerHTML = "";
+    if (submitButton) submitButton.disabled = true;
+  }
 });
 </script>
+
 </body>
 </html>
 
