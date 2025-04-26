@@ -1276,10 +1276,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
   if (dragArea && fileInput) {
     dragArea.addEventListener("click", (e) => {
-      // Only open file picker if NOT clicking on thumbnails or remove buttons
-      if (!e.target.closest('.thumbnail-container') && !e.target.closest('.remove-button')) {
-        fileInput.click();
+      // Fix: Only open file picker if clicking real drag area background, not thumbnails or remove buttons
+      if (e.target.closest('.remove-button') || e.target.closest('.thumbnail-container')) {
+        e.stopPropagation(); // Stop accidental bubbling
+        return;
       }
+      fileInput.click();
     });
 
     fileInput.addEventListener("change", function(event) {
@@ -1299,7 +1301,7 @@ document.addEventListener("DOMContentLoaded", function () {
           removeButton.className = 'remove-button';
           removeButton.innerHTML = '&times;';
           removeButton.onclick = function(event) {
-            event.stopPropagation(); // Prevent file picker from opening
+            event.stopPropagation(); // Prevent click bubbling up
             container.remove();
           };
 
@@ -1326,7 +1328,6 @@ document.addEventListener("DOMContentLoaded", function () {
           console.error("❌ Error submitting photos:", error);
         }
       }
-      // Always trigger final summary after upload
       try {
         await fetch("/submit-final-intake", { method: "POST" });
         console.log("✅ Final intake summary requested after photo upload.");
