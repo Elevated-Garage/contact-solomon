@@ -170,6 +170,14 @@ app.post("/message", async (req, res) => {
   console.log("📨 Incoming summary request:", req.body);
   let uploadedImagePaths = [];
   const { conversationHistory, trigger_summary } = req.body;
+    latestConversationHistory = conversationHistory;
+
+  if (!Array.isArray(conversationHistory)) {
+    return res.status(400).json({ error: "Invalid history format." });
+    return res.status(400).json({ error: "Invalid history format." });
+  console.log("📨 Incoming summary request:", req.body);
+  let uploadedImagePaths = [];
+  const { conversationHistory, trigger_summary } = req.body;
 
   if (!Array.isArray(conversationHistory)) {
     return res.status(400).json({ error: "Invalid history format." });
@@ -370,13 +378,13 @@ app.post("/submit-final-intake", async (req, res) => {
   console.log("✅ Final intake submission triggered (building AI summary and uploading PDF).");
 
   try {
-    if (conversationHistory.length === 0) {
+    if (latestConversationHistory.length === 0) {
       console.error("❌ No conversation history available to generate summary.");
       return res.status(400).send("No conversation history available.");
     }
 
     // Step 1: Extract structured intake data
-    const intakeData = await extractIntakeData(conversationHistory);
+    const intakeData = await extractIntakeData(latestConversationHistory);
 
     // Step 2: Build a written summary text
     const summaryText = Object.entries(intakeData)
@@ -411,6 +419,10 @@ app.post("/submit-final-intake", async (req, res) => {
   }
 });
 
+
+app.listen(port, () => {
+  console.log(`✅ Contact Solomon backend running on port ${port}`);
+});
 
 app.listen(port, () => {
   console.log(`✅ Contact Solomon backend running on port ${port}`);
