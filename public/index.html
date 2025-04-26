@@ -1191,11 +1191,12 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 });
 </script>
+
+
 <script>
 document.addEventListener("DOMContentLoaded", function () {
   const dragArea = document.getElementById("drag-area");
   const fileInput = document.getElementById("fileElem");
-  const thumbnailWrapper = document.getElementById("thumbnail-wrapper");
 
   if (dragArea && fileInput) {
     dragArea.addEventListener("click", (e) => {
@@ -1208,6 +1209,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     fileInput.addEventListener("change", function(event) {
       const files = event.target.files;
+      const thumbnailWrapper = document.getElementById("thumbnail-wrapper"); // 🔥 Moved inside change event!
 
       Array.from(files).forEach(file => {
         const reader = new FileReader();
@@ -1229,50 +1231,24 @@ document.addEventListener("DOMContentLoaded", function () {
 
           container.appendChild(img);
           container.appendChild(removeButton);
-          thumbnailWrapper.appendChild(container);
+          if (thumbnailWrapper) {
+            thumbnailWrapper.appendChild(container);
+          }
         };
         reader.readAsDataURL(file);
       });
     });
 
-    document.getElementById("photo-submit").addEventListener("click", async () => {
-      const files = fileInput.files;
-      if (files.length > 0) {
-        const formData = new FormData();
-        Array.from(files).forEach(file => formData.append('photos', file));
-        try {
-          await fetch("/upload-photos", {
-            method: "POST",
-            body: formData
-          });
-          console.log("✔ Photos submitted successfully!");
-        } catch (error) {
-          console.error("❌ Error submitting photos:", error);
-        }
-      }
-      try {
-        await fetch("/submit-final-intake", { method: "POST" });
-        console.log("✅ Final intake summary requested after photo upload.");
-      } catch (error) {
-        console.error("❌ Error triggering final intake:", error);
-      }
+    document.getElementById("photo-submit").addEventListener("click", () => {
+      console.log("✔ Submit clicked");
     });
 
-    document.getElementById("photo-skip").addEventListener("click", async () => {
-      try {
-        await fetch("/skip-photo-upload", { method: "POST" });
-        console.log("❌ Skipped photo upload successfully!");
-        await fetch("/submit-final-intake", { method: "POST" });
-        console.log("✅ Final intake summary requested after skipping photo.");
-      } catch (error) {
-        console.error("❌ Error triggering skip/final intake:", error);
-      }
+    document.getElementById("photo-skip").addEventListener("click", () => {
+      console.log("❌ Skip clicked");
     });
   }
 });
 </script>
 </body>
 </html>
-
-
 
