@@ -335,7 +335,7 @@ if (trigger_summary === true || shouldTriggerSmart) {
     console.error("❌ Chat error:", err.message);
     res.json({ reply: "Sorry, I hit an issue. Try again?", done: false });
   }
-});
+};
 
 
 // Handle uploaded photos
