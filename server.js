@@ -319,9 +319,37 @@ if (trigger_summary === true || shouldTriggerSmart) {
 
 
 // Handle uploaded photos
-app.post("/upload-photos", (req, res) => {
-  console.log("📸 Photos received (currently no files being saved)");
-  res.sendStatus(200);
+const multer = require("multer");
+const upload = multer({ storage: multer.memoryStorage() });
+
+app.post("/upload-photos", upload.array('photos'), async (req, res) => {
+  if (!req.files || req.files.length === 0) {
+    console.log("❌ No photos uploaded.");
+    return res.status(400).send("No photos uploaded");
+  }
+
+  console.log(`📸 Received ${req.files.length} photos.`);
+
+  try {
+    for (const file of req.files) {
+      const uploadRes = await drive.files.create({
+        requestBody: {
+          name: file.originalname,
+          mimeType: file.mimetype,
+          parents: [process.env.GOOGLE_DRIVE_FOLDER_ID]
+        },
+        media: {
+          mimeType: file.mimetype,
+          body: Buffer.from(file.buffer)
+        }
+      });
+      console.log(`✅ Uploaded photo: ${uploadRes.data.id}`);
+    }
+    res.sendStatus(200);
+  } catch (err) {
+    console.error("❌ Photo upload error:", err.message);
+    res.status(500).send("Photo upload error");
+  }
 });
 
 // Handle skip photo upload
