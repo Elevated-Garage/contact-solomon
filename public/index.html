@@ -1209,7 +1209,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     fileInput.addEventListener("change", function(event) {
       const files = event.target.files;
-      const thumbnailWrapper = document.getElementById("thumbnail-wrapper"); // 🔥 Moved inside change event!
+      const thumbnailWrapper = document.getElementById("thumbnail-wrapper");
 
       Array.from(files).forEach(file => {
         const reader = new FileReader();
@@ -1239,12 +1239,45 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     });
 
-    document.getElementById("photo-submit").addEventListener("click", () => {
-      console.log("✔ Submit clicked");
+    document.getElementById("photo-submit").addEventListener("click", async () => {
+      const files = fileInput.files;
+      if (!files.length) {
+        console.log("❌ No files selected.");
+        return;
+      }
+
+      const formData = new FormData();
+      for (const file of files) {
+        formData.append("photos", file);
+      }
+
+      try {
+        const res = await fetch("/upload-photos", {
+          method: "POST",
+          body: formData
+        });
+
+        if (res.ok) {
+          console.log("✅ Photos uploaded successfully!");
+          await fetch("/submit-final-intake", { method: "POST" });
+          console.log("✅ Final intake summary requested after photo upload.");
+        } else {
+          console.error("❌ Photo upload failed.");
+        }
+      } catch (err) {
+        console.error("❌ Error uploading photos:", err.message);
+      }
     });
 
-    document.getElementById("photo-skip").addEventListener("click", () => {
-      console.log("❌ Skip clicked");
+    document.getElementById("photo-skip").addEventListener("click", async () => {
+      try {
+        await fetch("/skip-photo-upload", { method: "POST" });
+        console.log("✅ Photo upload skipped.");
+        await fetch("/submit-final-intake", { method: "POST" });
+        console.log("✅ Final intake summary requested after skipping photo.");
+      } catch (err) {
+        console.error("❌ Error skipping photo upload:", err.message);
+      }
     });
   }
 });
