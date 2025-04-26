@@ -1282,77 +1282,12 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 });
 </script>
-
-<script>
-let allSelectedFiles = [];
-
-const dragArea = document.getElementById('drag-area');
-const fileInput = document.getElementById('fileElem');
-const thumbnails = document.getElementById('thumbnail-wrapper');
-
-dragArea.addEventListener('click', (e) => {
-  if (e.target === dragArea || e.target.tagName === "P") {
-    fileInput.click();
-  }
-});
-
-fileInput.addEventListener('change', handleFiles);
-
-function handleFiles() {
-  const newFiles = Array.from(fileInput.files);
-  newFiles.forEach(file => {
-    allSelectedFiles.push(file);
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const thumbnail = document.createElement('div');
-      thumbnail.classList.add('thumbnail');
-      thumbnail.innerHTML = `<img src="${e.target.result}" alt="">
-        <button class="remove-btn">&times;</button>`;
-      thumbnails.appendChild(thumbnail);
-
-      const removeBtn = thumbnail.querySelector('.remove-btn');
-      removeBtn.addEventListener('click', (event) => {
-        event.stopPropagation();
-        const index = Array.from(thumbnails.children).indexOf(thumbnail);
-        allSelectedFiles.splice(index, 1);
-        thumbnails.removeChild(thumbnail);
-      });
-    };
-    reader.readAsDataURL(file);
-  });
-}
-
-document.getElementById('photo-submit').addEventListener('click', async () => {
-  if (allSelectedFiles.length === 0) {
-    alert('No photos to submit!');
-    return;
-  }
-  const formData = new FormData();
-  allSelectedFiles.forEach(file => formData.append('photos', file));
-
-  try {
-    const response = await fetch('/upload-photos', {
-      method: 'POST',
-      body: formData,
-    });
-    console.log('Photos submitted successfully.');
-  } catch (err) {
-    console.error('Upload error:', err);
-  }
-});
-
-document.getElementById('photo-skip').addEventListener('click', async () => {
-  try {
-    await fetch('/skip-photos', { method: 'POST' });
-    console.log('Photo upload skipped.');
-  } catch (err) {
-    console.error('Skip error:', err);
-  }
-});
-</script>
-
 </body>
 </html>
+
+
+
+
 
 
 
