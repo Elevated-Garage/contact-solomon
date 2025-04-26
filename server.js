@@ -363,6 +363,11 @@ app.post("/upload-photos", upload.array('photos'), async (req, res) => {
     res.status(500).send("Photo upload error");
   }
 });
+// New handler for final intake submission
+app.post("/submit-final-intake", async (req, res) => {
+  console.log("✅ Final intake submission triggered.");
+  res.status(200).json({ message: "Final intake recorded successfully!" });
+});
 
 
 app.listen(port, () => {
