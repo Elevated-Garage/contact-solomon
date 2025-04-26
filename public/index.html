@@ -1275,8 +1275,11 @@ document.addEventListener("DOMContentLoaded", function () {
   const thumbnailWrapper = document.getElementById("thumbnail-wrapper");
 
   if (dragArea && fileInput) {
-    dragArea.addEventListener("click", () => {
-      fileInput.click();
+    dragArea.addEventListener("click", (e) => {
+      // Only open file picker if NOT clicking on thumbnails or remove buttons
+      if (!e.target.closest('.thumbnail-container') && !e.target.closest('.remove-button')) {
+        fileInput.click();
+      }
     });
 
     fileInput.addEventListener("change", function(event) {
@@ -1295,7 +1298,8 @@ document.addEventListener("DOMContentLoaded", function () {
           const removeButton = document.createElement('button');
           removeButton.className = 'remove-button';
           removeButton.innerHTML = '&times;';
-          removeButton.onclick = function() {
+          removeButton.onclick = function(event) {
+            event.stopPropagation(); // Prevent file picker from opening
             container.remove();
           };
 
@@ -1346,3 +1350,4 @@ document.addEventListener("DOMContentLoaded", function () {
 </script>
 </body>
 </html>
+
