@@ -317,6 +317,20 @@ if (trigger_summary === true || shouldTriggerSmart) {
   }
 });
 
+
+// Handle uploaded photos
+app.post("/upload-photos", (req, res) => {
+  console.log("📸 Photos received (currently no files being saved)");
+  res.sendStatus(200);
+});
+
+// Handle skip photo upload
+app.post("/skip-photo-upload", (req, res) => {
+  console.log("❌ User skipped photo upload");
+  res.sendStatus(200);
+});
+
+
 app.listen(port, () => {
   console.log(`✅ Contact Solomon backend running on port ${port}`);
 });
