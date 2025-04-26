@@ -1267,6 +1267,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 </script>
 
+
 <script>
 document.addEventListener("DOMContentLoaded", function () {
   const dragArea = document.getElementById("drag-area");
@@ -1306,14 +1307,13 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     });
 
-    // Injected Fetch Logic
     document.getElementById("photo-submit").addEventListener("click", async () => {
       const files = fileInput.files;
       if (files.length > 0) {
         const formData = new FormData();
         Array.from(files).forEach(file => formData.append('photos', file));
         try {
-          const response = await fetch("/upload-photos", {
+          await fetch("/upload-photos", {
             method: "POST",
             body: formData
           });
@@ -1322,14 +1322,23 @@ document.addEventListener("DOMContentLoaded", function () {
           console.error("❌ Error submitting photos:", error);
         }
       }
+      // Always trigger final summary after upload
+      try {
+        await fetch("/submit-final-intake", { method: "POST" });
+        console.log("✅ Final intake summary requested after photo upload.");
+      } catch (error) {
+        console.error("❌ Error triggering final intake:", error);
+      }
     });
 
     document.getElementById("photo-skip").addEventListener("click", async () => {
       try {
         await fetch("/skip-photo-upload", { method: "POST" });
         console.log("❌ Skipped photo upload successfully!");
+        await fetch("/submit-final-intake", { method: "POST" });
+        console.log("✅ Final intake summary requested after skipping photo.");
       } catch (error) {
-        console.error("❌ Error skipping photo upload:", error);
+        console.error("❌ Error triggering skip/final intake:", error);
       }
     });
   }
@@ -1337,4 +1346,3 @@ document.addEventListener("DOMContentLoaded", function () {
 </script>
 </body>
 </html>
-
