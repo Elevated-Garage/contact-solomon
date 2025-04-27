@@ -1213,7 +1213,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     fileInput.addEventListener("change", function(event) {
       const files = event.target.files;
-      const thumbnailWrapper = document.getElementById("thumbnail-wrapper");
+      const thumbnailWrapper = document.getElementById("preview-thumbnails");
 
       Array.from(files).forEach(file => {
         const reader = new FileReader();
