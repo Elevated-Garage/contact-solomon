@@ -198,6 +198,27 @@ app.post("/message", async (req, res) => {
   let conversationHistory = Array.isArray(convo) ? convo : [];
   latestConversationHistory = conversationHistory;
                       if (!alreadyMentionedUpload) {
+
+  try {
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4",
+      messages: conversationHistory,
+      temperature: 0.7
+    });
+
+    const aiReply = completion.choices[0].message.content.trim();
+
+    // Push AI reply back into history
+    conversationHistory.push({ role: "assistant", content: aiReply });
+
+    // Update latestConversationHistory with new assistant reply
+    latestConversationHistory = conversationHistory;
+
+    res.json({ reply: aiReply });
+  } catch (error) {
+    console.error("❌ Error generating AI reply:", error.message);
+    res.status(500).json({ error: "Failed to generate AI response." });
+  }
         conversationHistory.push({ role: "user", content: "Photo uploaded." });
         console.log("🧠 Injected 'Photo uploaded.' message into conversation history");
       }
