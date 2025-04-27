@@ -1224,6 +1224,8 @@ document.addEventListener("DOMContentLoaded", function () {
           const img = document.createElement('img');
           img.className = 'thumbnail';
           img.src = e.target.result;
+          window.uploadedImagesArray.push(e.target.result);
+
 
           const removeButton = document.createElement('button');
           removeButton.className = 'remove-button';
