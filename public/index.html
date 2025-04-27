@@ -1202,16 +1202,18 @@ document.addEventListener("DOMContentLoaded", function () {
       const files = event.target.files;
       const thumbnailWrapper = document.getElementById("thumbnail-wrapper");
 
+
 const fileElem = document.getElementById("fileElem");
 const thumbnailWrapper = document.getElementById("thumbnail-wrapper");
 
 fileElem.addEventListener('change', (e) => {
   const files = e.target.files;
+  
   Array.from(files).forEach(file => {
     const reader = new FileReader();
     reader.onload = function(event) {
       const container = document.createElement('div');
-      container.className = 'thumbnail-wrapper';
+      container.className = 'thumbnail-wrapper'; // <-- important
 
       const img = document.createElement('img');
       img.src = event.target.result;
@@ -1239,6 +1241,7 @@ fileElem.addEventListener('change', (e) => {
     reader.readAsDataURL(file);
   });
 });
+
       });
     });
 
@@ -1287,6 +1290,7 @@ fileElem.addEventListener('change', (e) => {
 </script>
 </body>
 </html>
+
 
 
 
