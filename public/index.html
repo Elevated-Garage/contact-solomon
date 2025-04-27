@@ -1202,39 +1202,43 @@ document.addEventListener("DOMContentLoaded", function () {
       const files = event.target.files;
       const thumbnailWrapper = document.getElementById("thumbnail-wrapper");
 
-      Array.from(files).forEach(file => {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          const container = document.createElement('div');
-          container.className = 'thumbnail-container';
+const fileElem = document.getElementById("fileElem");
+const thumbnailWrapper = document.getElementById("thumbnail-wrapper");
 
-          const img = document.createElement('img');
-          img.className = 'thumbnail';
-          img.src = e.target.result;
-          window.uploadedImagesArray.push(e.target.result);
+fileElem.addEventListener('change', (e) => {
+  const files = e.target.files;
+  Array.from(files).forEach(file => {
+    const reader = new FileReader();
+    reader.onload = function(event) {
+      const container = document.createElement('div');
+      container.className = 'thumbnail-wrapper';
 
+      const img = document.createElement('img');
+      img.src = event.target.result;
+      img.alt = "Uploaded photo";
+      img.style.width = "64px";
+      img.style.height = "64px";
+      img.style.objectFit = "cover";
+      img.style.borderRadius = "6px";
+      img.style.border = "1px solid #ccc";
 
-          const removeButton = document.createElement('button');
-          removeButton.className = 'remove-button';
-          removeButton.innerHTML = '&times;';
-          removeButton.onclick = function(event) {
-            event.stopPropagation();
-            container.remove();
-          };
+      const removeButton = document.createElement('button');
+      removeButton.className = 'remove-btn';
+      removeButton.innerHTML = '&times;';
+      removeButton.onclick = function(e) {
+        e.stopPropagation();
+        container.remove();
+      };
 
-          container.appendChild(img);
-          container.appendChild(removeButton);
-          if (thumbnailWrapper) {
-            thumbnailWrapper.appendChild(container);
-          thumbnailWrapper.style.display = "flex";
-          thumbnailWrapper.style.flexWrap = "wrap";
-          thumbnailWrapper.style.minHeight = "70px";
-          thumbnailWrapper.offsetHeight;
-          thumbnailWrapper.style.transition = "all 0.2s ease";
-          thumbnailWrapper.style.opacity = "1";
-          }
-        };
-        reader.readAsDataURL(file);
+      container.appendChild(img);
+      container.appendChild(removeButton);
+
+      thumbnailWrapper.appendChild(container);
+      thumbnailWrapper.offsetHeight;
+    };
+    reader.readAsDataURL(file);
+  });
+});
       });
     });
 
