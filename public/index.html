@@ -1191,7 +1191,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     fileInput.addEventListener("change", function(event) {
       const files = event.target.files;
-      const thumbnailWrapper = document.getElementById("preview-thumbnails");
+      const thumbnailWrapper = document.getElementById("thumbnail-wrapper");
 
       Array.from(files).forEach(file => {
         const reader = new FileReader();
