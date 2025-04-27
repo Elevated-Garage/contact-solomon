@@ -194,7 +194,10 @@ app.post("/message", async (req, res) => {
     if (Array.isArray(req.body.images) && req.body.images.length > 0) {
       const alreadyMentionedUpload = conversationHistory.some(m => typeof m.content === "string" && m.content.toLowerCase().includes("photo uploaded"));
 
+
   const { conversationHistory: convo, trigger_summary } = req.body;
+  let conversationHistory = Array.isArray(convo) ? convo : [];
+  latestConversationHistory = conversationHistory;
   let conversationHistory = Array.isArray(convo) ? convo : [];
   latestConversationHistory = conversationHistory;
                       if (!alreadyMentionedUpload) {
