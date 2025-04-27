@@ -1165,15 +1165,11 @@ document.addEventListener("DOMContentLoaded", function () {
       inputField.innerText = "";
 
       try {
-      const response = await fetch("/message", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-      conversationHistory: window.conversationHistory,
-      images: window.uploadedImagesArray // 👈 Attach the images array here
-      })
-});
-
+        const response = await fetch("/message", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ conversationHistory: window.conversationHistory })
+        });
         const data = await response.json();
 
         if (data && data.reply) {
@@ -1288,5 +1284,3 @@ document.addEventListener("DOMContentLoaded", function () {
 </script>
 </body>
 </html>
-
-
