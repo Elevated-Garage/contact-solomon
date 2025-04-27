@@ -175,8 +175,6 @@ app.post("/message", async (req, res) => {
     return res.status(400).json({ error: "Invalid history format." });
     return res.status(400).json({ error: "Invalid history format." });
   console.log("📨 Incoming summary request:", req.body);
-  let uploadedImagePaths = [];
-  const { conversationHistory, trigger_summary } = req.body;
 
   if (!Array.isArray(conversationHistory)) {
     return res.status(400).json({ error: "Invalid history format." });
