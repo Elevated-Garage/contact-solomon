@@ -1226,6 +1226,12 @@ document.addEventListener("DOMContentLoaded", function () {
           container.appendChild(removeButton);
           if (thumbnailWrapper) {
             thumbnailWrapper.appendChild(container);
+          thumbnailWrapper.style.display = "flex";
+          thumbnailWrapper.style.flexWrap = "wrap";
+          thumbnailWrapper.style.minHeight = "70px";
+          thumbnailWrapper.offsetHeight;
+          thumbnailWrapper.style.transition = "all 0.2s ease";
+          thumbnailWrapper.style.opacity = "1";
           }
         };
         reader.readAsDataURL(file);
@@ -1277,5 +1283,6 @@ document.addEventListener("DOMContentLoaded", function () {
 </script>
 </body>
 </html>
+
 
 
