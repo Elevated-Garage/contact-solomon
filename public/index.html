@@ -526,39 +526,37 @@ input[type="range"]::-moz-range-thumb {
 /* Thumbnail preview styles */
 .thumbnail-preview {
   display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 10px;
+  gap: 6px;
   margin-top: 4px;
   padding: 4px 0;
-  margin-left: auto;
 }
-  #thumbnail-wrapper {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 10px;
-  margin-top: 10px;
-  min-height: 70px;
-}
-
-
-.thumbnail-preview .thumbnail-wrapper {
-  position: relative;
-  width: 64px;
-  height: 64px;
-  flex-shrink: 0;
-}
-
 .thumbnail-preview img {
-  display: block;
-  width: 64px;
-  height: 64px;
+  width: 36px;
+  height: 36px;
   object-fit: cover;
   border-radius: 6px;
   border: 1px solid #ccc;
 }
 
+.thumbnail-preview {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
+  padding: 4px 0;
+}
+.thumbnail-preview .thumbnail-wrapper {
+  position: relative;
+  width: 64px;
+  height: 64px;
+}
+.thumbnail-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
 .thumbnail-preview .remove-btn {
   position: absolute;
   top: -6px;
@@ -575,6 +573,21 @@ input[type="range"]::-moz-range-thumb {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.thumbnail-preview .thumbnail-wrapper {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  flex-shrink: 0;
+}
+.thumbnail-preview img {
+  display: block;
+  width: 64px !important;
+  height: 64px !important;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #ccc;
 }
 
 .remove-btn {
@@ -1152,15 +1165,11 @@ document.addEventListener("DOMContentLoaded", function () {
       inputField.innerText = "";
 
       try {
-      const response = await fetch("/message", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-      conversationHistory: window.conversationHistory,
-      images: window.uploadedImagesArray // 👈 Attach the images array here
-      })
-});
-
+        const response = await fetch("/message", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ conversationHistory: window.conversationHistory })
+        });
         const data = await response.json();
 
         if (data && data.reply) {
@@ -1202,46 +1211,31 @@ document.addEventListener("DOMContentLoaded", function () {
       const files = event.target.files;
       const thumbnailWrapper = document.getElementById("thumbnail-wrapper");
 
+      Array.from(files).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const container = document.createElement('div');
+          container.className = 'thumbnail-container';
 
-const fileElem = document.getElementById("fileElem");
-const thumbnailWrapper = document.getElementById("thumbnail-wrapper");
+          const img = document.createElement('img');
+          img.className = 'thumbnail';
+          img.src = e.target.result;
 
-fileElem.addEventListener('change', (e) => {
-  const files = e.target.files;
-  
-  Array.from(files).forEach(file => {
-    const reader = new FileReader();
-    reader.onload = function(event) {
-      const container = document.createElement('div');
-      container.className = 'thumbnail-wrapper'; // <-- important
+          const removeButton = document.createElement('button');
+          removeButton.className = 'remove-button';
+          removeButton.innerHTML = '&times;';
+          removeButton.onclick = function(event) {
+            event.stopPropagation();
+            container.remove();
+          };
 
-      const img = document.createElement('img');
-      img.src = event.target.result;
-      img.alt = "Uploaded photo";
-      img.style.width = "64px";
-      img.style.height = "64px";
-      img.style.objectFit = "cover";
-      img.style.borderRadius = "6px";
-      img.style.border = "1px solid #ccc";
-
-      const removeButton = document.createElement('button');
-      removeButton.className = 'remove-btn';
-      removeButton.innerHTML = '&times;';
-      removeButton.onclick = function(e) {
-        e.stopPropagation();
-        container.remove();
-      };
-
-      container.appendChild(img);
-      container.appendChild(removeButton);
-
-      thumbnailWrapper.appendChild(container);
-      thumbnailWrapper.offsetHeight;
-    };
-    reader.readAsDataURL(file);
-  });
-});
-
+          container.appendChild(img);
+          container.appendChild(removeButton);
+          if (thumbnailWrapper) {
+            thumbnailWrapper.appendChild(container);
+          }
+        };
+        reader.readAsDataURL(file);
       });
     });
 
@@ -1290,6 +1284,7 @@ fileElem.addEventListener('change', (e) => {
 </script>
 </body>
 </html>
+
 
 
 
