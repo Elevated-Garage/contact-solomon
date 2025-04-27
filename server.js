@@ -373,6 +373,20 @@ app.post("/upload-photos", upload.array('photos'), async (req, res) => {
 });
 
 
+
+
+// Handle final intake submission
+app.post("/submit-final-intake", async (req, res) => {
+  try {
+    console.log("✅ Final intake submission received.");
+    // Future: trigger PDF generation here
+    res.status(200).send("Final intake received successfully.");
+  } catch (error) {
+    console.error("❌ Error handling final intake:", error.message);
+    res.status(500).send("Error processing final intake.");
+  }
+});
+
 app.listen(port, () => {
   console.log(`✅ Contact Solomon backend running on port ${port}`);
 });
