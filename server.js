@@ -272,6 +272,15 @@ if (trigger_summary === true || shouldTriggerSmart) {
 
           const pdfPath = path.join(__dirname, `Garage Project Summary - ${timestamp}.pdf`);
         let uploadedImagePaths = [];
+
+if (Array.isArray(req.body.images) && req.body.images.length > 0) {
+  for (let i = 0; i < req.body.images.length; i++) {
+    const base64Data = req.body.images[i].split(";base64,").pop();
+    const tempImagePath = path.join(__dirname, `temp_image_${Date.now()}_${i}.jpg`);
+    fs.writeFileSync(tempImagePath, base64Data, { encoding: 'base64' });
+    uploadedImagePaths.push(tempImagePath);
+  }
+}
           await generateSummaryPDF(summaryText, pdfPath, uploadedImagePaths);
           const uploadPDF = await drive.files.create({
             requestBody: {
