@@ -169,15 +169,11 @@ const extractIntakeData = async (history) => {
 app.post("/message", async (req, res) => {
   console.log("📨 Incoming summary request:", req.body);
   let uploadedImagePaths = [];
-  const { conversationHistory, trigger_summary } = req.body;
     latestConversationHistory = conversationHistory;
 
-    return res.status(400).json({ error: "Invalid history format." });
-    return res.status(400).json({ error: "Invalid history format." });
   console.log("📨 Incoming summary request:", req.body);
 
   if (!Array.isArray(conversationHistory)) {
-    return res.status(400).json({ error: "Invalid history format." });
   }
 
   console.log("🪵 Incoming images:", req.body.images?.length || 0);
@@ -197,7 +193,11 @@ app.post("/message", async (req, res) => {
     
     if (Array.isArray(req.body.images) && req.body.images.length > 0) {
       const alreadyMentionedUpload = conversationHistory.some(m => typeof m.content === "string" && m.content.toLowerCase().includes("photo uploaded"));
-      if (!alreadyMentionedUpload) {
+
+  const { conversationHistory: convo, trigger_summary } = req.body;
+  let conversationHistory = Array.isArray(convo) ? convo : [];
+  latestConversationHistory = conversationHistory;
+                      if (!alreadyMentionedUpload) {
         conversationHistory.push({ role: "user", content: "Photo uploaded." });
         console.log("🧠 Injected 'Photo uploaded.' message into conversation history");
       }
