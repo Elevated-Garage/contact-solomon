@@ -40,9 +40,6 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true }));
-// Serve static files from the 'public' directory
-app.use(express.static(path.join(__dirname, 'public')));
-
 // == Helper to generate random session ID ==
 function generateSessionId() {
   return crypto.randomBytes(16).toString('hex');
@@ -75,8 +72,7 @@ app.post('/upload-photos', upload.any(), async (req, res) => {
 });
 
 // == Solomon Priming ==
-const solomonPrompt = [
-  "You are Solomon, a professional and friendly garage design assistant for Elevated Garage that respects user answers.",
+const solomonPrompt = [ "You are Solomon, a professional and friendly garage design assistant for Elevated Garage that respects user answers.",
   "If the user uploads a photo, thank them and let them know the Elevated Garage team will review it. Do NOT say you cannot view images. Just acknowledge the upload and continue.",
   "If the user skips the upload, say that's okay and move on normally.",
   "Start the conversation warmly. Your first priority is to get contact information early in the conversation — ideally right after your opening.",
@@ -109,28 +105,28 @@ const solomonPrompt = [
   "\"Thanks for sharing everything — this gives us a great foundation to begin planning your garage. We'll follow up with next steps soon!\""
 ].join("\n");
 
-const extractionPrompt = [
-  "You are a form analysis tool working behind the scenes at Elevated Garage.",
-  "You are NOT a chatbot. Do NOT greet the user or respond conversationally.",
-  "Your job is to extract key information from a transcript of a conversation between the user and Solomon, a conversational AI assistant.",
-  "Return a structured JSON object containing these 10 fields:",
-  "- full_name",
-  "- email",
-  "- phone",
-  "- garage_goals",
-  "- square_footage",
-  "- must_have_features",
-  "- budget",
-  "- start_date",
-  "- final_notes",
-  "- garage_photo_upload",
-  "Respond ONLY with a valid JSON object. No text before or after. No assistant tag. No markdown formatting.",
-  "Use natural language understanding to infer vague answers (e.g., 'probably 400ish square feet').",
-  "If the user skips or declines the garage photo upload, set the field 'garage_photo_upload' to 'skipped'.",
-  "",
-  "Here is the full conversation transcript:"
-].join("\n");
-
+const extractIntakeData = async (conversationHistory) => {
+  const extractionPrompt = [
+    "You are a form analysis tool working behind the scenes at Elevated Garage.",
+    "You are NOT a chatbot. Do NOT greet the user or respond conversationally.",
+    "Your job is to extract key information from a transcript of a conversation between the user and Solomon, a conversational AI assistant.",
+    "Return a structured JSON object containing these 10 fields:",
+    "- full_name",
+    "- email",
+    "- phone",
+    "- garage_goals",
+    "- square_footage",
+    "- must_have_features",
+    "- budget",
+    "- start_date",
+    "- final_notes",
+    "- garage_photo_upload",
+    "Respond ONLY with a valid JSON object. No text before or after. No assistant tag. No markdown formatting.",
+    "Use natural language understanding to infer vague answers (e.g., 'probably 400ish square feet').",
+    "If the user skips or declines the garage photo upload, set the field 'garage_photo_upload' to 'skipped'.",
+    "",
+    "Here is the full conversation transcript:"
+  ].join("\n");
 
   const transcript = conversationHistory
     .filter(entry => entry.role === "user" || entry.role === "assistant")
@@ -138,7 +134,7 @@ const extractionPrompt = [
     .join("\n");
 
   try {
-    const completion = await openai.chat.completions.create({
+    const completion = await openai.createChatCompletion({
       model: "gpt-4",
       messages: [
         { role: "system", content: extractionPrompt },
@@ -147,12 +143,12 @@ const extractionPrompt = [
       temperature: 0
     });
 
-    return JSON.parse(completion.choices[0].message.content);
+    return JSON.parse(completion.data.choices[0].message.content);
   } catch (error) {
     console.error("❌ Failed to extract structured intake:", error.message);
     return {};
   }
-};  // ✅ This closes the full extractIntakeData function correctly!
+};
 
 // == AI MESSAGE HANDLER ==
 app.post('/message', async (req, res) => {
@@ -162,11 +158,6 @@ app.post('/message', async (req, res) => {
   }
 
   const { message } = req.body;
-  console.log('Incoming request body:', req.body);
-
-  if (!message || typeof message !== 'string' || message.trim() === '') {
-    return res.json({ reply: "Please type a message before sending!" });
-  }
 
   if (!userConversations[sessionId]) {
     userConversations[sessionId] = [];
@@ -175,18 +166,16 @@ app.post('/message', async (req, res) => {
   userConversations[sessionId].push({ role: 'user', content: message });
 
   try {
-    const conversationHistoryForAI = [
-      { role: "system", content: solomonPrompt },
-      ...(userConversations[sessionId] || [])
-    ];
-
-    const completion = await openai.chat.completions.create({
+    const completion = await openai.createChatCompletion({
       model: "gpt-4",
-      messages: conversationHistoryForAI,
+      messages: [
+        { role: "system", content: solomonPrompt },
+        ...userConversations[sessionId]
+      ],
       temperature: 0.7
     });
 
-    const assistantReply = completion.choices[0].message.content;
+    const assistantReply = completion.data.choices[0].message.content;
 
     userConversations[sessionId].push({ role: 'assistant', content: assistantReply });
 
@@ -201,13 +190,12 @@ app.post('/message', async (req, res) => {
   } catch (err) {
     console.error(`❌ [${sessionId}] OpenAI error:`, err.message);
     res.status(500).json({
-      reply: "Sorry, I had an issue responding. Could you try again.",
+      reply: "Sorry, I had an issue responding. Could you try again?",
       done: false,
       sessionId
     });
   }
 });
-
 // == FINAL INTAKE HANDLER (SESSION SAFE) ==
 app.post('/submit-final-intake', async (req, res) => {
   let sessionId = req.headers['x-session-id'];
