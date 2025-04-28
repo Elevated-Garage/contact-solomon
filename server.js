@@ -72,7 +72,7 @@ app.post('/upload-photos', upload.any(), async (req, res) => {
 });
 
 // == Solomon Priming ==
-const solomonPrompt "You are Solomon, a professional and friendly garage design assistant for Elevated Garage that respects user answers.",
+const solomonPrompt = [ "You are Solomon, a professional and friendly garage design assistant for Elevated Garage that respects user answers.",
   "If the user uploads a photo, thank them and let them know the Elevated Garage team will review it. Do NOT say you cannot view images. Just acknowledge the upload and continue.",
   "If the user skips the upload, say that's okay and move on normally.",
   "Start the conversation warmly. Your first priority is to get contact information early in the conversation — ideally right after your opening.",
@@ -256,10 +256,19 @@ app.post('/submit-final-intake', async (req, res) => {
       // Conversation Text
       pdfDoc.fontSize(14);
       for (const entry of conversationHistory) {
-        pdfDoc.text(`${entry.role.toUpperCase()}: ${entry.content}`, {
-          width: 500,
-          align: 'left'
-        }).moveDown(0.5);
+        // Insert structured intake data into PDF
+pdfDoc.fontSize(14);
+pdfDoc.text(`Full Name: ${intakeData.full_name}`, { width: 500 }).moveDown(0.5);
+pdfDoc.text(`Email: ${intakeData.email}`, { width: 500 }).moveDown(0.5);
+pdfDoc.text(`Phone: ${intakeData.phone}`, { width: 500 }).moveDown(0.5);
+pdfDoc.text(`Garage Goals: ${intakeData.garage_goals}`, { width: 500 }).moveDown(0.5);
+pdfDoc.text(`Square Footage: ${intakeData.square_footage}`, { width: 500 }).moveDown(0.5);
+pdfDoc.text(`Must-Have Features: ${intakeData.must_have_features}`, { width: 500 }).moveDown(0.5);
+pdfDoc.text(`Budget: ${intakeData.budget}`, { width: 500 }).moveDown(0.5);
+pdfDoc.text(`Preferred Start Date: ${intakeData.start_date}`, { width: 500 }).moveDown(0.5);
+pdfDoc.text(`Final Notes: ${intakeData.final_notes}`, { width: 500 }).moveDown(0.5);
+pdfDoc.text(`Garage Photo Upload: ${intakeData.garage_photo_upload}`, { width: 500 }).moveDown(0.5);
+
       }
 
       // Add Uploaded Images (each on new page)
