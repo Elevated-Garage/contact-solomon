@@ -298,6 +298,7 @@ pdfDoc.text(`Garage Photo Upload: ${intakeData.garage_photo_upload}`, { width: 5
         pdfDoc.text(`Page ${i + 1} of ${range.count}`, 50, 785, { align: 'center', width: 500 });
       }
 
+    
       pdfDoc.end();
     }
      else {
