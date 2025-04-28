@@ -162,6 +162,10 @@ app.post('/message', async (req, res) => {
 
   const { message } = req.body;
 
+  if (!message || typeof message !== 'string' || message.trim() === '') {
+  return res.json({ reply: "Please type a message before sending!" });
+}
+
   if (!userConversations[sessionId]) {
     userConversations[sessionId] = [];
   }
