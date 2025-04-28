@@ -207,12 +207,12 @@ app.post('/submit-final-intake', async (req, res) => {
 
   try {
     const conversationHistory = userConversations[sessionId] || [];
-    const uploadedPhotos = userUploadedPhotos[sessionId] || [];
+const uploadedPhotos = userUploadedPhotos[sessionId] || [];
 
-    const intakeData = await extractIntakeData(conversationHistory);
+const intakeData = await extractIntakeData(conversationHistory);
 
-    const hasRealData = conversationHistory.length > 0;
-    const hasUploadedPhotos = uploadedPhotos.length > 0;
+const hasRealData = intakeData && Object.keys(intakeData).length > 0;
+const hasUploadedPhotos = uploadedPhotos.length > 0;
 
     if (hasRealData || hasUploadedPhotos) {
       console.log("🧠 Building final summary and PDF...");
