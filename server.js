@@ -300,7 +300,7 @@ pdfDoc.text(`Garage Photo Upload: ${intakeData.garage_photo_upload}`, { width: 5
 
       pdfDoc.end();
 
-    } else {
+     else {
       console.log(`⚠️ [${sessionId}] No sufficient intake data or uploaded photos.`);
       res.status(200).json({
         reply: "✅ Thank you for submitting your project! Our team will review everything and reach out to you shortly.",
