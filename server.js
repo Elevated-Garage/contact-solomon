@@ -6,7 +6,7 @@ const { google } = require('googleapis');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const PDFDocument = require('pdfkit');
-const { Configuration, OpenAIApi } = require('openai');
+const OpenAIApi  = require('openai');
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
@@ -32,9 +32,9 @@ const auth = new google.auth.GoogleAuth({
 const drive = google.drive({ version: "v3", auth });
 
 // == OpenAI Setup ==
-const openai = new OpenAIApi(new Configuration({
+const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
-}));
+});
 
 app.use(cors());
 app.use(bodyParser.json());
