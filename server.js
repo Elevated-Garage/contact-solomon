@@ -377,13 +377,35 @@ app.post("/upload-photos", upload.array('photos'), async (req, res) => {
 
 // Handle final intake submission
 app.post("/submit-final-intake", async (req, res) => {
+  console.log("✅ Final intake submission received.");
+
   try {
-    console.log("✅ Final intake submission received.");
-    // Future: trigger PDF generation here
-    res.status(200).send("Final intake received successfully.");
+    // Assume conversationHistory and uploadedPhotos are accessible globals
+    const intakeData = await extractIntakeData(conversationHistory || []);
+    const hasRealData = intakeData && Object.keys(intakeData).length > 0;
+    const hasUploadedPhotos = uploadedPhotos && uploadedPhotos.length > 0;
+
+    if (hasRealData || hasUploadedPhotos) {
+      console.log("🧠 Building final summary and PDF...");
+
+      const summaryText = buildSummaryFromIntake(intakeData);
+      const pdfBuffer = await generateBrandedPDF(summaryText, uploadedPhotos);
+      await uploadPDFtoDrive(pdfBuffer);
+
+      console.log("✅ Final summary PDF created and uploaded.");
+    } else {
+      console.log("⚠️ No sufficient intake data or uploaded photos. Skipping PDF generation.");
+    }
+
+    // Respond to frontend that submission is complete
+    res.status(200).json({
+      reply: "✅ Thank you for submitting your project! Our team will review everything and reach out to you shortly.",
+      done: true
+    });
+
   } catch (error) {
-    console.error("❌ Error handling final intake:", error.message);
-    res.status(500).send("Error processing final intake.");
+    console.error("❌ Error processing final intake submission:", error);
+    res.status(500).send("Server Error during final intake processing.");
   }
 });
 
