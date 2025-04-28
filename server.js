@@ -15,6 +15,9 @@ require('dotenv').config();
 const app = express();
 const port = process.env.PORT || 10000;
 
+app.use(express.static('public'));
+
+
 // == ENVIRONMENT VALIDATION ==
 if (!process.env.OPENAI_API_KEY) throw new Error("❌ Missing OPENAI_API_KEY");
 if (!process.env.GOOGLE_CREDENTIALS) throw new Error("❌ Missing GOOGLE_CREDENTIALS");
