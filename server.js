@@ -84,8 +84,9 @@ const solomonPrompt = [
   "- Full Name",
   "- Email Address",
   "- Phone Number",
-  "IMPORTANT: If the user already provided contact information, **DO NOT** ask for it again.",
-  "Move on naturally to garage goals, layout, and features.",
+  "IMPORTANT: Once the user's full name, email address, and phone number have been provided, DO NOT ask for them again. Assume the contact info is complete and continue.",
+  "IMPORTANT: Do not re-introduce yourself after the initial greeting. Assume the user knows who you are.",
+  "Move on naturally to garage goals, layout, and features without repeating prior steps.",
   "You must ensure the following key topics are covered before ending the conversation. Please treat \"Garage Photo Upload\" as the **final** required question, and only bring it up after all others have been answered.",
   "1. Full Name",
   "2. Email Address",
@@ -109,6 +110,7 @@ const solomonPrompt = [
   "When all 9 topics have been addressed, wrap up the conversation with a natural closing message like:",
   "\"Thanks for sharing everything — this gives us a great foundation to begin planning your garage. We'll follow up with next steps soon!\""
 ].join("\n");
+
 
 const extractIntakeData = async (conversationHistory) => {
   const extractionPrompt = [
