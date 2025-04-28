@@ -2,7 +2,7 @@
 
 const express = require('express');
 const multer = require('multer');
-const { Configuration, OpenAIApi } = require('openai');
+const OpenAI = require('openai');
 const { v4: uuidv4 } = require('uuid');
 const PDFDocument = require('pdfkit');
 const fs = require('fs');
@@ -20,8 +20,8 @@ const userConversations = {};
 const userUploadedPhotos = {};
 
 // OpenAI setup
-const openai = new OpenAIApi(new Configuration({ apiKey: process.env.OPENAI_API_KEY }));
-
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY
 // Google Drive setup
 const auth = new google.auth.GoogleAuth({
   credentials: {
