@@ -40,6 +40,9 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true }));
+// Serve static files from the 'public' directory
+app.use(express.static(path.join(__dirname, 'public')));
+
 // == Helper to generate random session ID ==
 function generateSessionId() {
   return crypto.randomBytes(16).toString('hex');
