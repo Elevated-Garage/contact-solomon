@@ -299,9 +299,7 @@ for (let i = range.start; i < range.start + range.count; i++) {
 }
 
 pdfDoc.end();
-
-} 
-
+}  // <-- just close normally, no comments here
 else {
   console.log(`⚠️ [${sessionId}] No sufficient intake data or uploaded photos.`);
   res.status(200).json({
@@ -309,6 +307,7 @@ else {
     done: true
   });
 }
+
 
 } catch (error) {
   console.error(`❌ [${sessionId}] Error during final intake processing:`, error);
