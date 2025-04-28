@@ -299,7 +299,7 @@ pdfDoc.text(`Garage Photo Upload: ${intakeData.garage_photo_upload}`, { width: 5
       }
 
       pdfDoc.end();
-  }
+     }
      else {
       console.log(`⚠️ [${sessionId}] No sufficient intake data or uploaded photos.`);
       res.status(200).json({
