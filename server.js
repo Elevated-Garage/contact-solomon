@@ -205,24 +205,26 @@ app.post('/submit-final-intake', async (req, res) => {
 
   console.log(`✅ [${sessionId}] Final intake submission received.`);
 
-  try {
-    const conversationHistory = userConversations[sessionId] || [];
-const uploadedPhotos = userUploadedPhotos[sessionId] || [];
+ try {
+  const conversationHistory = userConversations[sessionId] || [];
+  const uploadedPhotos = userUploadedPhotos[sessionId] || [];
 
-const intakeData = await extractIntakeData(conversationHistory);
+  const intakeData = await extractIntakeData(conversationHistory);
 
-const hasRealData = intakeData && Object.keys(intakeData).length > 0;
-const hasUploadedPhotos = uploadedPhotos.length > 0;
+  const hasRealData = intakeData && Object.keys(intakeData).length > 0;
+  const hasUploadedPhotos = uploadedPhotos.length > 0;
 
-    if (hasRealData || hasUploadedPhotos) {
-      console.log("🧠 Building final summary and PDF...");
+  if (hasRealData || hasUploadedPhotos) {
+    console.log("🧠 Building final summary and PDF...");
 
-      const footerText = "© Elevated Garage - Built with Excellence";
-      const pdfDoc = new PDFDocument({ autoFirstPage: false });
-      const pdfBuffers = [];
+    const footerText = "© Elevated Garage - Built with Excellence";
+    const pdfDoc = new PDFDocument({ autoFirstPage: false });
+    const pdfBuffers = [];
 
-      pdfDoc.on('data', chunk => pdfBuffers.push(chunk));
-      pdfDoc.on('end', async () => {
+    pdfDoc.on('data', chunk => pdfBuffers.push(chunk));
+    
+    pdfDoc.on('end', async () => {
+      try {
         const pdfBuffer = Buffer.concat(pdfBuffers);
 
         await drive.files.create({
@@ -238,76 +240,69 @@ const hasUploadedPhotos = uploadedPhotos.length > 0;
         });
 
         console.log(`✅ [${sessionId}] Final branded summary PDF uploaded.`);
+      } catch (error) {
+        console.error(`❌ [${sessionId}] Upload failed:`, error);
+      }
+    });
 
-        res.status(200).json({
-          reply: "✅ Thank you for submitting your project! Our team will review everything and reach out to you shortly.",
-          done: true
+    // Build the actual PDF
+    pdfDoc.addPage();
+    const logoPath = path.join(__dirname, 'public', 'logo.png');
+    if (fs.existsSync(logoPath)) {
+      pdfDoc.image(logoPath, { fit: [150, 150], align: 'center' }).moveDown(1.5);
+    }
+    pdfDoc.fontSize(22).text('Garage Project Summary', { align: 'center' }).moveDown(2);
+
+    // Structured intake data
+    pdfDoc.fontSize(14);
+    pdfDoc.text(`Full Name: ${intakeData.full_name}`, { width: 500 }).moveDown(0.5);
+    pdfDoc.text(`Email: ${intakeData.email}`, { width: 500 }).moveDown(0.5);
+    pdfDoc.text(`Phone: ${intakeData.phone}`, { width: 500 }).moveDown(0.5);
+    pdfDoc.text(`Garage Goals: ${intakeData.garage_goals}`, { width: 500 }).moveDown(0.5);
+    pdfDoc.text(`Square Footage: ${intakeData.square_footage}`, { width: 500 }).moveDown(0.5);
+    pdfDoc.text(`Must-Have Features: ${intakeData.must_have_features}`, { width: 500 }).moveDown(0.5);
+    pdfDoc.text(`Budget: ${intakeData.budget}`, { width: 500 }).moveDown(0.5);
+    pdfDoc.text(`Preferred Start Date: ${intakeData.start_date}`, { width: 500 }).moveDown(0.5);
+    pdfDoc.text(`Final Notes: ${intakeData.final_notes}`, { width: 500 }).moveDown(0.5);
+    pdfDoc.text(`Garage Photo Upload: ${intakeData.garage_photo_upload}`, { width: 500 }).moveDown(0.5);
+
+    // Uploaded Photos
+    if (uploadedPhotos.length > 0) {
+      for (const file of uploadedPhotos) {
+        pdfDoc.addPage();
+        pdfDoc.fontSize(16).text('Uploaded Garage Photo', { align: 'center' }).moveDown(1);
+
+        const tempPath = path.join(__dirname, 'temp_' + Date.now() + '_' + file.originalname);
+        fs.writeFileSync(tempPath, file.buffer);
+
+        pdfDoc.image(tempPath, {
+          fit: [450, 300],
+          align: 'center',
+          valign: 'center'
         });
-      });
 
-      // First Page: Logo + Title
-      pdfDoc.addPage();
-      const logoPath = path.join(__dirname, 'public', 'logo.png');
-      if (fs.existsSync(logoPath)) {
-        pdfDoc.image(logoPath, { fit: [150, 150], align: 'center' }).moveDown(1.5);
+        fs.unlinkSync(tempPath);
       }
-      pdfDoc.fontSize(22).text('Garage Project Summary', { align: 'center' }).moveDown(2);
+    }
 
-      // Conversation Text
-      pdfDoc.fontSize(14);
-        // Insert structured intake data into PDF
-pdfDoc.fontSize(14);
-pdfDoc.text(`Full Name: ${intakeData.full_name}`, { width: 500 }).moveDown(0.5);
-pdfDoc.text(`Email: ${intakeData.email}`, { width: 500 }).moveDown(0.5);
-pdfDoc.text(`Phone: ${intakeData.phone}`, { width: 500 }).moveDown(0.5);
-pdfDoc.text(`Garage Goals: ${intakeData.garage_goals}`, { width: 500 }).moveDown(0.5);
-pdfDoc.text(`Square Footage: ${intakeData.square_footage}`, { width: 500 }).moveDown(0.5);
-pdfDoc.text(`Must-Have Features: ${intakeData.must_have_features}`, { width: 500 }).moveDown(0.5);
-pdfDoc.text(`Budget: ${intakeData.budget}`, { width: 500 }).moveDown(0.5);
-pdfDoc.text(`Preferred Start Date: ${intakeData.start_date}`, { width: 500 }).moveDown(0.5);
-pdfDoc.text(`Final Notes: ${intakeData.final_notes}`, { width: 500 }).moveDown(0.5);
-pdfDoc.text(`Garage Photo Upload: ${intakeData.garage_photo_upload}`, { width: 500 }).moveDown(0.5);
+    // Footer
+    const range = pdfDoc.bufferedPageRange();
+    for (let i = range.start; i < range.start + range.count; i++) {
+      pdfDoc.switchToPage(i);
+      pdfDoc.fontSize(8)
+        .text(footerText, 50, 770, { align: 'center', width: 500 });
+      pdfDoc.text(`Page ${i + 1} of ${range.count}`, 50, 785, { align: 'center', width: 500 });
+    }
 
-      }
+    pdfDoc.end();
 
-      // Add Uploaded Images (each on new page)
-      if (uploadedPhotos.length > 0) {
-        for (const file of uploadedPhotos) {
-          pdfDoc.addPage();
-          pdfDoc.fontSize(16).text('Uploaded Garage Photo', { align: 'center' }).moveDown(1);
-
-          const tempPath = path.join(__dirname, 'temp_' + Date.now() + '_' + file.originalname);
-          fs.writeFileSync(tempPath, file.buffer);
-
-          pdfDoc.image(tempPath, {
-            fit: [450, 300],
-            align: 'center',
-            valign: 'center'
-          });
-
-          fs.unlinkSync(tempPath);
-        }
-      }
-
-      // Footer
-const range = pdfDoc.bufferedPageRange(); // { start: 0, count: N }
-for (let i = range.start; i < range.start + range.count; i++) {
-  pdfDoc.switchToPage(i);
-  pdfDoc.fontSize(8)
-    .text(footerText, 50, 770, { align: 'center', width: 500 });
-  pdfDoc.text(`Page ${i + 1} of ${range.count}`, 50, 785, { align: 'center', width: 500 });
-}
-
-pdfDoc.end();
-}  // <-- just close normally, no comments here
-else {
-  console.log(`⚠️ [${sessionId}] No sufficient intake data or uploaded photos.`);
-  res.status(200).json({
-    reply: "✅ Thank you for submitting your project! Our team will review everything and reach out to you shortly.",
-    done: true
-  });
-}
-
+  } else {
+    console.log(`⚠️ [${sessionId}] No sufficient intake data or uploaded photos.`);
+    res.status(200).json({
+      reply: "✅ Thank you for submitting your project! Our team will review everything and reach out to you shortly.",
+      done: true
+    });
+  }
 
 } catch (error) {
   console.error(`❌ [${sessionId}] Error during final intake processing:`, error);
