@@ -1,5 +1,3 @@
-// == FINAL SOLOMON SERVER.JS (Frankenstein Version) ==
-
 const express = require('express');
 const multer = require('multer');
 const OpenAI = require('openai');
@@ -19,10 +17,12 @@ app.use(express.static('public'));
 const userConversations = {};
 const userUploadedPhotos = {};
 
-// OpenAI setup
+// === Correct OpenAI setup ===
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
-// Google Drive setup
+});
+
+// === Correct Google Drive setup ===
 const auth = new google.auth.GoogleAuth({
   credentials: {
     client_email: process.env.GOOGLE_CLIENT_EMAIL,
