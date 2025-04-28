@@ -169,14 +169,15 @@ app.post('/message', async (req, res) => {
   userConversations[sessionId].push({ role: 'user', content: message });
 
   try {
-    const completion = await openai.createChatCompletion({
-      model: "gpt-4",
-      messages: [
-        { role: "system", content: solomonPrompt },
-        ...userConversations[sessionId]
-      ],
-      temperature: 0.7
-    });
+    const completion = await openai.chat.completions.create({
+  model: "gpt-4",
+  messages: [
+    { role: "system", content: solomonPrompt },
+    { role: "user", content: userMessage }
+  ],
+  temperature: 0.7
+});
+
 
     const assistantReply = completion.data.choices[0].message.content;
 
