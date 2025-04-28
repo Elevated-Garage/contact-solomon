@@ -137,14 +137,14 @@ const extractIntakeData = async (conversationHistory) => {
     .join("\n");
 
   try {
-    const completion = await openai.createChatCompletion({
-      model: "gpt-4",
-      messages: [
-        { role: "system", content: extractionPrompt },
-        { role: "user", content: transcript }
-      ],
-      temperature: 0
-    });
+   const completion = await openai.chat.completions.create({
+  model: "gpt-4",
+  messages: [
+    { role: "system", content: solomonPrompt },
+    { role: "user", content: userMessage }
+  ]
+});
+
 
     return JSON.parse(completion.data.choices[0].message.content);
   } catch (error) {
