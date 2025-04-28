@@ -136,22 +136,22 @@ const extractIntakeData = async (conversationHistory) => {
     .map(entry => `${entry.role}: ${entry.content}`)
     .join("\n");
 
- try {
-  const completion = await openai.chat.completions.create({
-    model: "gpt-4",
-    messages: [
-      { role: "system", content: extractionPrompt },
-      { role: "user", content: transcript }
-    ],
-    temperature: 0
-  });
+  try {
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4",
+      messages: [
+        { role: "system", content: extractionPrompt },
+        { role: "user", content: transcript }
+      ],
+      temperature: 0
+    });
 
-  return JSON.parse(completion.choices[0].message.content);
-} catch (error) {
-  console.error("❌ Failed to extract structured intake:", error.message);
-  return {};
-}
-
+    return JSON.parse(completion.choices[0].message.content);
+  } catch (error) {
+    console.error("❌ Failed to extract structured intake:", error.message);
+    return {};
+  }
+};  // ✅ This closes the full extractIntakeData function correctly!
 
 // == AI MESSAGE HANDLER ==
 app.post('/message', async (req, res) => {
@@ -163,10 +163,9 @@ app.post('/message', async (req, res) => {
   const { message } = req.body;
   console.log('Incoming request body:', req.body);
 
-
   if (!message || typeof message !== 'string' || message.trim() === '') {
-  return res.json({ reply: "Please type a message before sending!" });
-}
+    return res.json({ reply: "Please type a message before sending!" });
+  }
 
   if (!userConversations[sessionId]) {
     userConversations[sessionId] = [];
@@ -175,16 +174,16 @@ app.post('/message', async (req, res) => {
   userConversations[sessionId].push({ role: 'user', content: message });
 
   try {
-   const conversationHistoryForAI = [
-  { role: "system", content: solomonPrompt },
-  ...(userConversations[sessionId] || [])
-];
+    const conversationHistoryForAI = [
+      { role: "system", content: solomonPrompt },
+      ...(userConversations[sessionId] || [])
+    ];
 
-const completion = await openai.chat.completions.create({
-  model: "gpt-4",
-  messages: conversationHistoryForAI,
-  temperature: 0.7
-});
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4",
+      messages: conversationHistoryForAI,
+      temperature: 0.7
+    });
 
     const assistantReply = completion.choices[0].message.content;
 
@@ -201,12 +200,13 @@ const completion = await openai.chat.completions.create({
   } catch (err) {
     console.error(`❌ [${sessionId}] OpenAI error:`, err.message);
     res.status(500).json({
-      reply: "Sorry, I had an issue responding. Could you try again?",
+      reply: "Sorry, I had an issue responding. Could you try again.",
       done: false,
       sessionId
     });
   }
 });
+
 // == FINAL INTAKE HANDLER (SESSION SAFE) ==
 app.post('/submit-final-intake', async (req, res) => {
   let sessionId = req.headers['x-session-id'];
