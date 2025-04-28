@@ -18,11 +18,12 @@ const userConversations = {};
 const userUploadedPhotos = {};
 
 // === Correct OpenAI setup ===
+const OpenAI = require('openai');
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
-});
+}); // <<< this closing bracket was missing
 
-// === Correct Google Drive setup ===
+// Google Drive setup
 const auth = new google.auth.GoogleAuth({
   credentials: {
     client_email: process.env.GOOGLE_CLIENT_EMAIL,
@@ -31,6 +32,7 @@ const auth = new google.auth.GoogleAuth({
   scopes: ['https://www.googleapis.com/auth/drive.file']
 });
 const drive = google.drive({ version: 'v3', auth });
+
 
 // == Priming ==
 const solomonPrompt = [
