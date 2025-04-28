@@ -161,6 +161,8 @@ app.post('/message', async (req, res) => {
   }
 
   const { message } = req.body;
+  console.log('Incoming request body:', req.body);
+
 
   if (!message || typeof message !== 'string' || message.trim() === '') {
   return res.json({ reply: "Please type a message before sending!" });
