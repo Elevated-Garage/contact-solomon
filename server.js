@@ -298,9 +298,9 @@ for (let i = range.start; i < range.start + range.count; i++) {
   pdfDoc.text(`Page ${i + 1} of ${range.count}`, 50, 785, { align: 'center', width: 500 });
 }
 
-pdfDoc.end(); // ✅ Ends PDF stream
+pdfDoc.end();
 
-} // ✅ CLOSE the full "if (hasRealData || hasUploadedPhotos)" block properly HERE
+} 
 
 else {
   console.log(`⚠️ [${sessionId}] No sufficient intake data or uploaded photos.`);
