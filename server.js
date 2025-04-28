@@ -104,6 +104,52 @@ const solomonPrompt "You are Solomon, a professional and friendly garage design 
   "When all 9 topics have been addressed, wrap up the conversation with a natural closing message like:",
   "\"Thanks for sharing everything — this gives us a great foundation to begin planning your garage. We'll follow up with next steps soon!\""
 ].join("\n");
+
+const extractIntakeData = async (conversationHistory) => {
+  const extractionPrompt = [
+    "You are a form analysis tool working behind the scenes at Elevated Garage.",
+    "You are NOT a chatbot. Do NOT greet the user or respond conversationally.",
+    "Your job is to extract key information from a transcript of a conversation between the user and Solomon, a conversational AI assistant.",
+    "Return a structured JSON object containing these 10 fields:",
+    "- full_name",
+    "- email",
+    "- phone",
+    "- garage_goals",
+    "- square_footage",
+    "- must_have_features",
+    "- budget",
+    "- start_date",
+    "- final_notes",
+    "- garage_photo_upload",
+    "Respond ONLY with a valid JSON object. No text before or after. No assistant tag. No markdown formatting.",
+    "Use natural language understanding to infer vague answers (e.g., 'probably 400ish square feet').",
+    "If the user skips or declines the garage photo upload, set the field 'garage_photo_upload' to 'skipped'.",
+    "",
+    "Here is the full conversation transcript:"
+  ].join("\n");
+
+  const transcript = conversationHistory
+    .filter(entry => entry.role === "user" || entry.role === "assistant")
+    .map(entry => `${entry.role}: ${entry.content}`)
+    .join("\n");
+
+  try {
+    const completion = await openai.createChatCompletion({
+      model: "gpt-4",
+      messages: [
+        { role: "system", content: extractionPrompt },
+        { role: "user", content: transcript }
+      ],
+      temperature: 0
+    });
+
+    return JSON.parse(completion.data.choices[0].message.content);
+  } catch (error) {
+    console.error("❌ Failed to extract structured intake:", error.message);
+    return {};
+  }
+};
+
 // == AI MESSAGE HANDLER ==
 app.post('/message', async (req, res) => {
   let sessionId = req.headers['x-session-id'];
@@ -162,6 +208,8 @@ app.post('/submit-final-intake', async (req, res) => {
   try {
     const conversationHistory = userConversations[sessionId] || [];
     const uploadedPhotos = userUploadedPhotos[sessionId] || [];
+
+    const intakeData = await extractIntakeData(conversationHistory);
 
     const hasRealData = conversationHistory.length > 0;
     const hasUploadedPhotos = uploadedPhotos.length > 0;
