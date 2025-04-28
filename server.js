@@ -255,7 +255,6 @@ const hasUploadedPhotos = uploadedPhotos.length > 0;
 
       // Conversation Text
       pdfDoc.fontSize(14);
-      for (const entry of conversationHistory) {
         // Insert structured intake data into PDF
 pdfDoc.fontSize(14);
 pdfDoc.text(`Full Name: ${intakeData.full_name}`, { width: 500 }).moveDown(0.5);
