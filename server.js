@@ -290,29 +290,30 @@ pdfDoc.text(`Garage Photo Upload: ${intakeData.garage_photo_upload}`, { width: 5
       }
 
       // Footer
-      const range = pdfDoc.bufferedPageRange(); // { start: 0, count: N }
-      for (let i = range.start; i < range.start + range.count; i++) {
-        pdfDoc.switchToPage(i);
-        pdfDoc.fontSize(8)
-          .text(footerText, 50, 770, { align: 'center', width: 500 });
-        pdfDoc.text(`Page ${i + 1} of ${range.count}`, 50, 785, { align: 'center', width: 500 });
-      }
+const range = pdfDoc.bufferedPageRange(); // { start: 0, count: N }
+for (let i = range.start; i < range.start + range.count; i++) {
+  pdfDoc.switchToPage(i);
+  pdfDoc.fontSize(8)
+    .text(footerText, 50, 770, { align: 'center', width: 500 });
+  pdfDoc.text(`Page ${i + 1} of ${range.count}`, 50, 785, { align: 'center', width: 500 });
+}
 
-    
-      pdfDoc.end();
-    }
-     else {
-      console.log(`⚠️ [${sessionId}] No sufficient intake data or uploaded photos.`);
-      res.status(200).json({
-        reply: "✅ Thank you for submitting your project! Our team will review everything and reach out to you shortly.",
-        done: true
-      });
-    }
+pdfDoc.end(); // ✅ Ends PDF stream
 
-  } catch (error) {
-    console.error(`❌ [${sessionId}] Error during final intake processing:`, error);
-    res.status(500).send("Server Error during final intake processing.");
-  }
+} // ✅ CLOSE the full "if (hasRealData || hasUploadedPhotos)" block properly HERE
+
+else {
+  console.log(`⚠️ [${sessionId}] No sufficient intake data or uploaded photos.`);
+  res.status(200).json({
+    reply: "✅ Thank you for submitting your project! Our team will review everything and reach out to you shortly.",
+    done: true
+  });
+}
+
+} catch (error) {
+  console.error(`❌ [${sessionId}] Error during final intake processing:`, error);
+  res.status(500).send("Server Error during final intake processing.");
+}
 });
 // == Helper Function: Build Summary from Conversation (for backup) ==
 function buildSummaryFromConversation(convo) {
