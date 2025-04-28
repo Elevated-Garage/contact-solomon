@@ -1168,7 +1168,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const response = await fetch("/message", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ conversationHistory: window.conversationHistory })
+         body: JSON.stringify({ message: userInput })
         });
         const data = await response.json();
 
