@@ -141,7 +141,7 @@ const extractIntakeData = async (conversationHistory) => {
   model: "gpt-4",
   messages: [
     { role: "system", content: solomonPrompt },
-    { role: "user", content: userMessage }
+    { role: "user", content: Message }
   ]
 });
 
