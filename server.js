@@ -173,7 +173,7 @@ app.post('/message', async (req, res) => {
   model: "gpt-4",
   messages: [
     { role: "system", content: solomonPrompt },
-    { role: "user", content: Message }
+    { role: "user", content: message }
   ],
   temperature: 0.7
 });
