@@ -136,26 +136,22 @@ const extractIntakeData = async (conversationHistory) => {
     .map(entry => `${entry.role}: ${entry.content}`)
     .join("\n");
 
-  try {
-   const conversationHistoryForAI = [
-  { role: "system", content: solomonPrompt },
-  ...(userConversations[sessionId] || [])
-];
+ try {
+  const completion = await openai.chat.completions.create({
+    model: "gpt-4",
+    messages: [
+      { role: "system", content: extractionPrompt },
+      { role: "user", content: transcript }
+    ],
+    temperature: 0
+  });
 
-const completion = await openai.chat.completions.create({
-  model: "gpt-4",
-  messages: conversationHistoryForAI,
-  temperature: 0.7
-});
+  return JSON.parse(completion.choices[0].message.content);
+} catch (error) {
+  console.error("❌ Failed to extract structured intake:", error.message);
+  return {};
+}
 
-
-
-    return JSON.parse(completion.choices[0].message.content);
-  } catch (error) {
-    console.error("❌ Failed to extract structured intake:", error.message);
-    return {};
-  }
-};
 
 // == AI MESSAGE HANDLER ==
 app.post('/message', async (req, res) => {
