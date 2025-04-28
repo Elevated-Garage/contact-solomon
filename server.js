@@ -150,7 +150,7 @@ const completion = await openai.chat.completions.create({
 
 
 
-    return JSON.parse(completion.data.choices[0].message.content);
+    return JSON.parse(completion.choices[0].message.content);
   } catch (error) {
     console.error("❌ Failed to extract structured intake:", error.message);
     return {};
@@ -179,17 +179,18 @@ app.post('/message', async (req, res) => {
   userConversations[sessionId].push({ role: 'user', content: message });
 
   try {
-    const completion = await openai.chat.completions.create({
+   const conversationHistoryForAI = [
+  { role: "system", content: solomonPrompt },
+  ...(userConversations[sessionId] || [])
+];
+
+const completion = await openai.chat.completions.create({
   model: "gpt-4",
-  messages: [
-    { role: "system", content: solomonPrompt },
-    { role: "user", content: message }
-  ],
+  messages: conversationHistoryForAI,
   temperature: 0.7
 });
 
-
-    const assistantReply = completion.data.choices[0].message.content;
+    const assistantReply = completion.choices[0].message.content;
 
     userConversations[sessionId].push({ role: 'assistant', content: assistantReply });
 
