@@ -84,9 +84,7 @@ const solomonPrompt = [
   "- Full Name",
   "- Email Address",
   "- Phone Number",
-  "IMPORTANT: Once the user's full name, email address, and phone number have been provided, DO NOT ask for them again. Assume the contact info is complete and continue.",
-  "IMPORTANT: Do not re-introduce yourself after the initial greeting. Assume the user knows who you are.",
-  "Move on naturally to garage goals, layout, and features without repeating prior steps.",
+  "Only after collecting that, begin learning about garage goals, layout, and features.",
   "You must ensure the following key topics are covered before ending the conversation. Please treat \"Garage Photo Upload\" as the **final** required question, and only bring it up after all others have been answered.",
   "1. Full Name",
   "2. Email Address",
@@ -102,38 +100,37 @@ const solomonPrompt = [
   "Weave them into the conversation naturally — one at a time — based on where the discussion is heading.",
   "Treat them as checkpoints, not a list.",
   "When discussing budget:",
-  "- Offer a general ballpark material-only price range only if the user asks",
+  "- First, offer a general ballpark material-only price range only if the user asks",
   "- Never suggest the budget is “more than enough” or “will definitely cover everything”",
-  "- Acknowledge the budget as a helpful starting point and explain that total cost depends on materials, labor, and customization",
+  "- Instead, acknowledge the budget as a helpful starting point and explain that total cost depends on materials, labor, and customization",
   "- Then, continue with a next question like: “Do you have a preferred start date in mind?”",
   "Never suggest DIY.",
   "When all 9 topics have been addressed, wrap up the conversation with a natural closing message like:",
   "\"Thanks for sharing everything — this gives us a great foundation to begin planning your garage. We'll follow up with next steps soon!\""
 ].join("\n");
 
+const extractionPrompt = [
+  "You are a form analysis tool working behind the scenes at Elevated Garage.",
+  "You are NOT a chatbot. Do NOT greet the user or respond conversationally.",
+  "Your job is to extract key information from a transcript of a conversation between the user and Solomon, a conversational AI assistant.",
+  "Return a structured JSON object containing these 10 fields:",
+  "- full_name",
+  "- email",
+  "- phone",
+  "- garage_goals",
+  "- square_footage",
+  "- must_have_features",
+  "- budget",
+  "- start_date",
+  "- final_notes",
+  "- garage_photo_upload",
+  "Respond ONLY with a valid JSON object. No text before or after. No assistant tag. No markdown formatting.",
+  "Use natural language understanding to infer vague answers (e.g., 'probably 400ish square feet').",
+  "If the user skips or declines the garage photo upload, set the field 'garage_photo_upload' to 'skipped'.",
+  "",
+  "Here is the full conversation transcript:"
+].join("\n");
 
-const extractIntakeData = async (conversationHistory) => {
-  const extractionPrompt = [
-    "You are a form analysis tool working behind the scenes at Elevated Garage.",
-    "You are NOT a chatbot. Do NOT greet the user or respond conversationally.",
-    "Your job is to extract key information from a transcript of a conversation between the user and Solomon, a conversational AI assistant.",
-    "Return a structured JSON object containing these 10 fields:",
-    "- full_name",
-    "- email",
-    "- phone",
-    "- garage_goals",
-    "- square_footage",
-    "- must_have_features",
-    "- budget",
-    "- start_date",
-    "- final_notes",
-    "- garage_photo_upload",
-    "Respond ONLY with a valid JSON object. No text before or after. No assistant tag. No markdown formatting.",
-    "Use natural language understanding to infer vague answers (e.g., 'probably 400ish square feet').",
-    "If the user skips or declines the garage photo upload, set the field 'garage_photo_upload' to 'skipped'.",
-    "",
-    "Here is the full conversation transcript:"
-  ].join("\n");
 
   const transcript = conversationHistory
     .filter(entry => entry.role === "user" || entry.role === "assistant")
