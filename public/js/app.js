@@ -163,7 +163,7 @@ async function showSummary() {
       <p><strong>Garage Photo Upload:</strong> ${data.garage_photo_upload || 'N/A'}</p>
     `;
 
-    summaryContainer.style.display = "block";
+    summaryContainer.classList.remove('hidden');
   } catch (err) {
     console.error("❌ Error generating summary:", err.message);
     alert("❌ Error generating project summary. Please try again.");
