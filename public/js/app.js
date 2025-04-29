@@ -122,7 +122,7 @@ const filledCount = [
 ].filter(Boolean).length;
 
 if (filledCount === 9) {
-  
+  document.getElementById('summary-container').classList.remove('hidden');
   document.getElementById('summary-container').scrollIntoView({ behavior: 'smooth' });
   showSummary(data);
 } else {
@@ -178,7 +178,7 @@ const filledCount = [
 ].filter(Boolean).length;
 
 if (filledCount === 9) {
-  
+  document.getElementById('summary-container').classList.remove('hidden');
   document.getElementById('summary-container').scrollIntoView({ behavior: 'smooth' });
   showSummary(data);
 } else {
