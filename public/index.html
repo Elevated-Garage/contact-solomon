@@ -1280,37 +1280,58 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
 
-      const formData = new FormData();
-      for (const file of files) {
-        formData.append("photos", file);
-      }
+const sessionId = localStorage.getItem("solomon-session-id");
 
-      try {
-        const res = await fetch("/upload-photos", {
-          method: "POST",
-          body: formData
-        });
+const formData = new FormData();
+for (const file of files) {
+  formData.append("photos", file);
+}
 
-        if (res.ok) {
-          console.log("✅ Photos uploaded successfully!");
-          await fetch("/submit-final-intake", { method: "POST" });
-          console.log("✅ Final intake summary requested after photo upload.");
-        } else {
-          console.error("❌ Photo upload failed.");
-        }
-      } catch (err) {
-        console.error("❌ Error uploading photos:", err.message);
+try {
+  const res = await fetch("/upload-photos", {
+    method: "POST",
+    headers: {
+      "x-session-id": sessionId
+    },
+    body: formData
+  });
+
+  if (res.ok) {
+    console.log("✅ Photos uploaded successfully!");
+    await fetch("/submit-final-intake", {
+      method: "POST",
+      headers: {
+        "x-session-id": sessionId
       }
     });
+    console.log("✅ Final intake summary requested after photo upload.");
+  } else {
+    console.error("❌ Photo upload failed.");
+  }
+} catch (err) {
+  console.error("❌ Error uploading photos:", err.message);
+}
+      document.getElementById("photo-skip").addEventListener("click", async () => {
+  const sessionId = localStorage.getItem("solomon-session-id");
 
-    document.getElementById("photo-skip").addEventListener("click", async () => {
-      try {
-        await fetch("/skip-photo-upload", { method: "POST" });
-        console.log("✅ Photo upload skipped.");
-        await fetch("/submit-final-intake", { method: "POST" });
-        console.log("✅ Final intake summary requested after skipping photo.");
-      } catch (err) {
-        console.error("❌ Error skipping photo upload:", err.message);
+  try {
+    await fetch("/skip-photo-upload", {
+      method: "POST",
+      headers: {
+        "x-session-id": sessionId
+      }
+    });
+    console.log("✅ Photo upload skipped.");
+
+    await fetch("/submit-final-intake", {
+      method: "POST",
+      headers: {
+        "x-session-id": sessionId
+      }
+    });
+    console.log("✅ Final intake summary requested after skipping photo.");
+  } catch (err) {
+    console.error("❌ Error skipping photo upload:", err.message);
       }
     });
   }
