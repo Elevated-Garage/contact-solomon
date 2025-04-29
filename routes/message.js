@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const { chatWithSolomon } = require('../services/openaiService');
-const { saveMessage, getConversation } = require('../services/memoryStore');
+const { saveMessage, getConversation } = require('../services/conversationService');
+
 
 router.post('/', async (req, res) => {
   try {
