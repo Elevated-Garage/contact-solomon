@@ -125,6 +125,9 @@ document.addEventListener("DOMContentLoaded", function () {
         });
         alert("✅ Skipped photo upload.");
         if (uploadBox) uploadBox.style.display = "none"; // Hide uploader
+        document.getElementById('summary-container').classList.remove('hidden');
+        showSummary(); // 👈 triggers summary display
+
       } catch (err) {
         console.error("❌ Error skipping photo upload:", err.message);
         alert("❌ Error skipping. Please try again.");
