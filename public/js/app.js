@@ -98,6 +98,9 @@ document.addEventListener("DOMContentLoaded", function () {
         if (res.ok) {
           alert("✅ Upload Successful!");
           if (uploadBox) uploadBox.style.display = "none"; // Hide uploader
+          document.getElementById('summary-container').classList.remove('hidden');
+          showSummary(); // 👈 this ensures summary content loads
+
         } else {
           alert("❌ Upload failed. Please try again.");
         }
