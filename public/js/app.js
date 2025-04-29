@@ -216,7 +216,7 @@ function showSummary(data) {
   summaryContainer.scrollIntoView({ behavior: 'smooth' });
 
   // ✅ Now reveal the download button section
-  downloadSection.style.display = 'block';
+  downloadSection.style.display = 'none';
 }
 
 // 📄 Download the project summary when button is clicked
