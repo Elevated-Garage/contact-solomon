@@ -127,5 +127,57 @@ document.addEventListener("DOMContentLoaded", function () {
         alert("❌ Error skipping. Please try again.");
       }
     });
+    // --- Summary generation logic ---
+
+async function showSummary() {
+  const summaryContainer = document.getElementById('summary-container');
+  const summaryContent = document.getElementById('summary-content');
+
+  try {
+    const res = await fetch('/generate-summary', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-session-id': sessionId
+      }
+    });
+
+    const data = await res.json();
+
+    summaryContent.innerHTML = `
+      <p><strong>Full Name:</strong> ${data.full_name || 'N/A'}</p>
+      <p><strong>Email:</strong> ${data.email || 'N/A'}</p>
+      <p><strong>Phone:</strong> ${data.phone || 'N/A'}</p>
+      <p><strong>Garage Goals:</strong> ${data.garage_goals || 'N/A'}</p>
+      <p><strong>Square Footage:</strong> ${data.square_footage || 'N/A'}</p>
+      <p><strong>Must-Have Features:</strong> ${data.must_have_features || 'N/A'}</p>
+      <p><strong>Budget:</strong> ${data.budget || 'N/A'}</p>
+      <p><strong>Start Date:</strong> ${data.start_date || 'N/A'}</p>
+      <p><strong>Final Notes:</strong> ${data.final_notes || 'N/A'}</p>
+      <p><strong>Garage Photo Upload:</strong> ${data.garage_photo_upload || 'N/A'}</p>
+    `;
+
+    summaryContainer.style.display = "block";
+  } catch (err) {
+    console.error("❌ Error generating summary:", err.message);
+    alert("❌ Error generating project summary. Please try again.");
   }
+}
+
+document.getElementById('download-summary').addEventListener('click', () => {
+  const summary = document.getElementById('summary-content').innerText;
+  const blob = new Blob([summary], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'garage_project_summary.txt';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+});
+
+document.getElementById('confirm-summary').addEventListener('click', async () => {
+  alert('✅ Project summary confirmed. Our team will reach out soon!');
+  // Redirect or reset UI here if you want
 });
