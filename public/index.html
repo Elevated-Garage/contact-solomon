@@ -1022,6 +1022,17 @@ svg.ai-style-change-5 {
 </div>
 </div>
 <div id="typing" style="display:none;">Solomon is typing...</div><form class="form-col" id="chat-form" onsubmit="event.preventDefault();">
+<div id="summary-container" style="display: none; margin-top: 2rem;">
+  <h2>📝 Your Garage Project Summary</h2>
+  <div id="summary-content" style="background: #fff; padding: 1rem; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+    <!-- Dynamic Summary Will Appear Here -->
+  </div>
+
+  <div style="margin-top: 1rem; display: flex; gap: 12px;">
+    <button id="download-summary" style="padding: 10px 20px;">Download Summary</button>
+    <button id="confirm-summary" style="padding: 10px 20px;">Confirm & Submit</button>
+  </div>
+</div>
 <style>
 #input-wrapper {
   max-width: 642px;
