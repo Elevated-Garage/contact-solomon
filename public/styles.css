@@ -123,5 +123,12 @@ body.brand {
   padding: 10px 20px;
   border-radius: 6px;
   background-color: var(--accent-color);
-  color:
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+/* === Utility Classes === */
+.margin-top-md {
+  margin-top: 16px;
+}
 
