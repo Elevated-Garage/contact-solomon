@@ -8,9 +8,6 @@ const path = require('path');
 const { google } = require('googleapis');
 require('dotenv').config();
 
-const fs = require('fs');
-const path = require('path');
-
 // Setup dynamic variables
 let solomonPrompt = fs.readFileSync(path.join(__dirname, 'prompts', 'solomon-prompt.txt'), 'utf8');
 let extractionPrompt = fs.readFileSync(path.join(__dirname, 'prompts', 'extraction-prompt.txt'), 'utf8');
