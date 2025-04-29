@@ -164,6 +164,7 @@ async function showSummary() {
     `;
 
     summaryContainer.classList.remove('hidden');
+    summaryContainer.scrollIntoView({ behavior: 'smooth' }); // 🎯 Add this line!
   } catch (err) {
     console.error("❌ Error generating summary:", err.message);
     alert("❌ Error generating project summary. Please try again.");
