@@ -1148,6 +1148,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const inputField = document.getElementById("input-field");
   const chatBox = document.getElementById("chat-box");
   window.conversationHistory = [];
+  const sessionId = "demo-session"; // Simple static ID for now
 
   if (sendButton && inputField) {
     sendButton.addEventListener("click", async function () {
@@ -1168,7 +1169,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const response = await fetch("/message", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-         body: JSON.stringify({ message: userInput })
+          body: JSON.stringify({ sessionId, message: userInput })
         });
         const data = await response.json();
 
@@ -1190,6 +1191,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 });
+
 </script>
 
 
