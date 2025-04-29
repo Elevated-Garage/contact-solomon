@@ -1024,15 +1024,17 @@ svg.ai-style-change-5 {
 <div id="typing" style="display:none;">Solomon is typing...</div><form class="form-col" id="chat-form" onsubmit="event.preventDefault();">
 <div id="summary-container" class="summary-container hidden">
   <h2>📝 Your Garage Project Summary</h2>
-  <div id="summary-content" style="background: #fff; padding: 1rem; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+
+  <div id="summary-content" class="summary-box">
     <!-- Dynamic Summary Will Appear Here -->
   </div>
 
   <div class="summary-actions">
-    <button id="download-summary" style="padding: 10px 20px;">Download Summary</button>
-    <button id="confirm-summary" style="padding: 10px 20px;">Confirm & Submit</button>
+    <button id="download-summary" class="btn-large">Download Summary</button>
+    <button id="confirm-summary" class="btn-large">Confirm & Submit</button>
   </div>
 </div>
+
 <style>
 #input-wrapper {
   max-width: 642px;
