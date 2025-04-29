@@ -35,9 +35,9 @@ function appendMessage(sender, message) {
 document.addEventListener("DOMContentLoaded", function () {
   const dragArea = document.getElementById("drag-area");
   const fileInput = document.getElementById("fileElem");
-  const thumbnailWrapper =("thumbnail-wrapper");
-  const submitBtn =("photo-submit");
-  const skipBtn =("photo-skip");
+  const thumbnailWrapper = document.getElementById("thumbnail-wrapper");
+  const submitBtn = document.getElementById("photo-submit");
+  const skipBtn = document.getElementById("photo-skip");
   const uploadBox = document.getElementById("photo-uploader");
 
   const sessionId = localStorage.getItem("solomonSession");
