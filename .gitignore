@@ -1,0 +1,15 @@
+# Node modules
+node_modules/
+
+# Environment config
+.env
+
+# Temp files (PDFs, image buffers, etc)
+temp/
+
+# Logs and system files
+*.log
+.DS_Store
+
+# VSCode settings (optional)
+.vscode/
