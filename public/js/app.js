@@ -35,9 +35,9 @@ function appendMessage(sender, message) {
 document.addEventListener("DOMContentLoaded", function () {
   const dragArea = document.getElementById("drag-area");
   const fileInput = document.getElementById("fileElem");
-  const thumbnailWrapper = document.getElementById("thumbnail-wrapper");
-  const submitBtn = document.getElementById("photo-submit");
-  const skipBtn = document.getElementById("photo-skip");
+  const thumbnailWrapper =("thumbnail-wrapper");
+  const submitBtn =("photo-submit");
+  const skipBtn =("photo-skip");
   const uploadBox = document.getElementById("photo-uploader");
 
   const sessionId = localStorage.getItem("solomonSession");
@@ -98,8 +98,37 @@ document.addEventListener("DOMContentLoaded", function () {
         if (res.ok) {
           alert("✅ Upload Successful!");
           if (uploadBox) uploadBox.style.display = "none"; // Hide uploader
-          document.getElementById('summary-container').classList.remove('hidden');
-          showSummary(); // 👈 this ensures summary content loads
+          const res = await fetch("/generate-summary", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "x-session-id": sessionId
+  }
+});
+
+const data = await res.json();
+
+// Count how many required fields are filled
+const filledCount = [
+  data.full_name,
+  data.email,
+  data.phone,
+  data.garage_goals,
+  data.square_footage,
+  data.must_have_features,
+  data.budget,
+  data.start_date,
+  data.final_notes
+].filter(Boolean).length;
+
+if (filledCount === 9) {
+  document.getElementById('summary-container').classList.remove('hidden');
+  document.getElementById('summary-container').scrollIntoView({ behavior: 'smooth' });
+  showSummary();
+} else {
+  alert("❌ You're missing some required intake steps. Please finish the questions first.");
+}
+
 
         } else {
           alert("❌ Upload failed. Please try again.");
@@ -125,8 +154,37 @@ document.addEventListener("DOMContentLoaded", function () {
         });
         alert("✅ Skipped photo upload.");
         if (uploadBox) uploadBox.style.display = "none"; // Hide uploader
-        document.getElementById('summary-container').classList.remove('hidden');
-        showSummary(); // 👈 triggers summary display
+       const res = await fetch("/generate-summary", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "x-session-id": sessionId
+  }
+});
+
+const data = await res.json();
+
+// Count how many required fields are filled
+const filledCount = [
+  data.full_name,
+  data.email,
+  data.phone,
+  data.garage_goals,
+  data.square_footage,
+  data.must_have_features,
+  data.budget,
+  data.start_date,
+  data.final_notes
+].filter(Boolean).length;
+
+if (filledCount === 9) {
+  document.getElementById('summary-container').classList.remove('hidden');
+  document.getElementById('summary-container').scrollIntoView({ behavior: 'smooth' });
+  showSummary();
+} else {
+  alert("❌ You're missing some required intake steps. Please finish the questions first.");
+}
+
 
       } catch (err) {
         console.error("❌ Error skipping photo upload:", err.message);
