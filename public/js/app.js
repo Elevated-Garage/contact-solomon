@@ -38,6 +38,9 @@ document.addEventListener("DOMContentLoaded", function () {
   const thumbnailWrapper = document.getElementById("thumbnail-wrapper");
   const submitBtn = document.getElementById("photo-submit");
   const skipBtn = document.getElementById("photo-skip");
+  const uploadBox = document.getElementById("photo-uploader");
+
+  const sessionId = localStorage.getItem("solomonSession");
 
   if (dragArea) {
     dragArea.addEventListener("click", () => fileInput.click());
@@ -70,7 +73,7 @@ document.addEventListener("DOMContentLoaded", function () {
     submitBtn.addEventListener("click", async () => {
       const files = fileInput.files;
       if (!files.length) {
-        console.warn("❌ No files selected!");
+        alert("❌ No files selected!");
         return;
       }
 
@@ -78,6 +81,10 @@ document.addEventListener("DOMContentLoaded", function () {
       for (const file of files) {
         formData.append("photos", file);
       }
+
+      // Disable button while uploading
+      submitBtn.disabled = true;
+      submitBtn.innerText = "Uploading...";
 
       try {
         const res = await fetch("/upload-photos", {
@@ -89,12 +96,17 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
         if (res.ok) {
-          console.log("✅ Photos uploaded successfully!");
+          alert("✅ Upload Successful!");
+          if (uploadBox) uploadBox.style.display = "none"; // Hide uploader
         } else {
-          console.error("❌ Photo upload failed.");
+          alert("❌ Upload failed. Please try again.");
         }
       } catch (err) {
         console.error("❌ Upload error:", err.message);
+        alert("❌ Upload error. Please check your connection.");
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerText = ""; // Put back SVG if you want, or just text
       }
     });
   }
@@ -108,9 +120,11 @@ document.addEventListener("DOMContentLoaded", function () {
             "x-session-id": sessionId
           }
         });
-        console.log("✅ Skipped photo upload.");
+        alert("✅ Skipped photo upload.");
+        if (uploadBox) uploadBox.style.display = "none"; // Hide uploader
       } catch (err) {
         console.error("❌ Error skipping photo upload:", err.message);
+        alert("❌ Error skipping. Please try again.");
       }
     });
   }
