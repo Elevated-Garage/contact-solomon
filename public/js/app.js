@@ -193,40 +193,26 @@ if (filledCount === 9) {
     });
     // --- Summary generation logic ---
 
-async function showSummary() {
+function showSummary(data) {
   const summaryContainer = document.getElementById('summary-container');
   const summaryContent = document.getElementById('summary-content');
 
-  try {
-    const res = await fetch('/generate-summary', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-session-id': sessionId
-      }
-    });
+  summaryContent.innerHTML = `
+    <p><strong>Full Name:</strong> ${data.full_name || 'N/A'}</p>
+    <p><strong>Email:</strong> ${data.email || 'N/A'}</p>
+    <p><strong>Phone:</strong> ${data.phone || 'N/A'}</p>
+    <p><strong>Garage Goals:</strong> ${data.garage_goals || 'N/A'}</p>
+    <p><strong>Square Footage:</strong> ${data.square_footage || 'N/A'}</p>
+    <p><strong>Must-Have Features:</strong> ${data.must_have_features || 'N/A'}</p>
+    <p><strong>Budget:</strong> ${data.budget || 'N/A'}</p>
+    <p><strong>Start Date:</strong> ${data.start_date || 'N/A'}</p>
+    <p><strong>Final Notes:</strong> ${data.final_notes || 'N/A'}</p>
+    <p><strong>Garage Photo Upload:</strong> ${data.garage_photo_upload || 'N/A'}</p>
+  `;
 
-    const data = await res.json();
-
-    summaryContent.innerHTML = `
-      <p><strong>Full Name:</strong> ${data.full_name || 'N/A'}</p>
-      <p><strong>Email:</strong> ${data.email || 'N/A'}</p>
-      <p><strong>Phone:</strong> ${data.phone || 'N/A'}</p>
-      <p><strong>Garage Goals:</strong> ${data.garage_goals || 'N/A'}</p>
-      <p><strong>Square Footage:</strong> ${data.square_footage || 'N/A'}</p>
-      <p><strong>Must-Have Features:</strong> ${data.must_have_features || 'N/A'}</p>
-      <p><strong>Budget:</strong> ${data.budget || 'N/A'}</p>
-      <p><strong>Start Date:</strong> ${data.start_date || 'N/A'}</p>
-      <p><strong>Final Notes:</strong> ${data.final_notes || 'N/A'}</p>
-      <p><strong>Garage Photo Upload:</strong> ${data.garage_photo_upload || 'N/A'}</p>
-    `;
-
-    summaryContainer.scrollIntoView({ behavior: 'smooth' }); // 🎯 Add this line!
-  } catch (err) {
-    console.error("❌ Error generating summary:", err.message);
-    alert("❌ Error generating project summary. Please try again.");
-  }
+  summaryContainer.scrollIntoView({ behavior: 'smooth' });
 }
+
 
 document.getElementById('download-summary').addEventListener('click', () => {
   const summary = document.getElementById('summary-content').innerText;
