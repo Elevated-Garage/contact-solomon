@@ -1148,7 +1148,12 @@ document.addEventListener("DOMContentLoaded", function () {
   const inputField = document.getElementById("input-field");
   const chatBox = document.getElementById("chat-box");
   window.conversationHistory = [];
-  const sessionId = "demo-session"; // Simple static ID for now
+  
+  const sessionId = localStorage.getItem('solomon-session-id') || (() => {
+    const id = 'session-' + Math.random().toString(36).substr(2, 9);
+    localStorage.setItem('solomon-session-id', id);
+    return id;
+  })();
 
   if (sendButton && inputField) {
     sendButton.addEventListener("click", async function () {
@@ -1191,6 +1196,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 });
+
 
 </script>
 
