@@ -11,6 +11,22 @@ require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
 
+// Setup dynamic variables
+let solomonPrompt = fs.readFileSync(path.join(__dirname, 'prompts', 'solomon-prompt.txt'), 'utf8');
+let extractionPrompt = fs.readFileSync(path.join(__dirname, 'prompts', 'extraction-prompt.txt'), 'utf8');
+
+// Watch prompt files for changes
+fs.watchFile(path.join(__dirname, 'prompts', 'solomon-prompt.txt'), (curr, prev) => {
+  console.log("♻️ Reloading solomon-prompt.txt...");
+  solomonPrompt = fs.readFileSync(path.join(__dirname, 'prompts', 'solomon-prompt.txt'), 'utf8');
+});
+
+fs.watchFile(path.join(__dirname, 'prompts', 'extraction-prompt.txt'), (curr, prev) => {
+  console.log("♻️ Reloading extraction-prompt.txt...");
+  extractionPrompt = fs.readFileSync(path.join(__dirname, 'prompts', 'extraction-prompt.txt'), 'utf8');
+});
+
+
 // Load external prompts
 const solomonPrompt = fs.readFileSync(path.join(__dirname, 'prompts', 'solomon-prompt.txt'), 'utf8');
 const extractionPrompt = fs.readFileSync(path.join(__dirname, 'prompts', 'extraction-prompt.txt'), 'utf8');
