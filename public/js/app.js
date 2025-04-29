@@ -196,7 +196,9 @@ if (filledCount === 9) {
 function showSummary(data) {
   const summaryContainer = document.getElementById('summary-container');
   const summaryContent = document.getElementById('summary-content');
+  const downloadSection = document.getElementById('summary-download'); // ✅ Make sure to select the hidden div
 
+  // Fill the summary with data
   summaryContent.innerHTML = `
     <p><strong>Full Name:</strong> ${data.full_name || 'N/A'}</p>
     <p><strong>Email:</strong> ${data.email || 'N/A'}</p>
@@ -210,10 +212,14 @@ function showSummary(data) {
     <p><strong>Garage Photo Upload:</strong> ${data.garage_photo_upload || 'N/A'}</p>
   `;
 
+  // Smooth scroll to the summary section
   summaryContainer.scrollIntoView({ behavior: 'smooth' });
+
+  // ✅ Now reveal the download button section
+  downloadSection.style.display = 'block';
 }
 
-
+// 📄 Download the project summary when button is clicked
 document.getElementById('download-summary').addEventListener('click', () => {
   const summary = document.getElementById('summary-content').innerText;
   const blob = new Blob([summary], { type: 'text/plain' });
@@ -226,6 +232,7 @@ document.getElementById('download-summary').addEventListener('click', () => {
   a.click();
   document.body.removeChild(a);
 });
+
 
 document.getElementById('confirm-summary').addEventListener('click', async () => {
   alert('✅ Project summary confirmed. Our team will reach out soon!');
