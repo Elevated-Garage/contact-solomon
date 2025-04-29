@@ -97,7 +97,6 @@ body.dark {
 
 body.brand {
   --accent-color: #EB6000;
-}
 .hidden {
   display: none;
 }
@@ -106,11 +105,11 @@ body.brand {
   margin-top: 2rem;
 }
 
-#summary-content {
+.summary-box {
   background: #fff;
   padding: 1rem;
   border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 .summary-actions {
@@ -127,6 +126,7 @@ body.brand {
   border: none;
   cursor: pointer;
 }
+
 /* === Utility Classes === */
 .margin-top-md {
   margin-top: 16px;
