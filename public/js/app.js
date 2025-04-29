@@ -124,7 +124,7 @@ const filledCount = [
 if (filledCount === 9) {
   document.getElementById('summary-container').classList.remove('hidden');
   document.getElementById('summary-container').scrollIntoView({ behavior: 'smooth' });
-  showSummary();
+  showSummary(data);
 } else {
   alert("❌ You're missing some required intake steps. Please finish the questions first.");
 }
@@ -180,7 +180,7 @@ const filledCount = [
 if (filledCount === 9) {
   document.getElementById('summary-container').classList.remove('hidden');
   document.getElementById('summary-container').scrollIntoView({ behavior: 'smooth' });
-  showSummary();
+  showSummary(data);
 } else {
   alert("❌ You're missing some required intake steps. Please finish the questions first.");
 }
