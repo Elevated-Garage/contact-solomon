@@ -221,7 +221,6 @@ async function showSummary() {
       <p><strong>Garage Photo Upload:</strong> ${data.garage_photo_upload || 'N/A'}</p>
     `;
 
-    summaryContainer.classList.remove('hidden');
     summaryContainer.scrollIntoView({ behavior: 'smooth' }); // 🎯 Add this line!
   } catch (err) {
     console.error("❌ Error generating summary:", err.message);
