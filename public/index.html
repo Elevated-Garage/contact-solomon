@@ -1197,9 +1197,35 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 });
 
+  function isClosingMessage(reply) {
+  const lowerReply = reply.toLowerCase();
 
+  const closingKeywords = [
+    "thanks",
+    "thank you",
+    "review",
+    "follow up",
+    "reach out",
+    "next steps",
+    "everything we need",
+    "completed",
+    "we'll be in touch",
+    "we have enough",
+    "we're good to go",
+    "great foundation"
+  ];
+
+  let matches = 0;
+
+  for (const keyword of closingKeywords) {
+    if (lowerReply.includes(keyword)) {
+      matches++;
+    }
+  }
+
+  return matches >= 2; // Require at least 2 closing vibes to trigger!
+}
 </script>
-
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
