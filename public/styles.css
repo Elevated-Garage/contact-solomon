@@ -83,3 +83,19 @@ button {
 #theme-switcher {
   margin-top: 1rem;
 }
+body.light {
+  --accent-color: #B91B21;
+  background-color: #ffffff;
+  color: #111;
+}
+
+body.dark {
+  --accent-color: #8a121a;
+  background-color: #111;
+  color: #f4f4f4;
+}
+
+body.brand {
+  --accent-color: #EB6000;
+}
+
