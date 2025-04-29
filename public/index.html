@@ -993,7 +993,15 @@ svg.ai-style-change-5 {
 <div id="main-centered-container"><div class="header">
 <h1>Let’s Elevate Your Garage!</h1>
 <p>Your smart garage designer is standing by—let’s build your vision together.</p>
-</div><div class="chat-box" id="chat-box">
+</div><div id="theme-switcher" style="margin-bottom: 1rem;">
+  <label for="theme" style="color: white; font-weight: bold; margin-right: 0.5rem;">Theme:</label>
+  <select id="theme" style="padding: 6px 10px; border-radius: 6px;">
+    <option value="light">Light</option>
+    <option value="dark">Dark</option>
+    <option value="brand">Brand</option>
+  </select>
+</div>
+<div class="chat-box" id="chat-box">
 <div class="message bot">👋 Hey there! Before we get started, I have a few quick questions to help design your perfect garage.</div>
 </div>
 <div class="upload-box" id="photo-uploader" style="display: none;">
@@ -1335,6 +1343,21 @@ try {
       }
     });
   }
+});
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const themeSelect = document.getElementById('theme');
+  const savedTheme = localStorage.getItem('solomonTheme') || 'light';
+  document.body.classList.add(savedTheme);
+  themeSelect.value = savedTheme;
+
+  themeSelect.addEventListener('change', (e) => {
+    document.body.className = '';
+    const selected = e.target.value;
+    document.body.classList.add(selected);
+    localStorage.setItem('solomonTheme', selected);
+  });
 });
 </script>
 </body>
