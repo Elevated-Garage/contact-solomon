@@ -179,9 +179,11 @@ app.post('/submit-final-intake', async (req, res) => {
             body: Buffer.from(pdfBuffer)
           }
         });
-
+        
         res.status(200).json({
+          success: true,
           reply: "✅ Thank you for submitting your project! Our team will review everything and reach out to you shortly.",
+          summary: intakeData, // 📢 This is your clean structured data!
           done: true
         });
       });
