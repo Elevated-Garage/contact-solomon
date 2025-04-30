@@ -33,81 +33,121 @@ function appendMessage(sender, message) {
   chatLog.scrollTop = chatLog.scrollHeight;
 }
 document.addEventListener("DOMContentLoaded", function () {
-  const dragArea = document.getElementById("drag-area");
-  const fileInput = document.getElementById("file-upload");
-  const thumbnailWrapper = document.getElementById("thumbnail-wrapper");
-  const submitBtn = document.getElementById("photo-submit");
-  const skipBtn = document.getElementById("photo-skip");
-  const uploadBox = document.getElementById("photo-uploader");
+const dragArea = document.getElementById("drag-area");
+const fileInput = document.getElementById("file-upload");
+const submitBtn = document.getElementById("photo-submit");
+const skipBtn = document.getElementById("photo-skip");
+const thumbnailWrapper = document.getElementById("thumbnail-wrapper");
 
-  const sessionId = localStorage.getItem("solomonSession");
-
-  if (dragArea && fileInput) {
+if (dragArea && fileInput) {
   dragArea.addEventListener("click", (e) => {
-    const isRemoveButton = e.target.closest('.remove-button');
-    if (!isRemoveButton) {
+    const isInsideRemovable = e.target.closest('.remove-button') || e.target.closest('.thumbnail-container');
+    const isFileInput = e.target.tagName === 'INPUT';
+
+    if (!isInsideRemovable && !isFileInput) {
       fileInput.click();
-      }
-    });
-  }
+    }
+  });
+}
 
-  if (fileInput) {
-    fileInput.addEventListener("change", function (event) {
-      const files = event.target.files;
-      thumbnailWrapper.innerHTML = '';
+if (fileInput) {
+  fileInput.addEventListener("change", function (event) {
+    const files = event.target.files;
+    thumbnailWrapper.innerHTML = '';
 
-      Array.from(files).forEach(file => {
-        const reader = new FileReader();
-        reader.onload = function (e) {
-          const container = document.createElement('div');
-          container.className = 'thumbnail-container';
+    Array.from(files).forEach(file => {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const container = document.createElement('div');
+        container.className = 'thumbnail-container';
 
-          const img = document.createElement('img');
-          img.className = 'thumbnail';
-          img.src = e.target.result;
+        const img = document.createElement('img');
+        img.className = 'thumbnail';
+        img.src = e.target.result;
 
-          container.appendChild(img);
-          thumbnailWrapper.appendChild(container);
+        const removeButton = document.createElement('button');
+        removeButton.className = 'remove-button';
+        removeButton.innerHTML = '&times;';
+        removeButton.onclick = function (event) {
+          event.stopPropagation();
+          container.remove();
         };
-        reader.readAsDataURL(file);
-      });
+
+        container.appendChild(img);
+        container.appendChild(removeButton);
+        thumbnailWrapper.appendChild(container);
+      };
+      reader.readAsDataURL(file);
     });
-  }
+  });
+}
 
-  if (submitBtn) {
-    submitBtn.addEventListener("click", async () => {
-      const files = fileInput.files;
-      if (!files.length) {
-        alert("❌ No files selected!");
-        return;
-      }
+if (submitBtn) {
+  submitBtn.addEventListener("click", async () => {
+    const files = fileInput.files;
+    if (!files.length) {
+      console.log("❌ No files selected.");
+      return;
+    }
 
-      const formData = new FormData();
-      for (const file of files) {
-        formData.append("photos", file);
-      }
+    const sessionId = localStorage.getItem("solomon-session-id");
+    const formData = new FormData();
+    for (const file of files) {
+      formData.append("photos", file);
+    }
 
-      // Disable button while uploading
-      submitBtn.disabled = true;
-      submitBtn.innerText = "Uploading...";
+    try {
+      const res = await fetch("/upload-photos", {
+        method: "POST",
+        headers: {
+          "x-session-id": sessionId
+        },
+        body: formData
+      });
 
-      try {
-        const res = await fetch("/upload-photos", {
+      if (res.ok) {
+        console.log("✅ Photos uploaded successfully!");
+        await fetch("/submit-final-intake", {
           method: "POST",
           headers: {
             "x-session-id": sessionId
-          },
-          body: formData
+          }
         });
+        console.log("✅ Final intake summary requested after photo upload.");
+      } else {
+        console.error("❌ Photo upload failed.");
+      }
+    } catch (err) {
+      console.error("❌ Error uploading photos:", err.message);
+    }
+  });
+}
 
-        if (res.ok) {
-          alert("✅ Upload Successful!");
-          if (uploadBox) uploadBox.style.display = "none"; // Hide uploader
-          const res = await fetch("/generate-summary", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-    "x-session-id": sessionId
+if (skipBtn) {
+  skipBtn.addEventListener("click", async () => {
+    const sessionId = localStorage.getItem("solomon-session-id");
+
+    try {
+      await fetch("/skip-photo-upload", {
+        method: "POST",
+        headers: {
+          "x-session-id": sessionId
+        }
+      });
+
+      console.log("✅ Photo upload skipped.");
+      await fetch("/submit-final-intake", {
+        method: "POST",
+        headers: {
+          "x-session-id": sessionId
+        }
+      });
+
+      console.log("✅ Final intake summary requested after skipping photo.");
+    } catch (err) {
+      console.error("❌ Error skipping photo upload:", err.message);
+    }
+  });
   }
 });
 
