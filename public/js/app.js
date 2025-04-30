@@ -186,25 +186,6 @@ if (filledCount === 9) {
     });
   }
 
-  if (skipBtn) {
-    skipBtn.addEventListener("click", async () => {
-      try {
-        await fetch("/skip-photo-upload", {
-          method: "POST",
-          headers: {
-            "x-session-id": sessionId
-          }
-        });
-        alert("✅ Skipped photo upload.");
-        if (uploadBox) uploadBox.style.display = "none"; // Hide uploader
-       const res = await fetch("/generate-summary", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-    "x-session-id": sessionId
-  }
-});
-
 const data = await res.json();
 
 // Count how many required fields are filled
