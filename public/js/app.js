@@ -151,8 +151,6 @@ if (skipBtn) {
   }
 });
 
-const data = await res.json();
-
 // Count how many required fields are filled
 const filledCount = [
   data.full_name,
