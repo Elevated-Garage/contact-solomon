@@ -9,6 +9,8 @@ const skipBtn = document.getElementById("photo-skip");
 const thumbnailWrapper = document.getElementById("thumbnail-wrapper");
 const sessionId = localStorage.getItem('solomonSession') || crypto.randomUUID();
 localStorage.setItem('solomonSession', sessionId);
+console.log("🧭 Using session ID:", sessionId);
+
 
 // Append message to chat log
 function appendMessage(sender, message) {
