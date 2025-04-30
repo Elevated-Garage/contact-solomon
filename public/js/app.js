@@ -7,8 +7,11 @@ const fileInput = document.getElementById("file-upload");
 const submitBtn = document.getElementById("photo-submit");
 const skipBtn = document.getElementById("photo-skip");
 const thumbnailWrapper = document.getElementById("thumbnail-wrapper");
-const sessionId = localStorage.getItem('solomonSession') || crypto.randomUUID();
-localStorage.setItem('solomonSession', sessionId);
+let sessionId = localStorage.getItem('solomonSession');
+if (!sessionId) {
+  sessionId = crypto.randomUUID();
+  localStorage.setItem('solomonSession', sessionId);
+}
 console.log("🧭 Using session ID:", sessionId);
 
 
