@@ -307,10 +307,6 @@ app.post("/update-intake", (req, res) => {
     return res.status(400).json({ error: "Missing required data." });
   }
 
-  if (!userIntakeOverrides[sessionId]) {
-    userIntakeOverrides[sessionId] = {};
-  }
-
   userIntakeOverrides[sessionId][field] = value;
   res.status(200).json({ success: true });
 });
