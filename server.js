@@ -230,6 +230,24 @@ async function extractIntakeData(conversationHistory) {
     return {};
   }
 }
+// == /update-intake route ==
+const userIntakeOverrides = {};
+
+app.post("/update-intake", (req, res) => {
+  const sessionId = req.headers["x-session-id"];
+  const { field, value } = req.body;
+
+  if (!sessionId || !field || typeof value !== "string") {
+    return res.status(400).json({ error: "Missing required data." });
+  }
+
+  if (!userIntakeOverrides[sessionId]) {
+    userIntakeOverrides[sessionId] = {};
+  }
+
+  userIntakeOverrides[sessionId][field] = value;
+  res.status(200).json({ success: true });
+});
 
 app.listen(port, () => {
   console.log(`✅ Contact Solomon backend running on port ${port}`);
