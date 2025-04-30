@@ -119,7 +119,7 @@ app.post('/message', async (req, res) => {
 
   
 // 👇 Add this inside your /message route, right after userConversations[sessionId].push(...)
-if (!userIntakeOverrides[sessionId]) {
+if (!(sessionId in userIntakeOverrides)) {
   userIntakeOverrides[sessionId] = {};
 }
 
