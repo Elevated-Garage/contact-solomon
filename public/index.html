@@ -1197,12 +1197,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
   if (dragArea && fileInput) {
     dragArea.addEventListener("click", (e) => {
-      if (e.target.closest('.remove-button') || e.target.closest('.thumbnail-container')) {
-        e.stopPropagation();
-        return;
+      const isInsideRemovable = e.target.closest('.remove-button') || e.target.closest('.thumbnail-container');
+      const isFileInput = e.target.tagName === 'INPUT';
+
+      if (!isInsideRemovable && !isFileInput) {
+        fileInput.click();
       }
-      fileInput.click();
     });
+  }
+});
 
     fileInput.addEventListener("change", function(event) {
       const files = event.target.files;
