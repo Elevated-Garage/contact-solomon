@@ -175,11 +175,15 @@ if (isJustSayingHello) {
       "final_notes"
     ];
 
-    for (const field of fields) {
-      if (extracted[field]) {
-        userIntakeOverrides[sessionId][field] = extracted[field];
-      }
-    }
+  for (const field of fields) {
+  if (
+    extracted[field] &&
+    (!userIntakeOverrides[sessionId][field] || userIntakeOverrides[sessionId][field] === "")
+  ) {
+    userIntakeOverrides[sessionId][field] = extracted[field];
+  }
+}
+
 
     console.log("📦 GPT Extracted Fields:", extracted);
     console.log("💾 Updated Overrides:", userIntakeOverrides[sessionId]);
