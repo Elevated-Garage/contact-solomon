@@ -65,6 +65,7 @@ app.use(express.static('public'));
 
 const userConversations = {};
 const userUploadedPhotos = {};
+const userIntakeOverrides = {};
 
 // === Correct OpenAI setup ===
 const openai = new OpenAI({
