@@ -23,12 +23,6 @@ fs.watchFile(path.join(__dirname, 'prompts', 'extraction-prompt.txt'), (curr, pr
   extractionPrompt = fs.readFileSync(path.join(__dirname, 'prompts', 'extraction-prompt.txt'), 'utf8');
 });
 
-
-// Load external prompts
-const solomonPrompt = fs.readFileSync(path.join(__dirname, 'prompts', 'solomon-prompt.txt'), 'utf8');
-const extractionPrompt = fs.readFileSync(path.join(__dirname, 'prompts', 'extraction-prompt.txt'), 'utf8');
-
-
 const app = express();
 const port = process.env.PORT || 10000;
 
