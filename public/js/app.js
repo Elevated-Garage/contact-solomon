@@ -34,7 +34,7 @@ function appendMessage(sender, message) {
 }
 document.addEventListener("DOMContentLoaded", function () {
   const dragArea = document.getElementById("drag-area");
-  const fileInput = document.getElementById("fileElem");
+  const fileInput = document.getElementById("file-upload");
   const thumbnailWrapper = document.getElementById("thumbnail-wrapper");
   const submitBtn = document.getElementById("photo-submit");
   const skipBtn = document.getElementById("photo-skip");

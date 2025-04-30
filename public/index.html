@@ -971,7 +971,7 @@ svg.ai-style-change-5 {
 <h2>Upload Photos</h2>
 <div class="drag-area" id="drag-area">
 <p>Drag &amp; Drop Photos Here or Click to Select</p>
-<input accept="image/*" class="file-input" id="fileElem" multiple="" type="file"/>
+<input accept="image/*" class="file-input" id="file-upload" multiple="" type="file"/>
 </div><div class="thumbnail-wrapper" id="thumbnail-wrapper"></div>
 <div style="display: flex; justify-content: center; gap: 20px; margin-top: 10px;">
 </div>
@@ -1214,7 +1214,7 @@ document.addEventListener("DOMContentLoaded", function () {
 <script>
 document.addEventListener("DOMContentLoaded", function () {
   const dragArea = document.getElementById("drag-area");
-  const fileInput = document.getElementById("fileElem");
+  const fileInput = document.getElementById("file-upload");
 
   if (dragArea && fileInput) {
     dragArea.addEventListener("click", (e) => {
