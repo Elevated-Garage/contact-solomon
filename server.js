@@ -122,63 +122,72 @@ if (!userIntakeOverrides[sessionId]) {
   userIntakeOverrides[sessionId] = {};
 }
 
-const intakeExtractionPrompt = `
-You are an intelligent intake assistant. Extract the following fields from the user’s message.
+const isJustSayingHello = /solomon.*(help|design|garage|start|hi|hello|there)/i.test(message);
 
-Even if the information is comma-separated (like "Nick De Santis, nick@domain.com, 2081234567") or embedded in casual sentences, return it as structured JSON.
+if (isJustSayingHello) {
+  console.log("🧘 Skipping field extraction: initial greeting or assistant callout.");
+} else {
+  const intakeExtractionPrompt = `
+  You are a structured intake extractor for a garage design assistant.
 
-Respond ONLY in this format — no extra explanation:
+  Extract all 9 of the following fields from the user's message. They may appear as full sentences or in a comma-separated line like:
+  "Nick De Santis, nick@elevatedgarage.com, 2086251175"
 
-{
-  "full_name": "",
-  "email": "",
-  "phone": "",
-  "garage_goals": "",
-  "square_footage": "",
-  "must_have_features": "",
-  "budget": "",
-  "start_date": "",
-  "final_notes": ""
-}
+  Always parse and assign each value to its correct field.
 
-Message: """${message}"""
-`;
+  Respond ONLY in this strict JSON format (no extra explanation):
 
-
-try {
-  const extractionCompletion = await openai.chat.completions.create({
-    model: "gpt-4",
-    messages: [
-      { role: "system", content: "You are a structured field extractor." },
-      { role: "user", content: intakeExtractionPrompt }
-    ],
-    temperature: 0
-  });
-
-  const extracted = JSON.parse(extractionCompletion.choices[0].message.content);
-
-  const fields = [
-    "full_name",
-    "email",
-    "phone",
-    "garage_goals",
-    "square_footage",
-    "must_have_features",
-    "budget",
-    "start_date",
-    "final_notes"
-  ];
-
-  for (const field of fields) {
-    if (extracted[field]) {
-      userIntakeOverrides[sessionId][field] = extracted[field];
-    }
+  {
+    "full_name": "",
+    "email": "",
+    "phone": "",
+    "garage_goals": "",
+    "square_footage": "",
+    "must_have_features": "",
+    "budget": "",
+    "start_date": "",
+    "final_notes": ""
   }
 
-console.log("📦 GPT Extracted Fields:", extracted);
-console.log("💾 Updated Overrides:", userIntakeOverrides[sessionId]);
+  Message: """${message}"""
+  `;
 
-  
+  try {
+    const extractionCompletion = await openai.chat.completions.create({
+      model: "gpt-4",
+      messages: [
+        { role: "system", content: "You are a structured field extractor." },
+        { role: "user", content: intakeExtractionPrompt }
+      ],
+      temperature: 0
+    });
+
+    const extracted = JSON.parse(extractionCompletion.choices[0].message.content);
+    const fields = [
+      "full_name",
+      "email",
+      "phone",
+      "garage_goals",
+      "square_footage",
+      "must_have_features",
+      "budget",
+      "start_date",
+      "final_notes"
+    ];
+
+    for (const field of fields) {
+      if (extracted[field]) {
+        userIntakeOverrides[sessionId][field] = extracted[field];
+      }
+    }
+
+    console.log("📦 GPT Extracted Fields:", extracted);
+    console.log("💾 Updated Overrides:", userIntakeOverrides[sessionId]);
+  } catch (err) {
+    console.warn("⚠️ GPT intake extraction failed:", err.message);
+  }
+}
+ 
 } catch (err) {
   console.warn("⚠️ GPT intake extraction failed:", err.message);
 }
