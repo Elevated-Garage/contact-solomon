@@ -20,6 +20,21 @@ function appendMessage(sender, message) {
 
 // Check if all required fields are filled
 function isIntakeComplete(data) {
+  function shouldTriggerPhotoStep(data) {
+  const requiredFields = [
+    "full_name",
+    "email",
+    "phone",
+    "garage_goals",
+    "square_footage",
+    "must_have_features",
+    "budget",
+    "start_date",
+    "final_notes"
+  ];
+  return requiredFields.every(field => data[field] && data[field].trim() !== "");
+}
+
   const filledCount = [
     data.full_name, data.email, data.phone,
     data.garage_goals, data.square_footage,
@@ -268,13 +283,20 @@ async function finalizeIntakeFlow() {
     });
     const data = await res.json();
 
-    if (isIntakeComplete(data)) {
-      showSummary(data);
-    } else {
-      missingFieldsQueue = getMissingFields(data);
-      currentMissingIndex = 0;
-      promptNextMissingField();
-    }
+    if (shouldTriggerPhotoStep(data)) {
+  const uploader = document.getElementById("photo-upload-ui");
+  if (uploader) {
+    uploader.classList.remove("hidden");
+    uploader.scrollIntoView({ behavior: 'smooth' });
+  } else {
+    console.warn("⚠️ Uploader UI not found.");
+  }
+} else {
+  missingFieldsQueue = getMissingFields(data);
+  currentMissingIndex = 0;
+  promptNextMissingField();
+}
+
   } catch (err) {
     console.error("❌ Intake submission failed:", err.message);
     appendMessage("Solomon", "Sorry, something went wrong submitting your answers. Please try again.");
