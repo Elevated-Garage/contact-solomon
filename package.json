@@ -2,20 +2,26 @@
   "name": "contact-solomon",
   "version": "1.0.0",
   "description": "Modular Contact Solomon Backend",
-  "main": "app.js",
+  "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
-    "@swc/helpers": "^0.5.17",
-    "body-parser": "^1.20.2",
-    "cors": "^2.8.5",
-    "dotenv": "^16.3.1",
     "express": "^4.18.2",
+<<<<<<< HEAD
     "googleapis": "^105.0.0",
     "iconv-lite": "^0.6.3",
     "multer": "^1.4.5-lts.1",
+=======
+>>>>>>> cb8a4486da943477f0d152a806dd70067b2ac227
     "openai": "^4.17.1",
-    "pdfkit": "^0.13.0"
+    "pdfkit": "0.13.0",
+    "iconv-lite": "^0.6.3",                 
+    "@swc/helpers": "^0.5.17",
+    "multer": "^1.4.5-lts.1",
+    "dotenv": "^16.3.1",
+    "googleapis": "^105.0.0",
+    "cors": "^2.8.5",
+    "body-parser": "^1.20.2"
   }
 }
