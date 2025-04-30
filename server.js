@@ -298,7 +298,6 @@ async function extractIntakeData(conversationHistory) {
   }
 }
 // == /update-intake route ==
-const userIntakeOverrides = {};
 
 app.post("/update-intake", (req, res) => {
   const sessionId = req.headers["x-session-id"];
