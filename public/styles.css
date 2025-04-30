@@ -81,7 +81,7 @@ button {
 }
 
 #theme-switcher {
-  margin-top: 1rem;
+  display: none;
 }
 body.light {
   --accent-color: #B91B21;
