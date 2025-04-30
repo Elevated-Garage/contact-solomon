@@ -634,6 +634,27 @@ input[type="range"]::-moz-range-thumb {
   display: none; /* Chrome, Safari, Opera */
 }
 
+.drag-area {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 150px;
+  width: 100%;
+  cursor: pointer;
+  position: relative;
+  z-index: 1;
+}
+
+.drag-area p {
+  pointer-events: none;
+  font-size: 1rem;
+  color: #B91B21;
+  margin: 0;
+}
+
+.file-input {
+  display: none;
+}
 
 input[type="date"] {
   padding: 10px 14px;
