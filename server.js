@@ -123,8 +123,11 @@ if (!userIntakeOverrides[sessionId]) {
 }
 
 const intakeExtractionPrompt = `
-Extract the following fields from the message if they are present.
-Respond ONLY in this JSON format (no extra text):
+You are an intelligent intake assistant. Extract the following fields from the user’s message.
+
+Even if the information is comma-separated (like "Nick De Santis, nick@domain.com, 2081234567") or embedded in casual sentences, return it as structured JSON.
+
+Respond ONLY in this format — no extra explanation:
 
 {
   "full_name": "",
@@ -138,8 +141,9 @@ Respond ONLY in this JSON format (no extra text):
   "final_notes": ""
 }
 
-Message: ${message}
+Message: """${message}"""
 `;
+
 
 try {
   const extractionCompletion = await openai.chat.completions.create({
