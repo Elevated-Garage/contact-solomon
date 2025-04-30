@@ -307,13 +307,13 @@ app.post("/update-intake", (req, res) => {
     return res.status(400).json({ error: "Missing required data." });
   }
 
+  if (!(sessionId in userIntakeOverrides)) {
+    userIntakeOverrides[sessionId] = {};
+  }
+
   userIntakeOverrides[sessionId][field] = value;
   res.status(200).json({ success: true });
-});
-
+}); // 👈 you were missing this closing parenthesis!
 app.listen(port, () => {
   console.log(`✅ Contact Solomon backend running on port ${port}`);
 });
-
-// == END OF SERVER ==
-
