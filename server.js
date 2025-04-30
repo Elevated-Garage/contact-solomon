@@ -187,10 +187,7 @@ if (isJustSayingHello) {
     console.warn("⚠️ GPT intake extraction failed:", err.message);
   }
 }
- 
-} catch (err) {
-  console.warn("⚠️ GPT intake extraction failed:", err.message);
-}
+
 
   try {
     const conversationHistory = [
