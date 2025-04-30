@@ -174,6 +174,11 @@ try {
       userIntakeOverrides[sessionId][field] = extracted[field];
     }
   }
+
+console.log("📦 GPT Extracted Fields:", extracted);
+console.log("💾 Updated Overrides:", userIntakeOverrides[sessionId]);
+
+  
 } catch (err) {
   console.warn("⚠️ GPT intake extraction failed:", err.message);
 }
