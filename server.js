@@ -116,6 +116,64 @@ app.post('/message', async (req, res) => {
 
   userConversations[sessionId].push({ role: 'user', content: message });
 
+  
+// 👇 Add this inside your /message route, right after userConversations[sessionId].push(...)
+if (!userIntakeOverrides[sessionId]) {
+  userIntakeOverrides[sessionId] = {};
+}
+
+const intakeExtractionPrompt = `
+Extract the following fields from the message if they are present.
+Respond ONLY in this JSON format (no extra text):
+
+{
+  "full_name": "",
+  "email": "",
+  "phone": "",
+  "garage_goals": "",
+  "square_footage": "",
+  "must_have_features": "",
+  "budget": "",
+  "start_date": "",
+  "final_notes": ""
+}
+
+Message: ${message}
+`;
+
+try {
+  const extractionCompletion = await openai.chat.completions.create({
+    model: "gpt-4",
+    messages: [
+      { role: "system", content: "You are a structured field extractor." },
+      { role: "user", content: intakeExtractionPrompt }
+    ],
+    temperature: 0
+  });
+
+  const extracted = JSON.parse(extractionCompletion.choices[0].message.content);
+
+  const fields = [
+    "full_name",
+    "email",
+    "phone",
+    "garage_goals",
+    "square_footage",
+    "must_have_features",
+    "budget",
+    "start_date",
+    "final_notes"
+  ];
+
+  for (const field of fields) {
+    if (extracted[field]) {
+      userIntakeOverrides[sessionId][field] = extracted[field];
+    }
+  }
+} catch (err) {
+  console.warn("⚠️ GPT intake extraction failed:", err.message);
+}
+
   try {
     const conversationHistory = [
       { role: "system", content: solomonPrompt },
