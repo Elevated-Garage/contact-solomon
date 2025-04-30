@@ -90,7 +90,7 @@ if (submitBtn) {
       return;
     }
 
-    const sessionId = localStorage.getItem("solomon-session-id");
+    const sessionId = localStorage.getItem("solomonSession");
     const formData = new FormData();
     for (const file of files) {
       formData.append("photos", file);
@@ -125,7 +125,7 @@ if (submitBtn) {
 
 if (skipBtn) {
   skipBtn.addEventListener("click", async () => {
-    const sessionId = localStorage.getItem("solomon-session-id");
+    const sessionId = localStorage.getItem("solomonSession");
 
     try {
       await fetch("/skip-photo-upload", {
