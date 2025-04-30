@@ -175,6 +175,8 @@ if (isJustSayingHello) {
       "final_notes"
     ];
 
+    console.log("📂 BEFORE merge:", JSON.stringify(userIntakeOverrides[sessionId], null, 2));
+    
   for (const field of fields) {
   if (
     extracted[field] &&
@@ -184,9 +186,10 @@ if (isJustSayingHello) {
   }
 }
 
+    console.log("💾 AFTER merge:", JSON.stringify(userIntakeOverrides[sessionId], null, 2));
 
     console.log("📦 GPT Extracted Fields:", extracted);
-    console.log("💾 Updated Overrides:", userIntakeOverrides[sessionId]);
+    console.log("💾 Full Overrides Snapshot:", JSON.stringify(userIntakeOverrides[sessionId], null, 2));
   } catch (err) {
     console.warn("⚠️ GPT intake extraction failed:", err.message);
   }
