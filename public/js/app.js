@@ -18,9 +18,7 @@ function appendMessage(sender, message) {
   chatLog.scrollTop = chatLog.scrollHeight;
 }
 
-// Check if all required fields are filled
-function isIntakeComplete(data) {
-  function shouldTriggerPhotoStep(data) {
+ function shouldTriggerPhotoStep(data) {
   const requiredFields = [
     "full_name",
     "email",
@@ -35,6 +33,8 @@ function isIntakeComplete(data) {
   return requiredFields.every(field => data[field] && data[field].trim() !== "");
 }
 
+// Check if all required fields are filled
+function isIntakeComplete(data) {
   const filledCount = [
     data.full_name, data.email, data.phone,
     data.garage_goals, data.square_footage,
