@@ -105,6 +105,8 @@ app.post('/upload-photos', upload.array('photos'), (req, res) => {
 // == /message route ==
 app.post('/message', async (req, res) => {
   let sessionId = req.headers['x-session-id'] || generateSessionId();
+  console.log("🧭 Session ID:", sessionId);
+
   const { message } = req.body;
 
   if (!message || typeof message !== 'string' || message.trim() === '') {
