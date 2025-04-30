@@ -122,7 +122,10 @@ app.post('/submit-final-intake', async (req, res) => {
 
   try {
     const intakeData = await extractIntakeData(conversationHistory);
-    const hasRealData = intakeData && Object.keys(intakeData).length > 0;
+    const overrides = userIntakeOverrides?.[sessionId] || {};
+    const mergedData = { ...intakeData, ...overrides };
+    const hasRealData = Object.keys(mergedData).length > 0;
+
     const hasUploadedPhotos = uploadedPhotos.length > 0;
 
     if (hasRealData || hasUploadedPhotos) {
@@ -162,16 +165,16 @@ app.post('/submit-final-intake', async (req, res) => {
       pdfDoc.fontSize(22).text('Garage Project Summary', { align: 'center' }).moveDown(2);
 
       pdfDoc.fontSize(14);
-      pdfDoc.text(`Full Name: ${intakeData.full_name}`).moveDown(0.5);
-      pdfDoc.text(`Email: ${intakeData.email}`).moveDown(0.5);
-      pdfDoc.text(`Phone: ${intakeData.phone}`).moveDown(0.5);
-      pdfDoc.text(`Garage Goals: ${intakeData.garage_goals}`).moveDown(0.5);
-      pdfDoc.text(`Square Footage: ${intakeData.square_footage}`).moveDown(0.5);
-      pdfDoc.text(`Must-Have Features: ${intakeData.must_have_features}`).moveDown(0.5);
-      pdfDoc.text(`Budget: ${intakeData.budget}`).moveDown(0.5);
-      pdfDoc.text(`Preferred Start Date: ${intakeData.start_date}`).moveDown(0.5);
-      pdfDoc.text(`Final Notes: ${intakeData.final_notes}`).moveDown(0.5);
-      pdfDoc.text(`Garage Photo Upload: ${intakeData.garage_photo_upload}`).moveDown(0.5);
+      pdfDoc.text(`Full Name: ${mergedData.full_name}`).moveDown(0.5);
+      pdfDoc.text(`Email: ${mergedData.email}`).moveDown(0.5);
+      pdfDoc.text(`Phone: ${mergedData.phone}`).moveDown(0.5);
+      pdfDoc.text(`Garage Goals: ${mergedData.garage_goals}`).moveDown(0.5);
+      pdfDoc.text(`Square Footage: ${mergedData.square_footage}`).moveDown(0.5);
+      pdfDoc.text(`Must-Have Features: ${mergedData.must_have_features}`).moveDown(0.5);
+      pdfDoc.text(`Budget: ${mergedData.budget}`).moveDown(0.5);
+      pdfDoc.text(`Preferred Start Date: ${mergedData.start_date}`).moveDown(0.5);
+      pdfDoc.text(`Final Notes: ${mergedData.final_notes}`).moveDown(0.5);
+      pdfDoc.text(`Garage Photo Upload: ${mergedData.garage_photo_upload}`).moveDown(0.5);
 
       if (uploadedPhotos.length > 0) {
         for (const file of uploadedPhotos) {
