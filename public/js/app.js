@@ -42,8 +42,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const sessionId = localStorage.getItem("solomonSession");
 
-  if (dragArea) {
-    dragArea.addEventListener("click", () => fileInput.click());
+  if (dragArea && fileInput) {
+  dragArea.addEventListener("click", (e) => {
+    const isRemoveButton = e.target.closest('.remove-button');
+    if (!isRemoveButton) {
+      fileInput.click();
+      }
+    });
   }
 
   if (fileInput) {
