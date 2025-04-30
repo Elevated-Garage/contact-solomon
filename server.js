@@ -2,11 +2,45 @@ const express = require('express');
 const multer = require('multer');
 const OpenAI = require('openai');
 const { v4: uuidv4 } = require('uuid');
-const PDFDocument = require('pdfkit');
+const { PDFDocument, StandardFonts, rgb } = require('pdf-lib');
 const fs = require('fs');
 const path = require('path');
 const { google } = require('googleapis');
 require('dotenv').config();
+
+async function generateSummaryPDF(data) {
+  const pdfDoc = await PDFDocument.create();
+  const page = pdfDoc.addPage();
+  const { width, height } = page.getSize();
+  const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+  const fontSize = 12;
+  let y = height - 50;
+
+  const drawLine = (label, value) => {
+    page.drawText(`${label}: ${value || 'N/A'}`, {
+      x: 50,
+      y,
+      size: fontSize,
+      font,
+      color: rgb(0, 0, 0)
+    });
+    y -= 20;
+  };
+
+  drawLine('Full Name', data.full_name);
+  drawLine('Email', data.email);
+  drawLine('Phone', data.phone);
+  drawLine('Garage Goals', data.garage_goals);
+  drawLine('Square Footage', data.square_footage);
+  drawLine('Must-Have Features', data.must_have_features);
+  drawLine('Budget', data.budget);
+  drawLine('Preferred Start Date', data.start_date);
+  drawLine('Final Notes', data.final_notes);
+
+  const pdfBytes = await pdfDoc.save();
+  return Buffer.from(pdfBytes);
+}
+
 
 // Setup dynamic variables
 let solomonPrompt = fs.readFileSync(path.join(__dirname, 'prompts', 'solomon-prompt.txt'), 'utf8');
@@ -123,72 +157,27 @@ app.post('/submit-final-intake', async (req, res) => {
     const hasUploadedPhotos = uploadedPhotos.length > 0;
 
     if (hasRealData || hasUploadedPhotos) {
-      const footerText = "\u00a9 Elevated Garage - Built with Excellence";
-      const pdfDoc = new PDFDocument({ autoFirstPage: false });
-      const pdfBuffers = [];
+const pdfBuffer = await generateSummaryPDF(mergedData);
 
-      pdfDoc.on('data', chunk => pdfBuffers.push(chunk));
-      pdfDoc.on('end', async () => {
-        const pdfBuffer = Buffer.concat(pdfBuffers);
+await drive.files.create({
+  requestBody: {
+    name: `Garage_Project_Summary_${Date.now()}.pdf`,
+    mimeType: 'application/pdf',
+    parents: [process.env.GOOGLE_DRIVE_FOLDER_ID]
+  },
+  media: {
+    mimeType: 'application/pdf',
+    body: Buffer.from(pdfBuffer)
+  }
+});
 
-        await drive.files.create({
-          requestBody: {
-            name: `Garage_Project_Summary_${Date.now()}.pdf`,
-            mimeType: 'application/pdf',
-            parents: [process.env.GOOGLE_DRIVE_FOLDER_ID]
-          },
-          media: {
-            mimeType: 'application/pdf',
-            body: Buffer.from(pdfBuffer)
-          }
-        });
-        
-        res.status(200).json({
-          success: true,
-          reply: "✅ Thank you for submitting your project! Our team will review everything and reach out to you shortly.",
-          summary: intakeData, // 📢 This is your clean structured data!
-          done: true
-        });
-      });
+res.status(200).json({
+  success: true,
+  reply: "✅ Thank you for submitting your project! Our team will review everything and reach out to you shortly.",
+  summary: mergedData,
+  done: true
+});
 
-      pdfDoc.addPage();
-      const logoPath = path.join(__dirname, 'public', 'logo.png');
-      if (fs.existsSync(logoPath)) {
-        pdfDoc.image(logoPath, { fit: [150, 150], align: 'center' }).moveDown(1.5);
-      }
-      pdfDoc.fontSize(22).text('Garage Project Summary', { align: 'center' }).moveDown(2);
-
-      pdfDoc.fontSize(14);
-      pdfDoc.text(`Full Name: ${mergedData.full_name}`).moveDown(0.5);
-      pdfDoc.text(`Email: ${mergedData.email}`).moveDown(0.5);
-      pdfDoc.text(`Phone: ${mergedData.phone}`).moveDown(0.5);
-      pdfDoc.text(`Garage Goals: ${mergedData.garage_goals}`).moveDown(0.5);
-      pdfDoc.text(`Square Footage: ${mergedData.square_footage}`).moveDown(0.5);
-      pdfDoc.text(`Must-Have Features: ${mergedData.must_have_features}`).moveDown(0.5);
-      pdfDoc.text(`Budget: ${mergedData.budget}`).moveDown(0.5);
-      pdfDoc.text(`Preferred Start Date: ${mergedData.start_date}`).moveDown(0.5);
-      pdfDoc.text(`Final Notes: ${mergedData.final_notes}`).moveDown(0.5);
-      pdfDoc.text(`Garage Photo Upload: ${mergedData.garage_photo_upload}`).moveDown(0.5);
-
-      if (uploadedPhotos.length > 0) {
-        for (const file of uploadedPhotos) {
-          pdfDoc.addPage();
-          pdfDoc.fontSize(16).text('Uploaded Garage Photo', { align: 'center' }).moveDown(1);
-          const tempPath = path.join(__dirname, 'temp_' + Date.now() + '_' + file.originalname);
-          fs.writeFileSync(tempPath, file.buffer);
-          pdfDoc.image(tempPath, { fit: [450, 300], align: 'center', valign: 'center' });
-          fs.unlinkSync(tempPath);
-        }
-      }
-
-      const range = pdfDoc.bufferedPageRange();
-      for (let i = range.start; i < range.start + range.count; i++) {
-        pdfDoc.switchToPage(i);
-        pdfDoc.fontSize(8).text(footerText, 50, 770, { align: 'center', width: 500 });
-        pdfDoc.text(`Page ${i + 1} of ${range.count}`, 50, 785, { align: 'center', width: 500 });
-      }
-
-      pdfDoc.end();
 
     } else {
       console.log(`⚠️ [${sessionId}] No sufficient intake data or uploaded photos.`);
