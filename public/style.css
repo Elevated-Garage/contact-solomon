@@ -40,9 +40,9 @@ html, body {
 
 body::before {
   content: "";
-  background: url('/branding/elevatedgarage/watermark.png') center center no-repeat;
+  background: /branding/ElevatedGarage/Elevated Garage Icon Final.png;
   background-size: contain;
-  opacity: 0.05;
+  opacity: 0.03;
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
   z-index: 0;
