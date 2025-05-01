@@ -105,33 +105,30 @@ body::before {
 /* === Form Input & Buttons === */
 
 #input-wrapper {
-  display: flex;
+  display: inline-flex; /* ✅ shrink to fit content */
   align-items: center;
   gap: 10px;
   padding: 10px 16px;
-  background-color: transparent; /* Make background see-through */
-  border: transparent;      /* Make the border see-through */
-  border-radius: 12px;            /* Rounded rectangle look */
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-  max-width: 700px;
+  background-color: transparent;
+  border: 2px solid #B91B21; /* ✅ red border */
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
   margin: 1.5rem auto 0 auto;
   position: relative;
   z-index: 2;
 }
 
-
 #input-field {
   flex: 1;
   padding: 10px 12px;
-  border: 2px solid #B91B21; /* match wrapper border */
-  border-radius: 8px;         /* gentle rounded corners */
-  background-color: #fff;
+  border: none; /* ✅ Remove border */
+  border-radius: 8px; /* Keep rounded corners */
+  background-color: #ffffff; /* ✅ Opaque white background */
   min-height: 40px;
   font-size: 15px;
   color: #111;
   outline: none;
 }
-
 
 #send-button {
   background-color: #B91B21;
