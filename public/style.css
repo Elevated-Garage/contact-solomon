@@ -181,3 +181,44 @@ button:hover, #send-button:hover {
   0%, 100% { box-shadow: 0 0 5px #EB6000; }
   50% { box-shadow: 0 0 12px #EB6000; }
 }
+
+/* === Input Wrapper and Form Column === */
+#input-wrapper {
+  display: flex;
+  gap: 10px;
+  margin-top: 1rem;
+}
+
+.form-col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* === Additional Input Types === */
+input[type="range"] {
+  width: 100%;
+  accent-color: #B91B21;
+}
+
+input[type="date"] {
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+/* === Responsive Layout for Mobile Devices === */
+@media (max-width: 600px) {
+  .chat-box {
+    padding: 0.5rem;
+  }
+  input[type="text"], input[type="date"] {
+    padding: 8px;
+  }
+  button {
+    padding: 8px 12px;
+  }
+  .summary-actions {
+    flex-direction: column;
+  }
+}
