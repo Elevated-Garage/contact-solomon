@@ -108,11 +108,12 @@ body::before {
   display: inline-flex; /* ✅ shrink to fit content */
   align-items: center;
   gap: 10px;
-  padding: 10px 16px;
+  padding: 8px 14px;
   background-color: transparent;
   border: 2px solid #B91B21; /* ✅ red border */
   border-radius: 12px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  max-width: 700px;
   margin: 1.5rem auto 0 auto;
   position: relative;
   z-index: 2;
