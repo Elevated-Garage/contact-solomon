@@ -105,15 +105,16 @@ body::before {
 /* === Form Input & Buttons === */
 
 #input-wrapper {
-  display: inline-flex; /* ✅ shrink to fit content */
+  display: flex;
   align-items: center;
   gap: 10px;
-  padding: 8px 14px;
+  width: 678px; /* ✅ Exact width */
+  height: 66.4px; /* ✅ Exact height */
+  padding: 10px 16px;
   background-color: transparent;
-  border: 2px solid #B91B21; /* ✅ red border */
+  border: 2px solid #B91B21;
   border-radius: 12px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-  max-width: 700px;
   margin: 1.5rem auto 0 auto;
   position: relative;
   z-index: 2;
