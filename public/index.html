@@ -1116,6 +1116,10 @@ document.addEventListener("DOMContentLoaded", function () {
       console.log("🛑 Blocking photo intent because missing fields are still pending.");
       return;
     }
+    if (shouldTrigger) {
+      console.log("📸 Triggering photo uploader");
+      uploader.style.display = "block";
+    }
   });
 });
 </script><script>
