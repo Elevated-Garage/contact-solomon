@@ -86,16 +86,13 @@ body::before {
 
 /* === Messages === */
 .message {
-  font-family: 'Segoe UI', sans-serif;
-  padding: 0.8rem 1rem;              /* tight and balanced spacing */
-  border-radius: 18px;              /* rounded bubble feel */
-  margin-bottom: 0.6rem;            /* spacing between bubbles */
+  margin-bottom: 0.6rem;
+  padding: 0.8rem 0.1rem; /* compact vertical & horizontal padding */
+  border-radius: 14px;
   max-width: 80%;
-  line-height: 1.4;                 /* readable but tidy line height */
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1); /* soft elevated shadow */
-  background: #fce7e7;              /* light red tone for bot */
-  color: #B91B21;                   /* main brand red for text */
-  align-self: flex-start;           /* align to left for bot message */
+  line-height: 1.4; /* slightly tighter line height */
+  white-space: pre-wrap;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.06); /* soft and subtle shadow */
 }
 
 .user {
