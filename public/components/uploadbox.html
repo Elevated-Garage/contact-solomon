@@ -1,0 +1,21 @@
+<div id="photo-uploader" class="upload-box" style="display: none;">
+  <h2>Upload Photos</h2>
+  <div class="drag-area" id="drag-area">
+    <input id="file-upload" type="file" accept="image/*" multiple style="display: none;" />
+    <p>Drag & Drop Photos Here or Click to Select</p>
+  </div>
+  <div id="thumbnail-wrapper" class="thumbnail-wrapper"></div>
+  <div style="display: flex; justify-content: center; gap: 24px; margin-top: 16px;">
+    <button id="photo-submit" class="submit-button" title="Submit Photos" aria-label="Submit Photos">
+      <svg class="ai-style-change-5" viewBox="0 0 24 24" fill="none" stroke="#B91B21" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="20 6 9 17 4 12"></polyline>
+      </svg>
+    </button>
+    <button id="photo-skip" class="submit-button skip-button" title="Skip Upload" aria-label="Skip Upload">
+      <svg class="ai-style-change-5" viewBox="0 0 24 24" fill="none" stroke="#B91B21" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+        <line x1="6" y1="18" x2="18" y2="6"></line>
+      </svg>
+    </button>
+  </div>
+</div>
