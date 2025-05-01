@@ -1,254 +1,36 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Let’s Elevate Your Garage!</title>
-
-<link rel="stylesheet" href="/style.css">
-  
-<style>
-  body {
-    margin: 0;
-    padding: 0;
-    font-family: sans-serif;
-    color: #222;
-  }
-  h1, h2, p {
-    margin: 0;
-    padding-bottom: 0.5rem;
-  }
-  body::before {
-    content: "";
-    position: fixed;
-    z-index: -1;
-    top: 0; left: 0; right: 0; bottom: 0;
-    pointer-events: none;
-  }
-</style>
+  <meta charset="UTF-8">
+  <title>Solomon Modular</title>
+  <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
   <div id="app">
     <div id="main-centered-container">
-      
-      <!-- Header -->
-      <div class="header">
-        <h1></h1>
-        <p></p>
-      </div>
-
-      <!-- Chat Area -->
-      <div class="chat-box" id="chat-box">
-        <div class="message bot">
-          👋 Hey there! Before we get started, I have a few quick questions to help design your perfect garage.
-        </div>
-
-        <!-- Chat Log -->
-        <div id="chat-log"></div>
-
-        <!-- Input Field + Upload Button -->
-        <div id="input-wrapper">
-          <div class="thumbnail-preview" id="preview-thumbnails"></div>
-          <label for="file-upload" class="upload-button" style="font-size: 40px; cursor: pointer; user-select: none; color: #B91B21;">
-            <span style="color: white;">+</span>
-          </label>
-          <div id="input-field" contenteditable="true" placeholder="Type your message...">   Solomon, can you help me design my garage? </div>
-          <button id="send-button" style="width: 64.59px; height: 31.5px; padding: 0;">Send</button>
-        </div>
-      </div>
-
-      <!-- Typing Indicator -->
-      <div id="typing" style="display: none;">Solomon is typing...</div>
-
-      <!-- Upload Photo Box -->
-      <div id="photo-uploader" class="upload-box" style="display: none;">
-        <h2>Upload Photos</h2>
-        <div class="drag-area" id="drag-area">
-          <input id="file-upload" type="file" accept="image/*" multiple style="display: none;" />
-          <p>Drag & Drop Photos Here or Click to Select</p>
-        </div>
-        <div id="thumbnail-wrapper" class="thumbnail-wrapper"></div>
-        <div style="display: flex; justify-content: center; gap: 24px; margin-top: 16px;">
-          <button id="photo-submit" class="submit-button" title="Submit Photos" aria-label="Submit Photos">
-            <svg class="ai-style-change-5" viewBox="0 0 24 24" fill="none" stroke="#B91B21" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="20 6 9 17 4 12"></polyline>
-            </svg>
-          </button>
-          <button id="photo-skip" class="submit-button skip-button" title="Skip Upload" aria-label="Skip Upload">
-            <svg class="ai-style-change-5" viewBox="0 0 24 24" fill="none" stroke="#B91B21" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="6" y1="6" x2="18" y2="18"></line>
-              <line x1="6" y1="18" x2="18" y2="6"></line>
-            </svg>
-          </button>
-        </div>
-      </div>
-
-      <!-- Summary -->
-      <form id="chat-form" class="form-col" onsubmit="event.preventDefault();">
-        <div id="summary-container" class="summary-container hidden">
-          <h2>📝 Your Garage Project Summary</h2>
-          <div id="summary-content" class="summary-box"></div>
-          <div class="summary-actions">
-            <button id="download-summary" class="btn-large">Download Summary</button>
-            <button id="confirm-summary" class="btn-large">Confirm & Submit</button>
-          </div>
-        </div>
-      </form>
-
-    </div>
-
-    <!-- Bottom Summary Download (fallback/confirmation) -->
-    <div id="summary-download" style="display: none; margin-top: 20px; text-align: center;">
-      <button id="download-summary" type="button">📄 Download My Submission</button>
+      <div id="header"></div>
+      <div id="chatbox"></div>
+      <div id="uploadbox"></div>
+      <div id="typing" style="display:none;">Solomon is typing...</div>
+      <div id="summary"></div>
+      <div id="input"></div>
     </div>
   </div>
-
-  <!-- Scripts -->
-  <script>
-    // Your script logic here
+  <script type="module">
+    async function loadComponent(id, file) {
+      const container = document.getElementById(id);
+      if (container) {
+        const html = await fetch(`/components/${file}`).then(r => r.text());
+        container.innerHTML = html;
+      }
+    }
+    await Promise.all([
+      loadComponent("header", "header.html"),
+      loadComponent("chatbox", "chatbox.html"),
+      loadComponent("uploadbox", "uploadbox.html"),
+      loadComponent("summary", "summary.html"),
+      loadComponent("input", "input.html")
+    ]);
   </script>
 </body>
-
-document.addEventListener("DOMContentLoaded", function () {
-  document.addEventListener("aiReply", function (e) {
-    const msg = e.detail.message?.toLowerCase() || "";
-    const uploader = document.getElementById("photo-uploader");
-
-    if (!uploader) {
-      console.warn("❌ Uploader element not found!");
-      return;
-    }
-
-    const triggerPhrases = [
-      "upload a photo",
-      "garage photo",
-      "photo of your garage",
-      "photo of your space",
-      "send a picture",
-      "attach a photo",
-      "garage snapshot",
-      "help our designers"
-    ];
-
-    const shouldTrigger =
-      triggerPhrases.some(phrase => msg.includes(phrase)) ||
-      (msg.includes("photo") && msg.includes("garage"));
-
-    if (msg.includes("could you let me know:")) {
-      console.log("🛑 Blocking photo intent because missing fields are still pending.");
-      return;
-    }
-    if (shouldTrigger) {
-      console.log("📸 Triggering photo uploader");
-      uploader.style.display = "block";
-    }
-  });
-});
-</script><script>
-document.addEventListener("DOMContentLoaded", function () {
-  const sendButton = document.getElementById("send-button");
-  const inputField = document.getElementById("input-field");
-  const chatBox = document.getElementById("chat-box");
-  window.conversationHistory = [];
-  
-  const sessionId = localStorage.getItem('solomon-session-id') || (() => {
-    const id = 'session-' + Math.random().toString(36).substr(2, 9);
-    localStorage.setItem('solomon-session-id', id);
-    return id;
-  })();
-
-  if (sendButton && inputField) {
-    sendButton.addEventListener("click", async function () {
-      const userInput = inputField.innerText.trim();
-      if (!userInput) return;
-
-      const userDiv = document.createElement("div");
-      userDiv.className = "message user";
-      userDiv.innerText = userInput;
-      chatBox.appendChild(userDiv);
-      chatBox.scrollTo({ top: chatBox.scrollHeight, behavior: "smooth" });
-
-      window.conversationHistory.push({ role: "user", content: userInput });
-
-      inputField.innerText = "";
-
-      try {
-        const response = await fetch("/message", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-    "x-session-id": sessionId
-  },
-  body: JSON.stringify({ message: userInput })
-});
-
-
-        const data = await response.json();
-
-        if (data && data.reply) {
-          const botDiv = document.createElement("div");
-          botDiv.className = "message bot";
-          botDiv.innerHTML = data.reply;
-          chatBox.appendChild(botDiv);
-          chatBox.scrollTo({ top: chatBox.scrollHeight, behavior: "smooth" });
-
-          window.conversationHistory.push({ role: "assistant", content: data.reply });
-
-          const event = new CustomEvent("aiReply", { detail: { message: data.reply } });
-          document.dispatchEvent(event);
-        }
-      } catch (error) {
-        console.error("❌ Error sending message:", error);
-      }
-    });
-  }
-});
-
-  function isClosingMessage(reply) {
-  const lowerReply = reply.toLowerCase();
-
-  const closingKeywords = [
-    "thanks",
-    "thank you",
-    "review",
-    "follow up",
-    "reach out",
-    "next steps",
-    "everything we need",
-    "completed",
-    "we'll be in touch",
-    "we have enough",
-    "we're good to go",
-    "great foundation"
-  ];
-
-  let matches = 0;
-
-  for (const keyword of closingKeywords) {
-    if (lowerReply.includes(keyword)) {
-      matches++;
-    }
-  }
-
-  return matches >= 2; // Require at least 2 closing vibes to trigger!
-}
-</script>
-<script src="app.js"></script>
-
-<script type="module">
-  const clientId = new URLSearchParams(window.location.search).get("client") || "ElevatedGarage";
-
-
-  Promise.all([
-    import(`/branding/${clientId}/branding-ui.js`),
-    import(`/js/applyBranding.js`)
-  ]).then(([branding, helper]) => {
-    helper.applyBranding(branding.uiBranding);
-  }).catch(err => {
-    console.warn("⚠️ Branding failed to load:", err);
-  });
-</script>
-</body>
 </html>
-
