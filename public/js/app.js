@@ -289,7 +289,7 @@ async function finalizeIntakeFlow() {
     const data = await res.json();
 
     if (shouldTriggerPhotoStep(data)) {
-  const uploader = document.getElementById("photo-upload-ui");
+  const uploader = document.getElementById("photo-uploader");
   if (uploader) {
     uploader.classList.remove("hidden");
     uploader.scrollIntoView({ behavior: 'smooth' });
