@@ -205,11 +205,6 @@ body::before {
 }
 
 /* === Input Wrapper and Form Column === */
-#input-wrapper {
-  display: flex;
-  gap: 10px;
-  margin-top: 1rem;
-}
 
 .form-col {
   display: flex;
