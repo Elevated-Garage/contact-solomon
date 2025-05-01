@@ -116,20 +116,16 @@ body::before {
   z-index: 2;
 }
 
-
-
-
 #input-field {
   flex: 1;
   padding: 10px 12px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  border: 2px solid #B91B21; /* match wrapper border */
+  border-radius: 8px;         /* gentle rounded corners */
   background-color: #fff;
   min-height: 40px;
   font-size: 15px;
   color: #111;
   outline: none;
-  box-shadow: inset 0 1px 2px rgba(0,0,0,0.04);
 }
 
 #send-button {
