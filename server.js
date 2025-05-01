@@ -130,30 +130,7 @@ const isJustSayingHello = /solomon.*(help|design|garage|start|hi|hello|there)/i.
 if (isJustSayingHello) {
   console.log("🧘 Skipping field extraction: initial greeting or assistant callout.");
 } else {
-  const intakeExtractionPrompt = `
-  You are a structured intake extractor for a garage design assistant.
-
-  Extract all 9 of the following fields from the user's message. They may appear as full sentences or in a comma-separated line like:
-  "Nick De Santis, nick@elevatedgarage.com, 2086251175"
-
-  Always parse and assign each value to its correct field.
-
-  Respond ONLY in this strict JSON format (no extra explanation):
-
-  {
-    "full_name": "",
-    "email": "",
-    "phone": "",
-    "garage_goals": "",
-    "square_footage": "",
-    "must_have_features": "",
-    "budget": "",
-    "start_date": "",
-    "final_notes": ""
-  }
-
-  Message: """${message}"""
-  `;
+  const intakeExtractionPrompt = extractionPrompt.replace("{{message}}", message);
 
   try {
     const extractionCompletion = await openai.chat.completions.create({
