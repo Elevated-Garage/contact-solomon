@@ -87,7 +87,7 @@ body::before {
 /* === Messages === */
 .message {
   margin-bottom: 0.6rem;
-  padding: 0.8rem 0.1rem; /* compact vertical & horizontal padding */
+  padding: 0.5rem 0.8rem; /* compact vertical & horizontal padding */
   border-radius: 14px;
   max-width: 80%;
   line-height: 1.4; /* slightly tighter line height */
