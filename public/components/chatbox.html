@@ -1,6 +1,19 @@
 <div class="chat-box" id="chat-box">
+  <!-- Initial greeting message -->
   <div class="message bot">
     👋 Hey there! Before we get started, I have a few quick questions to help design your perfect garage.
   </div>
+
+  <!-- Dynamic chat log -->
   <div id="chat-log"></div>
+
+  <!-- Typing indicator -->
+  <div id="typing" style="display:none;">Solomon is typing...</div>
+
+  <!-- Input field embedded INSIDE the chat box -->
+  <div id="input-wrapper">
+    <div class="thumbnail-preview" id="preview-thumbnails"></div>
+    <div id="input-field" contenteditable="true">Solomon, can you help me design my garage?</div>
+    <button id="send-button" style="width: 64.59px; height: 31.5px; padding: 0;">Send</button>
+  </div>
 </div>
