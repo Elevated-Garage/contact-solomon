@@ -198,7 +198,8 @@ document.addEventListener("DOMContentLoaded", function () {
 <script src="app.js"></script>
 
 <script type="module">
-  const clientId = new URLSearchParams(window.location.search).get("client") || "default";
+  const clientId = new URLSearchParams(window.location.search).get("client") || "ElevatedGarage";
+
 
   Promise.all([
     import(`/branding/${clientId}/branding-ui.js`),
