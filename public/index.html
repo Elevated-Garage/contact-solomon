@@ -1241,5 +1241,32 @@ document.addEventListener("DOMContentLoaded", function () {
 </script>
 
 <script src="app.js"></script>
+
+<script type="module">
+  const clientId = new URLSearchParams(window.location.search).get("client") || "default";
+
+  import(`/branding/${clientId}/branding-ui.js`).then(({ uiBranding }) => {
+    // 💄 Apply UI Branding
+    document.querySelector("h1").textContent = uiBranding.title;
+    document.querySelector(".header p").textContent = uiBranding.subtitle;
+    document.body.style.backgroundColor = uiBranding.backgroundColor;
+
+    const style = document.createElement("style");
+    style.innerHTML = `
+      .bot { background: ${uiBranding.bubbleColorBot}; color: ${uiBranding.primaryColor}; }
+      .user { background: ${uiBranding.bubbleColorUser}; color: #333; }
+      button, #send-button { background-color: ${uiBranding.primaryColor}; }
+      button:hover, #send-button:hover { background-color: ${uiBranding.accentColor}; }
+      body::before {
+        background: url('${uiBranding.watermarkImage}') center center no-repeat;
+        background-size: 75%;
+        opacity: ${uiBranding.watermarkOpacity};
+      }
+    `;
+    document.head.appendChild(style);
+  }).catch(err => {
+    console.warn("⚠️ Failed to load branding:", err);
+  });
+</script>
 </body>
 </html>
