@@ -119,14 +119,14 @@ body::before {
 #input-field {
   flex: 1;
   padding: 10px 12px;
-  border: 2px solid #B91B21; /* match wrapper border */
-  border-radius: 8px;         /* gentle rounded corners */
-  background-color: #fff;
+  border: none;
+  background-color: transparent;
   min-height: 40px;
   font-size: 15px;
   color: #111;
   outline: none;
 }
+
 
 #send-button {
   background-color: #B91B21;
