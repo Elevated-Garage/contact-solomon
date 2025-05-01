@@ -1,6 +1,6 @@
 export const uiBranding = {
-  title: "Let’s Elevate Your Garage!",
-  subtitle: "Your smart garage designer is standing by—Let’s build your vision together.",
+  title: "Let's Elevate Your Garage!",
+  subtitle: "Your smart garage designer is standing by—Let's build your vision together.",
 
   logoPath: "/branding/ElevatedGarage/9.png",
   watermarkImage: "/branding/ElevatedGarage/Elevated Garage Icon Final.png",
