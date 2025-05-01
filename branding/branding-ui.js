@@ -2,7 +2,7 @@ export const uiBranding = {
   title: "Solomon",
   subtitle: "Your Garage Design Assistant",
   logoPath: "/public/logo.png",
-  watermarkImage: "/public/watermark.png",
+  watermarkImage: "public/assets/Elevated Garage Icon Final.png",
   primaryColor: "#B91B21",
   accentColor: "#EB6200",
   backgroundColor: "#ffffff",
