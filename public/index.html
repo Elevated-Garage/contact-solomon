@@ -204,28 +204,6 @@ document.addEventListener("DOMContentLoaded", function () {
 </script>
 <script>
   document.addEventListener("DOMContentLoaded", () => {
-    // ⛔️ Hide the dropdown for users
-    const themeContainer = document.getElementById("theme-switcher");
-    if (themeContainer) {
-      themeContainer.style.display = "none";
-    }
-
-    // 🌈 Load and apply saved theme
-    const themeSelect = document.getElementById('theme');
-    const savedTheme = localStorage.getItem('solomonTheme') || 'light';
-    document.body.classList.add(savedTheme);
-    themeSelect.value = savedTheme;
-
-    themeSelect.addEventListener('change', (e) => {
-      document.body.className = '';
-      const selected = e.target.value;
-      document.body.classList.add(selected);
-      localStorage.setItem('solomonTheme', selected);
-    });
-  });
-</script>
-<script>
-  document.addEventListener("DOMContentLoaded", () => {
     const themeContainer = document.getElementById("theme-switcher");
     if (themeContainer) {
       themeContainer.style.display = "none";
