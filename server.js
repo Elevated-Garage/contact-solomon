@@ -68,6 +68,7 @@ const userUploadedPhotos = {};
 const userIntakeOverrides = {};
 
 // === Correct OpenAI setup ===
+const ENABLE_AI_DONE_CHECK = false;
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 }); // <<< this closing bracket was missing
@@ -202,6 +203,40 @@ if (isJustSayingHello) {
       const assistantReply = completion.choices[0].message.content;
       userConversations[sessionId].push({ role: 'assistant', content: assistantReply });
       res.status(200).json({ reply: assistantReply, done: false, sessionId });
+
+// === Done-check logic ===
+const requiredFields = [
+  "full_name", "email", "phone", "garage_goals", "square_footage",
+  "must_have_features", "budget", "start_date", "final_notes"
+];
+
+const isFieldComplete = requiredFields.every(field =>
+  userIntakeOverrides[sessionId]?.[field] &&
+  userIntakeOverrides[sessionId][field].trim() !== ""
+);
+
+let isAIDone = false;
+
+if (ENABLE_AI_DONE_CHECK && !isFieldComplete) {
+  try {
+    const doneCheck = await openai.chat.completions.create({
+      model: "gpt-3.5-turbo",
+      messages: [
+        {
+          role: "system",
+          content: "You are a completion checker. Based on this chat history, respond ONLY with JSON: {\"done\": true} or {\"done\": false}."
+        },
+        ...conversationHistory
+      ],
+      temperature: 0
+    });
+
+    const parsed = JSON.parse(doneCheck.choices[0].message.content);
+    isAIDone = parsed.done === true;
+  } catch (err) {
+    console.warn("⚠️ GPT done-check failed:", err.message);
+  }
+}
     } else {
       console.error("❌ OpenAI returned no choices.");
       res.status(500).json({ reply: "Sorry, I couldn't generate a response.", done: false, sessionId });
