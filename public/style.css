@@ -155,15 +155,19 @@ body::before {
 #input-wrapper {
   position: sticky;
   bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
   background-color: rgba(185, 27, 33, 0.1); /* soft red tint */
   backdrop-filter: blur(6px);              /* frosted effect */
   z-index: 10;
   padding: 12px 16px;
   border-top: 1px solid rgba(185, 27, 33, 0.25); /* subtle red border */
   flex-shrink: 0;
-  border-radius: 12px; /* optional rounded corners */
+  border-radius: 12px;
+  box-shadow: 0 -2px 8px rgba(185, 27, 33, 0.1);
 }
-
 
 #input-field {
   flex: 1;
