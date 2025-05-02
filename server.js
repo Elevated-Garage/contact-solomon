@@ -202,7 +202,7 @@ if (isJustSayingHello) {
     if (completion && completion.choices && completion.choices.length > 0) {
       const assistantReply = completion.choices[0].message.content;
       userConversations[sessionId].push({ role: 'assistant', content: assistantReply });
-      res.status(200).json({ reply: assistantReply, done: false, sessionId });
+      res.status(200).json({ reply: assistantReply, done: isFieldComplete, sessionId });
 
 // === Done-check logic ===
 const requiredFields = [
