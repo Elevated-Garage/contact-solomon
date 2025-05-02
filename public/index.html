@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Solomon Modular</title>
   <link rel="stylesheet" href="/style.css" />
 </head>
@@ -11,20 +11,26 @@
 
       <div id="header"></div>
 
-      <!-- Chat Section should fill space -->
+      <!-- Main Chat Section -->
       <div id="chat-section">
         <div id="chatbox"></div>
-        <div id="typing"></div>      <!-- ✅ Modular typing component -->
-        <div id="summary"></div>     <!-- ✅ Modular summary component -->
+        <div id="typing"></div>
+        <div id="summary"></div>
         <div id="uploadbox"></div>
-      </div>
 
-       
+        <!-- ✅ Properly placed sticky input wrapper -->
+        <div id="input-wrapper">
+          <div id="preview-thumbnails" class="thumbnail-preview"></div>
+          <div id="input-field" contenteditable="true">Solomon, can you help me design my garage?</div>
+          <button id="send-button">Send</button>
+        </div>
+      </div>
 
       <div id="footer"></div>
     </div>
   </div>
 
+  <!-- Component Loader -->
   <script type="module">
     async function loadComponent(id, file) {
       const container = document.getElementById(id);
@@ -37,9 +43,9 @@
     await Promise.all([
       loadComponent("header", "header.html"),
       loadComponent("chatbox", "chatbox.html"),
-      loadComponent("typing", "typing.html"),     // ✅ NEW
-      loadComponent("summary", "summary.html"),
       loadComponent("uploadbox", "uploadbox.html"),
+      loadComponent("typing", "typing.html"),
+      loadComponent("summary", "summary.html"),
       loadComponent("footer", "footer.html")
     ]);
   </script>
