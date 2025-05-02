@@ -7,15 +7,21 @@
 </head>
 <body>
   <div id="app">
-    <div id="main-centered-container">
-      <div id="header"></div>
+  <div id="main-centered-container">
+    
+    <div id="header"></div>
+
+    <div id="chat-section">
       <div id="chatbox"></div>
       <div id="uploadbox"></div>
       <div id="typing" style="display:none;">Solomon is typing...</div>
       <div id="summary"></div>
-      <div id="footer"></div>
     </div>
+
+    <div id="footer"></div>
   </div>
+</div>
+
   <script type="module">
     async function loadComponent(id, file) {
       const container = document.getElementById(id);
