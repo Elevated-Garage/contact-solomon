@@ -155,13 +155,15 @@ body::before {
 #input-wrapper {
   position: sticky;
   bottom: 0;
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(6px);
+  background-color: rgba(185, 27, 33, 0.1); /* soft red tint */
+  backdrop-filter: blur(6px);              /* frosted effect */
   z-index: 10;
   padding: 12px 16px;
-  border-top: 1px solid #ccc;
+  border-top: 1px solid rgba(185, 27, 33, 0.25); /* subtle red border */
   flex-shrink: 0;
+  border-radius: 12px; /* optional rounded corners */
 }
+
 
 #input-field {
   flex: 1;
