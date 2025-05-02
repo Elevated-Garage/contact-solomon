@@ -40,6 +40,7 @@ html, body {
 }
 
  #app {
+  flex: 1;
   display: flex;
   flex-direction: column;
   height: 100vh;
@@ -123,7 +124,7 @@ body::before {
 /* === Messages === */
 .message {
   display: inline-flex; /* ✅ makes the bubble hug the content */
-  align-items: center;
+  align-items: flex-start;
   gap: 8px; /* space between emoji and text */
   margin-bottom: 0.5rem;
   padding: 0.5rem 0.75rem;
@@ -146,6 +147,7 @@ body::before {
   background-color: #fce7e7;
   color: #B91B21;
   margin-right: auto;
+  text-align: left;
 }
 
 /* === Form Input & Buttons === */
