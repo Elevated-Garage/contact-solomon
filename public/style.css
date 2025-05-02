@@ -39,21 +39,19 @@ html, body {
   height: 100%;
 }
 
-
-  #app {
+ #app {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
-  background-color: transparent;
+  height: 100%;
 }
 
 #main-centered-container {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  min-height: 100vh;
-  overflow: hidden; /* ✅ Helps avoid scroll bleed from inner containers */
+  flex: 1;
+  height: 100%;
 }
+
 body::before {
   content: "";
   background: url('/branding/ElevatedGarage/Elevated%20Garage%20Icon%20Final.png') center center no-repeat;
@@ -138,22 +136,14 @@ body::before {
 /* === Form Input & Buttons === */
 
 #input-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  width: 678px;
-  height: 66.4px;
-  padding: 10px 16px;
-  background-color: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(8px);
-  border: 2px solid #B91B21;
-  border-radius: 12px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-  margin: 0 auto 1rem auto;
-  position: relative;
-  z-index: 2;
+  position: sticky;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(6px);
+  z-index: 10;
+  padding: 12px 16px;
+  border-top: 1px solid #ccc;
 }
-
 
 #input-field {
   flex: 1;
@@ -168,7 +158,6 @@ body::before {
   display: flex;
   align-items: center;
 }
-
 
 #send-button {
   background-color: #B91B21;
