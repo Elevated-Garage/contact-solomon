@@ -1,6 +1,6 @@
 
 const form = document.getElementById('chat-form');
-const input = document.getElementById('user-input');
+const input = document.getElementById('input-field'); // update from 'user-input'
 const chatLog = document.getElementById('chat-log');
 const dragArea = document.getElementById("drag-area");
 const fileInput = document.getElementById("file-upload");
@@ -95,11 +95,11 @@ async function finalizeIntakeFlow() {
 // Form submission (chat)
 form?.addEventListener('submit', async (e) => {
   e.preventDefault();
-  const userMessage = input.value.trim();
+  const userMessage = input.innerText.trim(); // ✅ use innerText for contenteditable div
   if (!userMessage) return;
 
   appendMessage('You', userMessage);
-  input.value = '';
+  input.innerText = '';
 
   try {
     const res = await fetch('/message', {
