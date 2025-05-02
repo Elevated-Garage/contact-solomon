@@ -256,7 +256,7 @@ app.post('/submit-final-intake', async (req, res) => {
   try {
     const intakeData = await extractIntakeData(conversationHistory);
     const overrides = userIntakeOverrides?.[sessionId] || {};
-    const mergedData = { ...intakeData, ...overrides };
+    const mergedData = { ...overrides, ...intakeData };
     const hasRealData = Object.keys(mergedData).length > 0;
 
     const hasUploadedPhotos = uploadedPhotos.length > 0;
