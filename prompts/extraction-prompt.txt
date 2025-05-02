@@ -10,7 +10,7 @@ Return a single valid JSON object with the following fields:
 - "email": Preferred email address
 - "phone": A valid contact number
 - "garage_goals": Primary purpose or vision for the garage (e.g. "home gym", "organized storage", "workshop")
-- "square_footage": Rough garage size (e.g. “400 sq ft”, “2-car”, or estimate like “400ish”)
+- "square_footage": Rough garage size. Accept both numeric answers (e.g. "454") and estimates (e.g. “400 sq ft”, “2-car”, “About 800”). If the user replies with just a number, assume they are giving a square footage measurement.
 - "must_have_features": Any specific requests or requirements (e.g. "sauna", "flooring", "cold plunge", "lighting")
 - "budget": Estimated project budget or phrasing like “under 20k”
 - "start_date": When the project should begin (e.g. “next month”, “ASAP”, “June”). If the user says they do not have a start date or are unsure, extract: "start_date": "no date yet".
