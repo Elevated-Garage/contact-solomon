@@ -86,16 +86,18 @@ body::before {
 
 /* === Messages === */
 .message {
-  display: flex;
-  align-items: center; /* vertically center content */
-  gap: 8px; /* optional space between emoji and text */
+  display: inline-flex; /* ✅ makes the bubble hug the content */
+  align-items: center;
+  gap: 8px; /* space between emoji and text */
   margin-bottom: 0.5rem;
   padding: 0.5rem 0.75rem;
-  border-radius: 14px;
-  max-width: 80%;
+  border-radius: 18px; /* more bubble-like */
+  max-width: 85%; /* allow for slightly longer lines */
+  font-size: 1rem;
   line-height: 1.4;
   white-space: pre-wrap;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.06);
+  word-break: break-word; /* ensures clean line breaks */
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
 }
 
 .user {
