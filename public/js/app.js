@@ -285,7 +285,6 @@ if (shouldTriggerPhotoStep(data)) {
   } else {
     console.warn("❌ #photo-uploader not found in DOM.");
   }
-}
 
 } else {
   missingFieldsQueue = getMissingFields(data);
