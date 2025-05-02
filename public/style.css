@@ -102,9 +102,10 @@ body::before {
 
   display: flex;
   flex-direction: column;
-  flex-grow: 1;               /* Allow to expand in container */
-  overflow-y: auto;           /* Scroll if needed */
-  min-height: 0;              /* Prevent layout issues */
+  /* REMOVE conflicting layout rules */
+  flex-grow: unset;
+  overflow-y: unset;
+  min-height: unset;
 }
 
 #chat-log {
