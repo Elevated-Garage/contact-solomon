@@ -6,24 +6,28 @@
   <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
- <div id="app">
+<div id="app">
   <div id="main-centered-container">
 
     <div id="header"></div>
 
+    <!-- Chat Section should fill space -->
     <div id="chat-section">
-      <div id="chatbox"></div>
-      <div id="uploadbox"></div>
-      <div id="chat-log"></div>
-      <div id="typing">Solomon is typing...</div>
+      <div id="chatbox">
+        <div id="chat-log"></div>
+        <div id="typing">Solomon is typing...</div>
+      </div>
+
+      <!-- Sticky Input at bottom of chat-section -->
       <div id="input-wrapper">...</div>
     </div>
 
-    
+    <div id="uploadbox"></div>
     <div id="footer"></div>
 
   </div>
 </div>
+
 
 
   <script type="module">
