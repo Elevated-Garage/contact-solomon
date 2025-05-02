@@ -39,6 +39,15 @@ html, body {
   height: 100%;
 }
 
+#app, #main-centered-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  overflow: hidden;
+}
+
 body::before {
   content: "";
   background: url('/branding/ElevatedGarage/Elevated%20Garage%20Icon%20Final.png') center center no-repeat;
