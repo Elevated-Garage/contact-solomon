@@ -272,14 +272,11 @@ async function finalizeIntakeFlow() {
     });
     const data = await res.json();
 
-  console.log("📦 Intake data received:", data);
-console.log("🔍 shouldTriggerPhotoStep:", shouldTriggerPhotoStep(data));
-
 if (shouldTriggerPhotoStep(data)) {
+  console.log("📸 Attempting to show photo uploader...");
   const uploader = document.getElementById("photo-uploader");
-  console.log("📍 Attempting to show #photo-uploader...");
   if (uploader) {
-    console.log("✅ Found uploader. Showing it now.");
+    console.log("✅ Found uploader. Displaying it.");
     uploader.classList.remove("hidden");
     uploader.scrollIntoView({ behavior: 'smooth' });
   } else {
