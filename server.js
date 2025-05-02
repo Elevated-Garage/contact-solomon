@@ -214,13 +214,6 @@ const isFieldComplete = requiredFields.every(field =>
 );
 
 // 🧠 Let frontend know if AI should prompt the photo upload
-res.status(200).json({
-  reply: assistantReply,
-  done: isFieldComplete,
-  sessionId
-});
-
-
 // === Done-check logic ===
 const requiredFields = [
   "full_name", "email", "phone", "garage_goals", "square_footage",
@@ -254,15 +247,15 @@ if (ENABLE_AI_DONE_CHECK && !isFieldComplete) {
     console.warn("⚠️ GPT done-check failed:", err.message);
   }
 }
-    } else {
-      console.error("❌ OpenAI returned no choices.");
-      res.status(500).json({ reply: "Sorry, I couldn't generate a response.", done: false, sessionId });
-    }
-  } catch (error) {
-    console.error("❌ OpenAI Error:", error.response ? error.response.data : error.message);
-    res.status(500).json({ reply: "Sorry, I had an issue responding.", done: false, sessionId });
-  }
+
+const done = ENABLE_AI_DONE_CHECK ? isAIDone || isFieldComplete : isFieldComplete;
+
+res.status(200).json({
+  reply: assistantReply,
+  done,
+  sessionId
 });
+
 
 // == /submit-final-intake route ==
 app.post('/submit-final-intake', async (req, res) => {
