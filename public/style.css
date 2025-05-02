@@ -39,13 +39,21 @@ html, body {
   height: 100%;
 }
 
-#app, #main-centered-container {
+
+  #app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: transparent;
+}
+
+#main-centered-container {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: 100vh; /* not height! */
+  min-height: 100vh;
+  overflow: hidden; /* ✅ Helps avoid scroll bleed from inner containers */
 }
-
 body::before {
   content: "";
   background: url('/branding/ElevatedGarage/Elevated%20Garage%20Icon%20Final.png') center center no-repeat;
