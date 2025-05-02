@@ -48,11 +48,11 @@ html, body {
 
 #main-centered-container {
   display: flex;
-  flex: 1;
   flex-direction: column;
-  min-height: 0;
+  flex-grow: 1;
+  height: 100%; /* ensures it fills available space */
+  min-height: 0; /* allows child overflow to be managed */
 }
-
 
 #chat-section {
   display: flex;
