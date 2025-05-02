@@ -15,7 +15,7 @@ Return a single valid JSON object with the following fields:
 - "budget": Estimated project budget or phrasing like “under 20k”
 - "start_date": When the project should begin (e.g. “next month”, “ASAP”, “June”)
 - "final_notes": Additional notes, edge cases, repairs, requests, or anything shared near the end
-- "garage_photo_upload": Leave this blank. It is only set by the user clicking a skip button in the interface — not through conversation. Do not extract this field unless the user *explicitly says* 'skip the photo step' or similar. Do not assume based on unrelated responses.
+- "garage_photo_upload": Leave this blank. It is only set by the user clicking a skip button in the interface — not through conversation. Do not extract this field unless the user explicitly says something like "skip the photo step" or "I don’t want to upload a photo." Never infer this based on unrelated answers.
 
 ⚠️ If a field is not mentioned, leave it as an empty string. Do NOT guess, do NOT generate placeholder values.
 
