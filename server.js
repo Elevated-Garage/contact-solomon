@@ -106,13 +106,11 @@ app.post("/skip-photo-upload", (req, res) => {
   const sessionId = req.headers["x-session-id"];
   if (!sessionId) return res.status(400).send("Missing session ID");
 
-  // Assume photo upload is marked in memory or DB
-  if (!intakeSessions[sessionId]) intakeSessions[sessionId] = {};
-  intakeSessions[sessionId].garage_photo_upload = "Skipped";
+  if (!userIntakeOverrides[sessionId]) userIntakeOverrides[sessionId] = {};
+  userIntakeOverrides[sessionId].garage_photo_upload = "Skipped";
 
   res.status(200).send({ message: "Photo upload skipped." });
 });
-
 
 // == /message route ==
 app.post('/message', async (req, res) => {
