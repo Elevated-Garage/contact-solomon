@@ -39,12 +39,12 @@ html, body {
   height: 100%;
 }
 
- #app {
-  flex: 1;
+#app {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 100%;
 }
+
 
 #main-centered-container {
   display: flex;
