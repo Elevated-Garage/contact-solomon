@@ -144,7 +144,7 @@ if (isJustSayingHello) {
 
   try {
     const extractionCompletion = await openai.chat.completions.create({
-      model: "gpt-4",
+      model: "gpt-3.5-turbo",
       messages: [
         { role: "system", content: "You are a structured field extractor." },
         { role: "user", content: intakeExtractionPrompt }
