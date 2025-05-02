@@ -215,8 +215,11 @@ const intakeFieldPrompts = {
 };
 
 function getMissingFields(data) {
-  return Object.keys(intakeFieldPrompts).filter(field => !data[field]);
+  return Object.keys(intakeFieldPrompts).filter(field =>
+    !data[field] || data[field].trim() === ""
+  );
 }
+
 
 let missingFieldsQueue = [];
 let currentMissingIndex = 0;
