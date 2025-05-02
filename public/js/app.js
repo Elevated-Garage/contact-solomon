@@ -1,5 +1,6 @@
 
 const form = document.getElementById('chat-form');
+console.log("✅ form element:", form);
 const input = document.getElementById('input-field'); // update from 'user-input'
 const chatLog = document.getElementById('chat-log');
 const dragArea = document.getElementById("drag-area");
