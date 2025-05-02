@@ -154,7 +154,8 @@ body::before {
 }
 
 #send-button:hover {
-  background-color: #EB6000;
+  background-color: #FFFFFF;
+  color: #B91B21;
 }
 
 
