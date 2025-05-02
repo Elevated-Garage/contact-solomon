@@ -3,6 +3,7 @@ const form = document.getElementById('chat-form');
 console.log("✅ form element:", form);
 const input = document.getElementById('input-field'); // update from 'user-input'
 const chatLog = document.getElementById('chat-log');
+appendMessage("Solomon", "👋 Hey there! Before we get started, I have a few quick questions to help design your perfect garage.");
 const dragArea = document.getElementById("drag-area");
 const fileInput = document.getElementById("file-upload");
 const submitBtn = document.getElementById("photo-submit");
