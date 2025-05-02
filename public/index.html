@@ -6,21 +6,24 @@
   <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
-  <div id="app">
+ <div id="app">
   <div id="main-centered-container">
-    
+
     <div id="header"></div>
 
     <div id="chat-section">
       <div id="chatbox"></div>
       <div id="uploadbox"></div>
-      <div id="typing" style="display:none;">Solomon is typing...</div>
-      <div id="summary"></div>
+      <div id="chat-log"></div>
+      <div id="typing">Solomon is typing...</div>
     </div>
 
+    <div id="input-wrapper">...</div>
     <div id="footer"></div>
+
   </div>
 </div>
+
 
   <script type="module">
     async function loadComponent(id, file) {
