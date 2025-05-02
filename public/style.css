@@ -138,7 +138,7 @@ body::before {
   background-color: #ffffff; /* ✅ Opaque white background */
   min-height: 40px;
   font-size: 15px;
-  color: #111;
+  color: #B91B21;
   outline: none;
 }
 
