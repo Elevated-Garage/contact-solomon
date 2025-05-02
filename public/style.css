@@ -56,7 +56,6 @@ body::before {
   margin-bottom: 1.5rem;
   padding: 1.5rem;
   background: radial-gradient(circle, rgba(185,27,33,0.15) 0%, transparent 70%);
-  box-shadow: 0 4px 20px rgba(185, 27, 33, 0.15); /* soft red fog glow */
   border-radius: 12px;
 }
 .header h1 {
@@ -103,13 +102,13 @@ body::before {
 
 .user {
   background-color: #B91B21;
-  color: #fff;
+  color: #fce7e7;
   margin-left: auto;
   text-align: right;
 }
 .bot {
   background-color: #fce7e7;
-  color: #222;
+  color: #B91B21;
   margin-right: auto;
 }
 
