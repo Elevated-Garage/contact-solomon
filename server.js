@@ -242,12 +242,11 @@ await drive.files.create({
 });
 
 res.status(200).json({
+  ...mergedData,
   success: true,
   reply: "✅ Thank you for submitting your project! Our team will review everything and reach out to you shortly.",
-  summary: mergedData,
   done: true
 });
-
 
     } else {
       console.log(`⚠️ [${sessionId}] No sufficient intake data or uploaded photos.`);
