@@ -272,14 +272,21 @@ async function finalizeIntakeFlow() {
     });
     const data = await res.json();
 
-    if (shouldTriggerPhotoStep(data)) {
+  console.log("📦 Intake data received:", data);
+console.log("🔍 shouldTriggerPhotoStep:", shouldTriggerPhotoStep(data));
+
+if (shouldTriggerPhotoStep(data)) {
   const uploader = document.getElementById("photo-uploader");
+  console.log("📍 Attempting to show #photo-uploader...");
   if (uploader) {
+    console.log("✅ Found uploader. Showing it now.");
     uploader.classList.remove("hidden");
     uploader.scrollIntoView({ behavior: 'smooth' });
   } else {
-    console.warn("⚠️ Uploader UI not found.");
+    console.warn("❌ #photo-uploader not found in DOM.");
   }
+}
+
 } else {
   missingFieldsQueue = getMissingFields(data);
   currentMissingIndex = 0;
