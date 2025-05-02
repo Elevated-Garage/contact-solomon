@@ -40,12 +40,10 @@ html, body {
 }
 
 #app, #main-centered-container {
-  flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  height: 100%;
-  overflow: hidden;
+  justify-content: space-between; /* keeps top content up, input at bottom */
+  height: 100vh; /* ensures full-screen fit */
 }
 
 body::before {
@@ -146,6 +144,7 @@ body::before {
   margin: 1.5rem auto 0 auto;
   position: relative;
   z-index: 2;
+  margin-top: auto;
 }
 
 #input-field {
