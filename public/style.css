@@ -119,20 +119,10 @@ body::before {
 
 /* === Messages === */
 .message {
-  display: inline-flex; /* ✅ makes the bubble hug the content */
-  align-items: flex-start;
-  gap: 8px; /* space between emoji and text */
+  display: flex;
+  justify-content: flex-start;
   margin-bottom: 0.5rem;
-  padding: 0.5rem 0.75rem;
-  border-radius: 18px; /* more bubble-like */
-  max-width: 85%; /* allow for slightly longer lines */
-  font-size: 1rem;
-  line-height: 1.4;
-  white-space: pre-wrap;
-  word-break: break-word; /* ensures clean line breaks */
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
 }
-
 .message.user {
   justify-content: flex-end;
 }
