@@ -3,7 +3,7 @@
   --text-color: #333;
   --accent-color: #B91B21;
   --header-bg: var(--accent-color);
-  --chat-bg: #ffffff;
+  --chat-bg: Transparent;
 }
 
 body.light {
