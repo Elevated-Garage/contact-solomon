@@ -19,10 +19,12 @@ console.log("🧭 Using session ID:", sessionId);
 // Append message to chat log
 function appendMessage(sender, message) {
   const msg = document.createElement('div');
-  msg.innerHTML = `<strong>${sender}:</strong> ${message}`;
+  msg.classList.add('message', sender === 'You' ? 'user' : 'bot');
+  msg.innerHTML = `<div class="bubble">${message}</div>`;
   chatLog.appendChild(msg);
   chatLog.scrollTop = chatLog.scrollHeight;
 }
+
 
  function shouldTriggerPhotoStep(data) {
   const requiredFields = [
