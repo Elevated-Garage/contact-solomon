@@ -49,8 +49,9 @@ html, body {
 #main-centered-container {
   display: flex;
   flex-direction: column;
-  height: 100vh;           /* Fill entire screen */
-  overflow: hidden;        /* Prevent scroll bleed */
+  flex-grow: 1;
+  height: 100vh;
+  overflow: hidden;
 }
 
 #chat-section {
@@ -100,13 +101,14 @@ body::before {
   position: relative;
   z-index: 1;
 
+  /* 🛠 FIXED: make it flexible */
   display: flex;
   flex-direction: column;
-  /* REMOVE conflicting layout rules */
-  flex-grow: unset;
-  overflow-y: unset;
-  min-height: unset;
+  flex-grow: 1;
+  min-height: 0;
+  overflow-y: auto;
 }
+
 
 #chat-log {
   flex-grow: 1;
