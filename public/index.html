@@ -43,7 +43,27 @@
       loadComponent("footer", "footer.html")
     ]);
   </script>
-  <script type="module" src="/js/app.js"></script>
+  <script type="module">
+  async function loadComponent(id, file) {
+    const container = document.getElementById(id);
+    if (container) {
+      const html = await fetch(`/components/${file}`).then(r => r.text());
+      container.innerHTML = html;
+    }
+  }
+
+  await Promise.all([
+    loadComponent("header", "header.html"),
+    loadComponent("chatbox", "chatbox.html"),
+    loadComponent("uploadbox", "uploadbox.html"),
+    loadComponent("typing", "typing.html"),
+    loadComponent("summary", "summary.html"),
+    loadComponent("footer", "footer.html")
+  ]);
+
+  // ✅ Load app.js only after all components are loaded
+  import("/js/app.js");
+</script>
 
 </body>
 </html>
