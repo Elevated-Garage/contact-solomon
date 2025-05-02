@@ -13,8 +13,8 @@ Return a single valid JSON object with the following fields:
 - "square_footage": Rough garage size. Accept both numeric answers (e.g. "454") and estimates (e.g. “400 sq ft”, “2-car”, “About 800”). If the user replies with just a number, assume they are giving a square footage measurement.
 - "must_have_features": Any specific requests or requirements (e.g. "sauna", "flooring", "cold plunge", "lighting")
 - "budget": Estimated project budget or phrasing like “under 20k”
-- "start_date": When the project should begin (e.g. “next month”, “ASAP”, “June”). If the user says they do not have a start date or are unsure, extract: "start_date": "no date yet".
-- "final_notes": Additional notes, edge cases, repairs, requests, or anything shared near the end. If the user declines to add more, extract: "final_notes": "none".
+- "start_date": When the project should begin (e.g. “next month”, “ASAP”, “June”). Only extract this if the user clearly provides a start date or explicitly says they don’t know. Do not insert "no date yet" unless the user says it directly.
+- "final_notes": Additional notes, edge cases, repairs, requests, or anything shared near the end. Only extract this if the user shares additional context or explicitly says they have no notes. Do not insert "none" unless the user says it.
 - "garage_photo_upload": Leave this blank. It is only set by the user clicking a skip button in the interface — not through conversation. Do not extract this field unless the user explicitly says something like "skip the photo step" or "I don’t want to upload a photo." Never infer this based on unrelated answers.
 
 ⚠️ If a field is not mentioned, leave it as an empty string. Do NOT guess, do NOT generate placeholder values.
