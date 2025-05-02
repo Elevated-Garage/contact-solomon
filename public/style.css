@@ -98,12 +98,19 @@ body::before {
   justify-content: space-between;
 }
 
-#chat-log {
+#chat-section {
+  display: flex;
+  flex-direction: column;
   flex: 1;
   overflow-y: auto;
-  padding-right: 8px;
-  margin-bottom: 1rem;
 }
+
+#chat-log {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding-bottom: 1rem; /* To avoid overlapping with input */
+}
+
 
 /* === Messages === */
 .message {
