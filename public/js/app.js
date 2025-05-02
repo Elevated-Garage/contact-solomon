@@ -272,6 +272,9 @@ async function finalizeIntakeFlow() {
     });
     const data = await res.json();
 
+console.log("📦 Intake data received:", data);
+console.log("🔍 shouldTriggerPhotoStep:", shouldTriggerPhotoStep(data));
+
 if (shouldTriggerPhotoStep(data)) {
   console.log("📸 Attempting to show photo uploader...");
   const uploader = document.getElementById("photo-uploader");
