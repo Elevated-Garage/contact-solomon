@@ -279,10 +279,6 @@ input[type="date"] {
     padding: 0.5rem;
   }
 
-  .chat-box {
-    padding: 0.5rem;
-  }
-
   #input-wrapper {
     flex-direction: column;
     gap: 8px;
