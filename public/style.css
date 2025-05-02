@@ -119,32 +119,26 @@ body::before {
 
 /* === Messages === */
 .message {
-  display: inline-flex; /* ✅ makes the bubble hug the content */
-  align-items: flex-start;
-  gap: 8px; /* space between emoji and text */
+  display: flex;
+  justify-content: flex-start;
   margin-bottom: 0.5rem;
+}
+
+.message.user {
+  justify-content: flex-end;
+}
+
+.bubble {
   padding: 0.5rem 0.75rem;
-  border-radius: 18px; /* more bubble-like */
-  max-width: 85%; /* allow for slightly longer lines */
+  border-radius: 18px;
+  max-width: 85%;
   font-size: 1rem;
   line-height: 1.4;
   white-space: pre-wrap;
-  word-break: break-word; /* ensures clean line breaks */
+  word-break: break-word;
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
 }
 
-.user {
-  background-color: #B91B21;
-  color: #fce7e7;
-  margin-left: auto;
-  text-align: right;
-}
-.bot {
-  background-color: #fce7e7;
-  color: #B91B21;
-  margin-right: auto;
-  text-align: left;
-}
 .message.user .bubble {
   background-color: #B91B21;
   color: #fce7e7;
@@ -158,6 +152,7 @@ body::before {
   text-align: left;
   border-bottom-left-radius: 4px;
 }
+
 
 
 /* === Form Input & Buttons === */
