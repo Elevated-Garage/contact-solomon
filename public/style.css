@@ -145,6 +145,20 @@ body::before {
   margin-right: auto;
   text-align: left;
 }
+.message.user .bubble {
+  background-color: #B91B21;
+  color: #fce7e7;
+  text-align: right;
+  border-bottom-right-radius: 4px;
+}
+
+.message.bot .bubble {
+  background-color: #fce7e7;
+  color: #B91B21;
+  text-align: left;
+  border-bottom-left-radius: 4px;
+}
+
 
 /* === Form Input & Buttons === */
 
