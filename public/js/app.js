@@ -251,10 +251,10 @@ function promptNextMissingField() {
   // Temporarily repurpose form submission for this missing field
   const tempListener = async function (e) {
     e.preventDefault();
-    const answer = input.value.trim();
+    const answer = input.innerText.trim();
     if (!answer) return;
     appendMessage("You", answer);
-    input.value = "";
+    input.innerText = "";
 
     try {
       // Save field value back to server (simulate patch/update)
