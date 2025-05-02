@@ -1,5 +1,5 @@
 :root {
-  --bg-color: #f4f4f4;
+  --bg-color: Transparent;
   --text-color: #333;
   --accent-color: #B91B21;
   --header-bg: var(--accent-color);
@@ -133,12 +133,14 @@ body::before {
 #input-field {
   flex: 1;
   padding: 10px 12px;
-  border: none; /* ✅ Remove border */
-  border-radius: 8px; /* Keep rounded corners */
-  background-color: #ffffff; /* ✅ Opaque white background */
+  border: none;
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.2); /* translucent white */
+  backdrop-filter: blur(8px); /* frosted glass effect */
+  -webkit-backdrop-filter: blur(8px); /* for Safari */
   min-height: 40px;
   font-size: 15px;
-  color: #B91B21;
+  color: #111;
   outline: none;
 }
 
