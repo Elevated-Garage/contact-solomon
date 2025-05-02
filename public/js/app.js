@@ -72,26 +72,6 @@ function showSummary(data) {
   downloadSection.style.display = 'block';
 }
 
-// Call this after upload or skip
-async function finalizeIntakeFlow() {
-  try {
-    const res = await fetch("/submit-final-intake", {
-      method: "POST",
-      headers: { "x-session-id": sessionId }
-    });
-    const data = await res.json();
-
-    if (isIntakeComplete(data)) {
-      showSummary(data);
-    } else {
-      alert("❌ You're missing some required intake steps. Please finish the questions first.");
-    }
-  } catch (err) {
-    console.error("❌ Intake submission failed:", err.message);
-    alert("❌ Error completing intake. Please try again.");
-  }
-}
-
 // Form submission (chat)
 form?.addEventListener('submit', async (e) => {
   e.preventDefault();
