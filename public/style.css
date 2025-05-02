@@ -47,16 +47,16 @@ html, body {
 
 
 #main-centered-container {
-  flex: 1;
   display: flex;
+  flex: 1;
   flex-direction: column;
   min-height: 0;
 }
 
 
 #chat-section {
-  flex: 1;
   display: flex;
+  flex: 1;
   flex-direction: column;
   min-height: 0;
 }
