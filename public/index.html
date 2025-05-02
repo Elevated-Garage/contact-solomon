@@ -19,10 +19,6 @@
         <div id="summary"></div>
       </div>
 
-      <!-- Sticky Input at bottom of chat-section -->
-      <div id="input-wrapper">...</div>
-    </div>
-
     <div id="uploadbox"></div>
     <div id="footer"></div>
 
@@ -32,20 +28,21 @@
 
 
   <script type="module">
-    async function loadComponent(id, file) {
-      const container = document.getElementById(id);
-      if (container) {
-        const html = await fetch(`/components/${file}`).then(r => r.text());
-        container.innerHTML = html;
-      }
+  async function loadComponent(id, file) {
+    const container = document.getElementById(id);
+    if (container) {
+      const html = await fetch(`/components/${file}`).then(r => r.text());
+      container.innerHTML = html;
     }
-    await Promise.all([
-      loadComponent("header", "header.html"),
-      loadComponent("chatbox", "chatbox.html"),
-      loadComponent("uploadbox", "uploadbox.html"),
-      loadComponent("summary", "summary.html"),
-      loadComponent("footer", "footer.html")
-    ]);
-  </script>
+  }
+
+  await Promise.all([
+    loadComponent("header", "header.html"),
+    loadComponent("chatbox", "chatbox.html"),   // ✅ Includes input-wrapper inside
+    loadComponent("uploadbox", "uploadbox.html"),
+    loadComponent("summary", "summary.html"),
+    loadComponent("footer", "footer.html")
+  ]);
+</script>
 </body>
 </html>
