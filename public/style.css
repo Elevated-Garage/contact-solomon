@@ -149,21 +149,19 @@ body::before {
 /* === Form Input & Buttons === */
 
 #input-wrapper {
-  position: sticky;
-  bottom: 0;
   display: flex;
-  margin-top: auto;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
   background-color: rgba(255, 85, 95, 0.1);
-  backdrop-filter: blur(8px);              /* frosted effect */
-  z-index: 10;
+  backdrop-filter: blur(8px);
   padding: 10px 14px;
-  flex-shrink: 0;
   border-radius: 12px;
   box-shadow: 0 -2px 8px rgba(185, 27, 33, 0.1);
+  flex-shrink: 0;
+  margin-top: auto; /* only works if parent is flex column */
 }
+
 
 #input-field {
   flex: 1;
