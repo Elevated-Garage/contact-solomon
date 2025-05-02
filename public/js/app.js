@@ -215,10 +215,12 @@ const intakeFieldPrompts = {
 };
 
 function getMissingFields(data) {
-  return Object.keys(intakeFieldPrompts).filter(field =>
-    !data[field] || data[field].trim() === ""
-  );
+  return Object.keys(intakeFieldPrompts).filter(field => {
+    const value = data[field];
+    return !value || value.trim() === "";
+  });
 }
+
 
 
 let missingFieldsQueue = [];
