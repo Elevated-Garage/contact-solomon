@@ -149,6 +149,8 @@ body::before {
 /* === Form Input & Buttons === */
 
 #input-wrapper {
+  position: sticky;
+  bottom: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -159,8 +161,8 @@ body::before {
   border-radius: 12px;
   box-shadow: 0 -2px 8px rgba(185, 27, 33, 0.1);
   flex-shrink: 0;
-  margin-top: auto; /* only works if parent is flex column */
 }
+
 
 
 #input-field {
