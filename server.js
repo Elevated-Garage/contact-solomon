@@ -1,7 +1,10 @@
+
 const express = require('express');
-const multer = require('multer');
-const OpenAI = require('openai');
-const { v4: uuidv4 } = require('uuid');
+const bodyParser = require('body-parser');
+const cors = require('cors');
+const { OpenAI } = require('openai');
+const nodemailer = require('nodemailer');
+const fs = require('fs');
 const { PDFDocument, StandardFonts, rgb } = require('pdf-lib');
 const fs = require('fs');
 const path = require('path');
