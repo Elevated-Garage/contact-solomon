@@ -72,7 +72,13 @@ app.post('/message', async (req, res) => {
     const { done, missing } = await doneChecker(userIntakeOverrides[sessionId]);
 
     if (!done && missing.length > 0) {
-      assistantReply = `Thanks! I still need a few more details to complete the intake: ${missing.join(", ")}. Could you share those?`;
+      // ⬇️ Add missing_fields to message history as a system message
+      const enhancedHistory = [
+        ...userConversations[sessionId],
+        { role: 'system', content: `missing_fields: ${JSON.stringify(missing)}` }
+      ];
+
+      assistantReply = await chatResponder(enhancedHistory);
     } else {
       const photoFlag = userIntakeOverrides[sessionId].garage_photo_upload;
       const photosUploaded = userUploadedPhotos[sessionId]?.length > 0;
