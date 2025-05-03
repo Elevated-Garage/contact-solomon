@@ -302,3 +302,9 @@ if (shouldTriggerPhotoStep(data)) {
     appendMessage("Solomon", "Sorry, something went wrong submitting your answers. Please try again.");
   }
 }
+document.getElementById("input-field")?.addEventListener("keydown", function (e) {
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault();
+    document.getElementById("send-button")?.click();
+  }
+});
