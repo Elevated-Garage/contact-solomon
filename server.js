@@ -338,5 +338,6 @@ app.post("/update-intake", (req, res) => {
 }); // 👈 you were missing this closing parenthesis!
 app.listen(port, () => {
   console.log(`✅ Contact Solomon backend running on port ${port}`);
+  }
 });
 
