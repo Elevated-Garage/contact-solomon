@@ -4,7 +4,7 @@ const fs = require("fs");
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-async function intakeExtractor(userMessage) {
+async function intakeExtractor(conversation) {
   let intakePrompt = "";
   try {
     intakePrompt = fs.readFileSync("./prompts/intake-extractor-prompt.txt", "utf8");
@@ -13,7 +13,11 @@ async function intakeExtractor(userMessage) {
     intakePrompt = "Extract JSON intake fields from this message: {{message}}";
   }
 
-  const finalPrompt = intakePrompt.replace("{{message}}", userMessage);
+  const transcript = conversation
+    .map(entry => `${entry.role === "user" ? "User" : "Solomon"}: ${entry.content}`)
+    .join("\n");
+
+  const finalPrompt = intakePrompt.replace("{{message}}", transcript);
 
   try {
     const completion = await openai.chat.completions.create({
@@ -24,12 +28,9 @@ async function intakeExtractor(userMessage) {
     });
 
     const content = completion.choices[0].message.content.trim();
-
-    // ✨ Try parsing JSON safely (in case AI adds formatting)
-    let jsonStart = content.indexOf("{");
-    let jsonEnd = content.lastIndexOf("}") + 1;
+    const jsonStart = content.indexOf("{");
+    const jsonEnd = content.lastIndexOf("}") + 1;
     const rawJSON = content.slice(jsonStart, jsonEnd);
-
     const parsedFields = JSON.parse(rawJSON);
 
     console.log("[intakeExtractor] Fields extracted:", parsedFields);
