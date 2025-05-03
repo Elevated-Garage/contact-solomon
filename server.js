@@ -209,6 +209,11 @@ const isFieldComplete = requiredFields.every(field =>
   userIntakeOverrides[sessionId][field].trim() !== ""
 );
 
+    if (isFieldComplete) {
+  console.log("📷 Photo trigger condition met: all required fields are filled.");
+}
+
+
 if (completion && completion.choices && completion.choices.length > 0) {
       const assistantReply = completion.choices[0].message.content;
       userConversations[sessionId].push({ role: 'assistant', content: assistantReply });
@@ -315,11 +320,6 @@ async function extractIntakeData(conversationHistory) {
   "full_name", "email", "phone", "garage_goals", "square_footage",
   "must_have_features", "budget", "start_date", "final_notes"
 ];
-
-const isFieldComplete = requiredFields.every(field =>
-  userIntakeOverrides[sessionId]?.[field] &&
-  userIntakeOverrides[sessionId][field].trim() !== ""
-);
 
 if (completion && completion.choices && completion.choices.length > 0) {
       return JSON.parse(completion.choices[0].message.content);
