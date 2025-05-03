@@ -101,7 +101,6 @@ app.post('/upload-photos', upload.array('photos'), (req, res) => {
   }
   req.files.forEach(file => userUploadedPhotos[sessionId].push(file));
   res.status(200).json({ success: true });
-});
 }); // closes /message
 
 app.post("/skip-photo-upload", (req, res) => {
