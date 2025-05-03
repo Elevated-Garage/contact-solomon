@@ -342,5 +342,3 @@ app.post("/update-intake", (req, res) => {
 // ✅ Properly closed app.listen
 app.listen(port, () => {
   console.log(`✅ Contact Solomon backend running on port ${port}`);
-}); // 👈 this was missing
-
