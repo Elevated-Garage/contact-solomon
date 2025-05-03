@@ -195,67 +195,68 @@ if (isJustSayingHello) {
 }
 
 
-  try {
-    const conversationHistory = [
-      { role: "system", content: solomonPrompt },
-      ...(userConversations[sessionId] || [])
+ try {
+  const conversationHistory = [
+    { role: "system", content: solomonPrompt },
+    ...(userConversations[sessionId] || [])
+  ];
+
+  const completion = await openai.chat.completions.create({
+    model: "gpt-4",
+    messages: conversationHistory,
+    temperature: 0.7
+  });
+
+  if (completion && completion.choices && completion.choices.length > 0) {
+    const assistantReply = completion.choices[0].message.content;
+    userConversations[sessionId].push({ role: 'assistant', content: assistantReply });
+
+    const requiredFields = [
+      "full_name", "email", "phone", "garage_goals", "square_footage",
+      "must_have_features", "budget", "start_date", "final_notes"
     ];
 
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4",
-      messages: conversationHistory,
-      temperature: 0.7
-    });
+    const isFieldComplete = requiredFields.every(field =>
+      userIntakeOverrides[sessionId]?.[field] &&
+      userIntakeOverrides[sessionId][field].trim() !== ""
+    );
 
-    if (completion && completion.choices && completion.choices.length > 0) {
-      const assistantReply = completion.choices[0].message.content;
-      userConversations[sessionId].push({ role: 'assistant', content: assistantReply });
-      res.status(200).json({ reply: assistantReply, done: isFieldComplete, sessionId });
+    let isAIDone = false;
 
-// === Done-check logic ===
-const requiredFields = [
-  "full_name", "email", "phone", "garage_goals", "square_footage",
-  "must_have_features", "budget", "start_date", "final_notes"
-];
+    if (ENABLE_AI_DONE_CHECK && !isFieldComplete) {
+      try {
+        const doneCheck = await openai.chat.completions.create({
+          model: "gpt-3.5-turbo",
+          messages: [
+            { role: "system", content: doneCheckPrompt },
+            { role: "user", content: JSON.stringify(userIntakeOverrides[sessionId], null, 2) }
+          ],
+          temperature: 0
+        });
 
-const isFieldComplete = requiredFields.every(field =>
-  userIntakeOverrides[sessionId]?.[field] &&
-  userIntakeOverrides[sessionId][field].trim() !== ""
-);
-
-let isAIDone = false;
-
-
-if (ENABLE_AI_DONE_CHECK && !isFieldComplete) {
-  try {
-    const doneCheck = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
-      messages: [
-        { role: "system", content: doneCheckPrompt },
-        { role: "user", content: JSON.stringify(userIntakeOverrides[sessionId], null, 2) }
-      ],
-      temperature: 0
-    });
-
-    const result = doneCheck.choices[0].message.content.trim();
-    isAIDone = result === "✅ All required fields are complete.";
-  } catch (err) {
-    console.warn("⚠️ GPT done-check failed:", err.message);
-  }
-}
- catch (err) {
-    console.warn("⚠️ GPT done-check failed:", err.message);
-  }
-}
-    } else {
-      console.error("❌ OpenAI returned no choices.");
-      res.status(500).json({ reply: "Sorry, I couldn't generate a response.", done: false, sessionId });
+        const result = doneCheck.choices[0].message.content.trim();
+        isAIDone = result === "✅ All required fields are complete.";
+      } catch (err) {
+        console.warn("⚠️ GPT done-check failed:", err.message);
+      }
     }
-  } catch (error) {
-    console.error("❌ OpenAI Error:", error.response ? error.response.data : error.message);
-    res.status(500).json({ reply: "Sorry, I had an issue responding.", done: false, sessionId });
+
+    const done = ENABLE_AI_DONE_CHECK ? isAIDone || isFieldComplete : isFieldComplete;
+
+    res.status(200).json({
+      reply: assistantReply,
+      done,
+      sessionId
+    });
+
+  } else {
+    console.error("❌ OpenAI returned no choices.");
+    res.status(500).json({ reply: "Sorry, I couldn't generate a response.", done: false, sessionId });
   }
-});
+} catch (error) {
+  console.error("❌ OpenAI Error:", error.response ? error.response.data : error.message);
+  res.status(500).json({ reply: "Sorry, I had an issue responding.", done: false, sessionId });
+}
 
 // == /submit-final-intake route ==
 app.post('/submit-final-intake', async (req, res) => {
