@@ -8,6 +8,7 @@ const fs = require('fs');
 const { PDFDocument, StandardFonts, rgb } = require('pdf-lib');
 const path = require('path');
 const { google } = require('googleapis');
+const multer = require('multer');
 require('dotenv').config();
 
 async function generateSummaryPDF(data) {
