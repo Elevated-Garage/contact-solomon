@@ -44,15 +44,19 @@ async function intakeExtractor(conversation) {
       "final_notes"
     ];
 
-    const fillers = ["no", "none", "n/a", "not sure", "idk", "soon", "help", "?"];
+    const fillersGlobal = ["n/a", "not sure", "idk", "soon", "help", "?"];
+    const fillersRestricted = ["no", "none"];
 
-    const isValid = value => {
+    const isValid = (value, key) => {
       if (!value) return false;
       const cleaned = value.trim().toLowerCase();
-      return cleaned !== "" && !fillers.includes(cleaned);
+      if (cleaned === "") return false;
+      if (fillersGlobal.includes(cleaned)) return false;
+      if (fillersRestricted.includes(cleaned) && key !== "final_notes") return false;
+      return true;
     };
 
-    const readyForCheck = requiredKeys.every(key => isValid(parsedFields[key]));
+    const readyForCheck = requiredKeys.every(key => isValid(parsedFields[key], key));
 
     console.log("[intakeExtractor] Fields extracted:", parsedFields);
     console.log("[intakeExtractor] Ready for doneChecker:", readyForCheck);
@@ -65,3 +69,4 @@ async function intakeExtractor(conversation) {
 }
 
 module.exports = intakeExtractor;
+
