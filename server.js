@@ -1,14 +1,11 @@
-
 const express = require('express');
-const bodyParser = require('body-parser');
-const cors = require('cors');
-const { OpenAI } = require('openai');
-const nodemailer = require('nodemailer');
-const fs = require('fs');
+const multer = require('multer');
+const OpenAI = require('openai');
+const { v4: uuidv4 } = require('uuid');
 const { PDFDocument, StandardFonts, rgb } = require('pdf-lib');
+const fs = require('fs');
 const path = require('path');
 const { google } = require('googleapis');
-const multer = require('multer');
 require('dotenv').config();
 
 async function generateSummaryPDF(data) {
@@ -47,6 +44,14 @@ async function generateSummaryPDF(data) {
 
 // Setup dynamic variables
 let solomonPrompt = fs.readFileSync(path.join(__dirname, 'prompts', 'solomon-prompt.txt'), 'utf8');
+
+let doneCheckPrompt = fs.readFileSync(path.join(__dirname, 'prompts', 'prompt-done-check.txt'), 'utf8');
+
+fs.watchFile(path.join(__dirname, 'prompts', 'prompt-done-check.txt'), (curr, prev) => {
+  console.log("♻️ Reloading prompt-done-check.txt...");
+  doneCheckPrompt = fs.readFileSync(path.join(__dirname, 'prompts', 'prompt-done-check.txt'), 'utf8');
+});
+
 let extractionPrompt = fs.readFileSync(path.join(__dirname, 'prompts', 'extraction-prompt.txt'), 'utf8');
 
 // Watch prompt files for changes
@@ -71,7 +76,7 @@ const userUploadedPhotos = {};
 const userIntakeOverrides = {};
 
 // === Correct OpenAI setup ===
-const ENABLE_AI_DONE_CHECK = true;
+const ENABLE_AI_DONE_CHECK = false;
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 }); // <<< this closing bracket was missing
@@ -133,57 +138,62 @@ app.post('/message', async (req, res) => {
 
   userConversations[sessionId].push({ role: 'user', content: message });
 
-  if (!(sessionId in userIntakeOverrides)) {
-    userIntakeOverrides[sessionId] = {};
+  
+// 👇 Add this inside your /message route, right after userConversations[sessionId].push(...)
+if (!(sessionId in userIntakeOverrides)) {
+  userIntakeOverrides[sessionId] = {};
+}
+
+const isJustSayingHello = /solomon.*(help|design|garage|start|hi|hello|there)/i.test(message);
+
+if (isJustSayingHello) {
+  console.log("🧘 Skipping field extraction: initial greeting or assistant callout.");
+} else {
+  const intakeExtractionPrompt = extractionPrompt.replace("{{message}}", message);
+
+  try {
+    const extractionCompletion = await openai.chat.completions.create({
+      model: "gpt-3.5-turbo",
+      messages: [
+        { role: "system", content: "You are a structured field extractor." },
+        { role: "user", content: intakeExtractionPrompt }
+      ],
+      temperature: 0
+    });
+
+    const extracted = JSON.parse(extractionCompletion.choices[0].message.content);
+    const fields = [
+      "full_name",
+      "email",
+      "phone",
+      "garage_goals",
+      "square_footage",
+      "must_have_features",
+      "budget",
+      "start_date",
+      "final_notes"
+    ];
+
+    console.log("📂 BEFORE merge:", JSON.stringify(userIntakeOverrides[sessionId], null, 2));
+    
+  for (const field of fields) {
+  if (
+    extracted[field] &&
+    (!userIntakeOverrides[sessionId][field] || userIntakeOverrides[sessionId][field] === "")
+  ) {
+    userIntakeOverrides[sessionId][field] = extracted[field];
   }
+}
 
-  const isJustSayingHello = /solomon.*(help|design|garage|start|hi|hello|there)/i.test(message);
+    console.log("💾 AFTER merge:", JSON.stringify(userIntakeOverrides[sessionId], null, 2));
 
-  if (isJustSayingHello) {
-    console.log("🧘 Skipping field extraction: initial greeting or assistant callout.");
-  } else {
-    const intakeExtractionPrompt = extractionPrompt.replace("{{message}}", message);
-
-    try {
-      const extractionCompletion = await openai.chat.completions.create({
-        model: "gpt-3.5-turbo",
-        messages: [
-          { role: "system", content: "You are a structured field extractor." },
-          { role: "user", content: intakeExtractionPrompt }
-        ],
-        temperature: 0
-      });
-
-      const extracted = JSON.parse(extractionCompletion.choices[0].message.content);
-      const fields = [
-        "full_name",
-        "email",
-        "phone",
-        "garage_goals",
-        "square_footage",
-        "must_have_features",
-        "budget",
-        "start_date",
-        "final_notes"
-      ];
-
-      console.log("📂 BEFORE merge:", JSON.stringify(userIntakeOverrides[sessionId], null, 2));
-
-      for (const field of fields) {
-        if (
-          extracted[field] &&
-          (!userIntakeOverrides[sessionId][field] || userIntakeOverrides[sessionId][field] === "")
-        ) {
-          userIntakeOverrides[sessionId][field] = extracted[field];
-        }
-      }
-
-      console.log("💾 AFTER merge:", JSON.stringify(userIntakeOverrides[sessionId], null, 2));
-      console.log("📦 GPT Extracted Fields:", extracted);
-    } catch (err) {
-      console.warn("⚠️ GPT intake extraction failed:", err.message);
-    }
+    console.log("📦 GPT Extracted Fields:", extracted);
+    console.log("💾 Full Overrides Snapshot:", JSON.stringify(userIntakeOverrides[sessionId], null, 2));
+  } catch (err) {
+    console.warn("⚠️ GPT intake extraction failed:", err.message);
   }
+}
+
 
   try {
     const conversationHistory = [
@@ -200,56 +210,52 @@ app.post('/message', async (req, res) => {
     if (completion && completion.choices && completion.choices.length > 0) {
       const assistantReply = completion.choices[0].message.content;
       userConversations[sessionId].push({ role: 'assistant', content: assistantReply });
+      res.status(200).json({ reply: assistantReply, done: isFieldComplete, sessionId });
 
-      const requiredFields = [
-        "full_name", "email", "phone", "garage_goals", "square_footage",
-        "must_have_features", "budget", "start_date", "final_notes"
-      ];
+// === Done-check logic ===
+const requiredFields = [
+  "full_name", "email", "phone", "garage_goals", "square_footage",
+  "must_have_features", "budget", "start_date", "final_notes"
+];
 
-      const isFieldComplete = requiredFields.every(field =>
-        userIntakeOverrides[sessionId]?.[field] &&
-        userIntakeOverrides[sessionId][field].trim() !== ""
-      );
+const isFieldComplete = requiredFields.every(field =>
+  userIntakeOverrides[sessionId]?.[field] &&
+  userIntakeOverrides[sessionId][field].trim() !== ""
+);
 
-      let isAIDone = false;
+let isAIDone = false;
 
-      if (ENABLE_AI_DONE_CHECK && !isFieldComplete) {
-        try {
-          const doneCheck = await openai.chat.completions.create({
-            model: "gpt-3.5-turbo",
-            messages: [
-              {
-                role: "system",
-                content: "You are a completion checker. Based on this chat history, respond ONLY with JSON: {\"done\": true} or {\"done\": false}."
-              },
-              ...conversationHistory
-            ],
-            temperature: 0
-          });
 
-          const parsed = JSON.parse(doneCheck.choices[0].message.content);
-          isAIDone = parsed.done === true;
-        } catch (err) {
-          console.warn("⚠️ GPT done-check failed:", err.message);
-        }
-      }
+if (ENABLE_AI_DONE_CHECK && !isFieldComplete) {
+  try {
+    const doneCheck = await openai.chat.completions.create({
+      model: "gpt-3.5-turbo",
+      messages: [
+        { role: "system", content: doneCheckPrompt },
+        { role: "user", content: JSON.stringify(userIntakeOverrides[sessionId], null, 2) }
+      ],
+      temperature: 0
+    });
 
-      const done = ENABLE_AI_DONE_CHECK ? isAIDone || isFieldComplete : isFieldComplete;
-
-      res.status(200).json({
-        reply: assistantReply,
-        done,
-        sessionId
-      });
-    } else {
-      res.status(500).send("No response from AI.");
-    }
+    const result = doneCheck.choices[0].message.content.trim();
+    isAIDone = result === "✅ All required fields are complete.";
   } catch (err) {
-    console.error("❌ GPT completion error:", err.message);
-    res.status(500).send("Something went wrong.");
+    console.warn("⚠️ GPT done-check failed:", err.message);
+  }
+}
+ catch (err) {
+    console.warn("⚠️ GPT done-check failed:", err.message);
+  }
+}
+    } else {
+      console.error("❌ OpenAI returned no choices.");
+      res.status(500).json({ reply: "Sorry, I couldn't generate a response.", done: false, sessionId });
+    }
+  } catch (error) {
+    console.error("❌ OpenAI Error:", error.response ? error.response.data : error.message);
+    res.status(500).json({ reply: "Sorry, I had an issue responding.", done: false, sessionId });
   }
 });
-
 
 // == /submit-final-intake route ==
 app.post('/submit-final-intake', async (req, res) => {
@@ -344,4 +350,3 @@ app.post("/update-intake", (req, res) => {
 app.listen(port, () => {
   console.log(`✅ Contact Solomon backend running on port ${port}`);
 });
-
