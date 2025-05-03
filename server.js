@@ -57,19 +57,6 @@ fs.watchFile(path.join(__dirname, 'prompts', 'extraction-prompt.txt'), (curr, pr
   extractionPrompt = fs.readFileSync(path.join(__dirname, 'prompts', 'extraction-prompt.txt'), 'utf8');
 });
 
-
-function areAllFieldsComplete(sessionId) {
-  const requiredFields = [
-    "full_name", "email", "phone", "garage_goals", "square_footage",
-    "must_have_features", "budget", "start_date", "final_notes"
-  ];
-  return requiredFields.every(field =>
-    userIntakeOverrides[sessionId]?.[field] &&
-    userIntakeOverrides[sessionId][field].trim() !== ""
-  );
-}
-
-
 const app = express();
 const port = process.env.PORT || 10000;
 
@@ -212,7 +199,13 @@ if (isJustSayingHello) {
       temperature: 0.7
     });
 
-    const requiredFields = [
+    if (completion && completion.choices && completion.choices.length > 0) {
+      const assistantReply = completion.choices[0].message.content;
+      userConversations[sessionId].push({ role: 'assistant', content: assistantReply });
+      res.status(200).json({ reply: assistantReply, done: isFieldComplete, sessionId });
+
+// === Done-check logic ===
+const requiredFields = [
   "full_name", "email", "phone", "garage_goals", "square_footage",
   "must_have_features", "budget", "start_date", "final_notes"
 ];
@@ -221,19 +214,6 @@ const isFieldComplete = requiredFields.every(field =>
   userIntakeOverrides[sessionId]?.[field] &&
   userIntakeOverrides[sessionId][field].trim() !== ""
 );
-
-    if (isFieldComplete) {
-  console.log("📷 Photo trigger condition met: all required fields are filled.");
-}
-
-
-if (completion && completion.choices && completion.choices.length > 0) {
-      const assistantReply = completion.choices[0].message.content;
-      userConversations[sessionId].push({ role: 'assistant', content: assistantReply });
-      res.status(200).json({ reply: assistantReply, done: isFieldComplete, sessionId });
-
-// === Done-check logic ===
-
 
 let isAIDone = false;
 
@@ -329,12 +309,7 @@ async function extractIntakeData(conversationHistory) {
       temperature: 0
     });
 
-    const requiredFields = [
-  "full_name", "email", "phone", "garage_goals", "square_footage",
-  "must_have_features", "budget", "start_date", "final_notes"
-];
-
-if (completion && completion.choices && completion.choices.length > 0) {
+    if (completion && completion.choices && completion.choices.length > 0) {
       return JSON.parse(completion.choices[0].message.content);
     } else {
       console.error("❌ Extraction failed: No choices returned.");
