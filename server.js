@@ -16,7 +16,6 @@ const {
   ensureSession
 } = require('./utils/sessions');
 
-
 const app = express();
 const port = process.env.PORT || 10000;
 
@@ -61,22 +60,31 @@ app.post('/message', async (req, res) => {
   userConversations[sessionId].push({ role: 'user', content: message });
 
   // 🧠 Run intake extractor ONLY after first round
-if (userConversations[sessionId].length > 1) {
-  const extractedFields = await intakeExtractor(message);
-  for (const key in extractedFields) {
-    const value = extractedFields[key];
-    if (value && value.trim() !== '') {
-      userIntakeOverrides[sessionId][key] = value;
+  if (userConversations[sessionId].length > 1) {
+    const extractedFields = await intakeExtractor(message);
+    for (const key in extractedFields) {
+      const value = extractedFields[key];
+      if (value && value.trim() !== '') {
+        userIntakeOverrides[sessionId][key] = value;
+      }
     }
+
+    console.log("[intakeExtractor] Smart-merged updated intake:", userIntakeOverrides[sessionId]);
+  } else {
+    console.log("[intakeExtractor] Skipped — waiting for user to give real input.");
   }
 
-  console.log("[intakeExtractor] Smart-merged updated intake:", userIntakeOverrides[sessionId]);
-} else {
-  console.log("[intakeExtractor] Skipped — waiting for user to give real input.");
-}
+  // ✅ Check completion and missing fields
+  const { done, missing } = await doneChecker(userIntakeOverrides[sessionId]);
 
   // 💬 Generate chat reply
-  const assistantReply = await chatResponder(userConversations[sessionId]);
+  let assistantReply;
+  if (!done && missing.length > 0) {
+    assistantReply = `Thanks! I still need a few more details to complete the intake: ${missing.join(", ")}. Could you share those?`;
+  } else {
+    assistantReply = await chatResponder(userConversations[sessionId]);
+  }
+
   userConversations[sessionId].push({ role: 'assistant', content: assistantReply });
 
   const responseData = {
@@ -84,25 +92,20 @@ if (userConversations[sessionId].length > 1) {
     sessionId,
   };
 
-  // ✅ Check completion
-  const isDone = await doneChecker(userIntakeOverrides[sessionId]);
+  if (done) {
+    console.log("[✅ Intake Complete] Submitting final summary...");
+    await generateSummaryPDF(userIntakeOverrides[sessionId], sessionId);
+    responseData.show_summary = true;
 
-if (isDone) {
-  console.log("[✅ Intake Complete] Submitting final summary...");
-  await generateSummaryPDF(userIntakeOverrides[sessionId], sessionId);
-  responseData.show_summary = true;
+    // ✅ Photo uploader logic with logs
+    const photoFlag = userIntakeOverrides[sessionId].garage_photo_upload;
+    console.log("[Photo Check] photoUploaded:", userIntakeOverrides[sessionId].photoUploaded);
+    console.log("[Photo Check] garage_photo_upload:", photoFlag);
 
-  // ✅ NEW photo uploader logic with logs
-  const photoFlag = userIntakeOverrides[sessionId].garage_photo_upload;
-  console.log("[Photo Check] photoUploaded:", userIntakeOverrides[sessionId].photoUploaded);
-  console.log("[Photo Check] garage_photo_upload:", photoFlag);
-
-  if (!userIntakeOverrides[sessionId].photoUploaded && (!photoFlag || photoFlag === '')) {
-    responseData.open_upload = true;
+    if (!userIntakeOverrides[sessionId].photoUploaded && (!photoFlag || photoFlag === '')) {
+      responseData.open_upload = true;
+    }
   }
-}
-
-
 
   res.status(200).json(responseData);
 });
@@ -111,3 +114,4 @@ if (isDone) {
 app.listen(port, () => {
   console.log(`✅ Contact Solomon backend running on port ${port}`);
 });
+
