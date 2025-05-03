@@ -32,6 +32,8 @@ app.post('/upload-photos', upload.array('photos'), (req, res) => {
   ensureSession(sessionId);
 
   req.files.forEach(file => userUploadedPhotos[sessionId].push(file));
+  userIntakeOverrides[sessionId].photoUploaded = true;
+
   res.status(200).json({ success: true });
 });
 
@@ -92,18 +94,24 @@ app.post('/message', async (req, res) => {
     sessionId,
   };
 
+  // 🔁 If all required fields are done...
   if (done) {
-    console.log("[✅ Intake Complete] Submitting final summary...");
-    await generateSummaryPDF(userIntakeOverrides[sessionId], sessionId);
-    responseData.show_summary = true;
-
-    // ✅ Photo uploader logic with logs
     const photoFlag = userIntakeOverrides[sessionId].garage_photo_upload;
-    console.log("[Photo Check] photoUploaded:", userIntakeOverrides[sessionId].photoUploaded);
+    const photosUploaded = userUploadedPhotos[sessionId]?.length > 0;
+
+    console.log("[Photo Check] photoUploaded:", photosUploaded);
     console.log("[Photo Check] garage_photo_upload:", photoFlag);
 
-    if (!userIntakeOverrides[sessionId].photoUploaded && (!photoFlag || photoFlag === '')) {
+    // 📸 Ask for photo upload if not already done or skipped
+    if (!photosUploaded && (!photoFlag || photoFlag === '')) {
       responseData.open_upload = true;
+    }
+
+    // 🧾 Generate summary only if photo uploaded OR skipped
+    if (photosUploaded || photoFlag === "Skipped") {
+      console.log("[✅ Intake + Photo Complete] Submitting final summary...");
+      await generateSummaryPDF(userIntakeOverrides[sessionId], sessionId);
+      responseData.show_summary = true;
     }
   }
 
