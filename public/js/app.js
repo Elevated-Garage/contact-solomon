@@ -1,7 +1,14 @@
 
 const form = document.getElementById('chat-form');
 console.log("✅ form element:", form);
-const input = document.getElementById('input-field'); // update from 'user-input'
+const input = document.getElementById('input-field');
+document.getElementById("input-field")?.addEventListener("keydown", function (e) {
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault();
+    document.getElementById("send-button")?.click();
+  }
+});
+// update from 'user-input'
 const chatLog = document.getElementById('chat-log');
 appendMessage("Solomon", "👋 Hey there! Before we get started, I have a few quick questions to help design your perfect garage.");
 const dragArea = document.getElementById("drag-area");
@@ -9,6 +16,7 @@ const fileInput = document.getElementById("file-upload");
 const submitBtn = document.getElementById("photo-submit");
 const skipBtn = document.getElementById("photo-skip");
 const thumbnailWrapper = document.getElementById("thumbnail-wrapper");
+
 let sessionId = localStorage.getItem('solomonSession');
 if (!sessionId) {
   sessionId = crypto.randomUUID();
@@ -302,9 +310,3 @@ if (shouldTriggerPhotoStep(data)) {
     appendMessage("Solomon", "Sorry, something went wrong submitting your answers. Please try again.");
   }
 }
-document.getElementById("input-field")?.addEventListener("keydown", function (e) {
-  if (e.key === "Enter" && !e.shiftKey) {
-    e.preventDefault();
-    document.getElementById("send-button")?.click();
-  }
-});
