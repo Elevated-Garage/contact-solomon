@@ -10,7 +10,7 @@ const { generateSummaryPDF } = require('./utils/pdfBuilder');
 const intakeExtractor = require('./ai/intakeExtractor');
 const chatResponder = require('./ai/chatResponder');
 const doneChecker = require('./ai/doneChecker');
-const { generateSessionId } = require('./helpers/session');
+const { generateSessionId } = require('./utils/pdfBuilder');
 
 const app = express();
 const port = process.env.PORT || 10000;
