@@ -22,9 +22,7 @@ async function intakeExtractor(conversation) {
   try {
     const completion = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
-      messages: [
-        { role: "system", content: finalPrompt }
-      ]
+      messages: [{ role: "system", content: finalPrompt }]
     });
 
     const content = completion.choices[0].message.content.trim();
@@ -33,11 +31,31 @@ async function intakeExtractor(conversation) {
     const rawJSON = content.slice(jsonStart, jsonEnd);
     const parsedFields = JSON.parse(rawJSON);
 
+    // ✅ Determine readiness to run doneChecker
+    const requiredKeys = [
+      "full_name",
+      "email",
+      "phone",
+      "garage_goals",
+      "square_footage",
+      "must_have_features",
+      "budget",
+      "start_date",
+      "final_notes"
+    ];
+    const filledCount = requiredKeys.filter(
+      key => parsedFields[key] && parsedFields[key].trim() !== ""
+    ).length;
+
+    const readyForCheck = filledCount >= 5;
+
     console.log("[intakeExtractor] Fields extracted:", parsedFields);
-    return parsedFields;
+    console.log("[intakeExtractor] Ready for doneChecker:", readyForCheck);
+
+    return { fields: parsedFields, readyForCheck };
   } catch (error) {
     console.error("[intakeExtractor] AI or parsing error:", error.message);
-    return {};
+    return { fields: {}, readyForCheck: false };
   }
 }
 
