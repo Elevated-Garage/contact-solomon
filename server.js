@@ -64,7 +64,7 @@ app.post('/message', async (req, res) => {
   await intakeExtractor(sessionId, message, userIntakeOverrides);
 
   // 💬 Generate chat reply
-  const assistantReply = await chatResponder(sessionId, userConversations);
+  const assistantReply = await chatResponder(userConversations[sessionId]);
   userConversations[sessionId].push({ role: 'assistant', content: assistantReply });
 
   // ✅ Check completion
