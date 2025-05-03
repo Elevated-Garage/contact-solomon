@@ -15,7 +15,9 @@ The required fields are:
 - final_notes
 
 Rules for completeness:
-- A field is incomplete if it is missing, blank, or contains filler words or placeholders such as: "no", "none", "n/a", "not sure", "idk", "soon", "help", "?", or any other vague or non-substantive answer.
+- A field is incomplete if it is missing, blank, or contains filler words or placeholders such as: "n/a", "not sure", "idk", "soon", "help", "?", or any other vague or non-substantive answer.
+- For all fields **except `final_notes`**, also treat values like "no" or "none" as incomplete.
+- For `final_notes`, short dismissive responses such as "no", "none", "nope", or "nothing else" should be accepted as complete.
 - These checks should be case-insensitive.
 - All other non-empty and relevant values should be considered complete.
 
@@ -30,5 +32,5 @@ Missing: [list of keys for the incomplete fields]
 
 Only return this exact format. No explanation, greeting, or extra text.
 
-Here is the extracted intake data:
+Here is the extracted intake data:  
 {{fields}}
