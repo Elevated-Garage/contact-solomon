@@ -4,12 +4,13 @@
 const userConversations = {};
 const userUploadedPhotos = {};
 const userIntakeOverrides = {};
-}
+
+// ✅ FIXED: Removed stray closing brace that caused a syntax error
+// ❌ This line was outside any function: }
 
 function generateSessionId() {
   return Math.random().toString(36).substring(2, 15);
 }
-
 
 /**
  * Returns or initializes a session entry.
@@ -34,6 +35,8 @@ module.exports = {
   userUploadedPhotos,
   userIntakeOverrides,
   ensureSession,
-  clearSession
+  clearSession,
+  generateSessionId // ✅ This was missing from your export
 };
+
 
