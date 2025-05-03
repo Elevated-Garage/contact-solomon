@@ -215,7 +215,6 @@ const isFieldComplete = requiredFields.every(field =>
 
 // 🧠 Let frontend know if AI should prompt the photo upload
 // === Done-check logic ===
-const requiredFields = [
   "full_name", "email", "phone", "garage_goals", "square_footage",
   "must_have_features", "budget", "start_date", "final_notes"
 ];
