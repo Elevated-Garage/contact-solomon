@@ -60,8 +60,16 @@ app.post('/message', async (req, res) => {
 
   userConversations[sessionId].push({ role: 'user', content: message });
 
-  // 🧠 Run intake field extractor
-  await intakeExtractor(message, userIntakeOverrides);
+  // 🧠 Run intake extractor ONLY after first round
+if (userConversations[sessionId].length > 1) {
+  const extractedFields = await intakeExtractor(message);
+  Object.assign(userIntakeOverrides[sessionId], extractedFields);
+
+  console.log("[intakeExtractor] Updated intake data:", userIntakeOverrides[sessionId]);
+} else {
+  console.log("[intakeExtractor] Skipped — waiting for user to give real input.");
+}
+
 
   // 💬 Generate chat reply
   const assistantReply = await chatResponder(userConversations[sessionId]);
