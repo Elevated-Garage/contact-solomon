@@ -1,4 +1,3 @@
-// === server.js ===
 const express = require('express');
 const multer = require('multer');
 const cors = require('cors');
@@ -16,6 +15,8 @@ const {
   userIntakeOverrides,
   ensureSession
 } = require('./utils/sessions');
+
+const { submitFinalIntakeSummary } = require('./utils/submit');
 
 const app = express();
 const port = process.env.PORT || 10000;
@@ -67,10 +68,25 @@ app.post('/message', async (req, res) => {
   const assistantReply = await chatResponder(userConversations[sessionId]);
   userConversations[sessionId].push({ role: 'assistant', content: assistantReply });
 
-  // ✅ Check completion
-  const done = await doneChecker(sessionId, userIntakeOverrides);
+  const responseData = {
+    reply: assistantReply,
+    sessionId,
+  };
 
-  res.status(200).json({ reply: assistantReply, done, sessionId });
+  // ✅ Check completion
+  const isDone = await doneChecker(sessionId, userIntakeOverrides);
+
+  if (isDone) {
+    console.log("[✅ Intake Complete] Submitting final summary...");
+    await submitFinalIntakeSummary(userIntakeOverrides[sessionId], sessionId);
+    responseData.show_summary = true;
+
+    if (!userIntakeOverrides[sessionId].photoUploaded && !userIntakeOverrides[sessionId].garage_photo_upload) {
+      responseData.open_upload = true;
+    }
+  }
+
+  res.status(200).json(responseData);
 });
 
 // === Start server ===
