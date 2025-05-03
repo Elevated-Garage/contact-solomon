@@ -19,5 +19,6 @@ If ALL required fields are filled with appropriate values, respond exactly with:
 If ANY required field is missing, blank, or contains a placeholder or filler (e.g. "not sure", "idk", "soon", "help", etc.), respond exactly with:
 
 ❌ Missing or incomplete fields.
+Missing: [list of field keys that are missing or incomplete]
 
-Do not include any explanation. Return only one of the two responses.
+Only return this strict format. Do not include any other text or explanation.
