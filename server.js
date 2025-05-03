@@ -19,9 +19,12 @@ app.use(express.json());
 app.use(cors());
 app.use(express.static('public'));
 
-const userConversations = {};
-const userUploadedPhotos = {};
-const userIntakeOverrides = {};
+const {
+  userConversations,
+  userUploadedPhotos,
+  userIntakeOverrides,
+  ensureSession
+} = require('./utils/sessions');
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
