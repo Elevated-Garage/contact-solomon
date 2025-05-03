@@ -57,6 +57,19 @@ fs.watchFile(path.join(__dirname, 'prompts', 'extraction-prompt.txt'), (curr, pr
   extractionPrompt = fs.readFileSync(path.join(__dirname, 'prompts', 'extraction-prompt.txt'), 'utf8');
 });
 
+
+function areAllFieldsComplete(sessionId) {
+  const requiredFields = [
+    "full_name", "email", "phone", "garage_goals", "square_footage",
+    "must_have_features", "budget", "start_date", "final_notes"
+  ];
+  return requiredFields.every(field =>
+    userIntakeOverrides[sessionId]?.[field] &&
+    userIntakeOverrides[sessionId][field].trim() !== ""
+  );
+}
+
+
 const app = express();
 const port = process.env.PORT || 10000;
 
