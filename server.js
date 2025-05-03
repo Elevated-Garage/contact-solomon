@@ -44,14 +44,6 @@ async function generateSummaryPDF(data) {
 
 // Setup dynamic variables
 let solomonPrompt = fs.readFileSync(path.join(__dirname, 'prompts', 'solomon-prompt.txt'), 'utf8');
-
-let doneCheckPrompt = fs.readFileSync(path.join(__dirname, 'prompts', 'prompt-done-check.txt'), 'utf8');
-
-fs.watchFile(path.join(__dirname, 'prompts', 'prompt-done-check.txt'), (curr, prev) => {
-  console.log("♻️ Reloading prompt-done-check.txt...");
-  doneCheckPrompt = fs.readFileSync(path.join(__dirname, 'prompts', 'prompt-done-check.txt'), 'utf8');
-});
-
 let extractionPrompt = fs.readFileSync(path.join(__dirname, 'prompts', 'extraction-prompt.txt'), 'utf8');
 
 // Watch prompt files for changes
@@ -195,68 +187,75 @@ if (isJustSayingHello) {
 }
 
 
- try {
-  const conversationHistory = [
-    { role: "system", content: solomonPrompt },
-    ...(userConversations[sessionId] || [])
-  ];
-
-  const completion = await openai.chat.completions.create({
-    model: "gpt-4",
-    messages: conversationHistory,
-    temperature: 0.7
-  });
-
-  if (completion && completion.choices && completion.choices.length > 0) {
-    const assistantReply = completion.choices[0].message.content;
-    userConversations[sessionId].push({ role: 'assistant', content: assistantReply });
-
-    const requiredFields = [
-      "full_name", "email", "phone", "garage_goals", "square_footage",
-      "must_have_features", "budget", "start_date", "final_notes"
+  try {
+    const conversationHistory = [
+      { role: "system", content: solomonPrompt },
+      ...(userConversations[sessionId] || [])
     ];
 
-    const isFieldComplete = requiredFields.every(field =>
-      userIntakeOverrides[sessionId]?.[field] &&
-      userIntakeOverrides[sessionId][field].trim() !== ""
-    );
-
-    let isAIDone = false;
-
-    if (ENABLE_AI_DONE_CHECK && !isFieldComplete) {
-      try {
-        const doneCheck = await openai.chat.completions.create({
-          model: "gpt-3.5-turbo",
-          messages: [
-            { role: "system", content: doneCheckPrompt },
-            { role: "user", content: JSON.stringify(userIntakeOverrides[sessionId], null, 2) }
-          ],
-          temperature: 0
-        });
-
-        const result = doneCheck.choices[0].message.content.trim();
-        isAIDone = result === "✅ All required fields are complete.";
-      } catch (err) {
-        console.warn("⚠️ GPT done-check failed:", err.message);
-      }
-    }
-
-    const done = ENABLE_AI_DONE_CHECK ? isAIDone || isFieldComplete : isFieldComplete;
-
-    res.status(200).json({
-      reply: assistantReply,
-      done,
-      sessionId
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4",
+      messages: conversationHistory,
+      temperature: 0.7
     });
 
-  } else {
-    console.error("❌ OpenAI returned no choices.");
-    res.status(500).json({ reply: "Sorry, I couldn't generate a response.", done: false, sessionId });
+    if (completion && completion.choices && completion.choices.length > 0) {
+      const assistantReply = completion.choices[0].message.content;
+      userConversations[sessionId].push({ role: 'assistant', content: assistantReply });
+      // ✅ Field completion logic — tells the AI if all required data has been captured
+const requiredFields = [
+  "full_name", "email", "phone", "garage_goals", "square_footage",
+  "must_have_features", "budget", "start_date", "final_notes"
+];
+
+const isFieldComplete = requiredFields.every(field =>
+  userIntakeOverrides[sessionId]?.[field] &&
+  userIntakeOverrides[sessionId][field].trim() !== ""
+);
+
+// 🧠 Let frontend know if AI should prompt the photo upload
+// === Done-check logic ===
+const requiredFields = [
+  "full_name", "email", "phone", "garage_goals", "square_footage",
+  "must_have_features", "budget", "start_date", "final_notes"
+];
+
+const isFieldComplete = requiredFields.every(field =>
+  userIntakeOverrides[sessionId]?.[field] &&
+  userIntakeOverrides[sessionId][field].trim() !== ""
+);
+
+let isAIDone = false;
+
+if (ENABLE_AI_DONE_CHECK && !isFieldComplete) {
+  try {
+    const doneCheck = await openai.chat.completions.create({
+      model: "gpt-3.5-turbo",
+      messages: [
+        {
+          role: "system",
+          content: "You are a completion checker. Based on this chat history, respond ONLY with JSON: {\"done\": true} or {\"done\": false}."
+        },
+        ...conversationHistory
+      ],
+      temperature: 0
+    });
+
+    const parsed = JSON.parse(doneCheck.choices[0].message.content);
+    isAIDone = parsed.done === true;
+  } catch (err) {
+    console.warn("⚠️ GPT done-check failed:", err.message);
   }
-} catch (error) {
-  console.error("❌ OpenAI Error:", error.response ? error.response.data : error.message);
-  res.status(500).json({ reply: "Sorry, I had an issue responding.", done: false, sessionId });
 }
+
+const done = ENABLE_AI_DONE_CHECK ? isAIDone || isFieldComplete : isFieldComplete;
+
+res.status(200).json({
+  reply: assistantReply,
+  done,
+  sessionId
+});
+
 
 // == /submit-final-intake route ==
 app.post('/submit-final-intake', async (req, res) => {
@@ -348,6 +347,12 @@ app.post("/update-intake", (req, res) => {
   userIntakeOverrides[sessionId][field] = value;
   res.status(200).json({ success: true });
 }); // 👈 you were missing this closing parenthesis!
+app.listen(port, () => {
+  console.log(`✅ Contact Solomon backend running on port ${port}`);
+});
+  }
+})
+
 app.listen(port, () => {
   console.log(`✅ Contact Solomon backend running on port ${port}`);
 });
