@@ -320,7 +320,7 @@ async function extractIntakeData(conversationHistory) {
     console.error("❌ Extraction error:", error.response ? error.response.data : error.message);
     return {};
   }
-}
+});
 // == /update-intake route ==
 
 app.post("/update-intake", (req, res) => {
