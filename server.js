@@ -61,59 +61,52 @@ app.post('/message', async (req, res) => {
 
   userConversations[sessionId].push({ role: 'user', content: message });
 
-  // 🧠 Run intake extractor ONLY after first round
+  let extractedFields = {};
   if (userConversations[sessionId].length > 1) {
-    const extractedFields = await intakeExtractor(message);
+    extractedFields = await intakeExtractor(message);
     for (const key in extractedFields) {
       const value = extractedFields[key];
       if (value && value.trim() !== '') {
         userIntakeOverrides[sessionId][key] = value;
       }
     }
-
     console.log("[intakeExtractor] Smart-merged updated intake:", userIntakeOverrides[sessionId]);
   } else {
     console.log("[intakeExtractor] Skipped — waiting for user to give real input.");
   }
 
-  // ✅ Check completion and missing fields
-  const { done, missing } = await doneChecker(userIntakeOverrides[sessionId]);
-
-  // 💬 Generate chat reply
   let assistantReply;
-  if (!done && missing.length > 0) {
-    assistantReply = `Thanks! I still need a few more details to complete the intake: ${missing.join(", ")}. Could you share those?`;
+  let responseData = { sessionId };
+
+  const noNewFields = Object.values(extractedFields).every(val => !val || val.trim() === '');
+  if (noNewFields) {
+    const { done, missing } = await doneChecker(userIntakeOverrides[sessionId]);
+
+    if (!done && missing.length > 0) {
+      assistantReply = `Thanks! I still need a few more details to complete the intake: ${missing.join(", ")}. Could you share those?`;
+    } else {
+      const photoFlag = userIntakeOverrides[sessionId].garage_photo_upload;
+      const photosUploaded = userUploadedPhotos[sessionId]?.length > 0;
+
+      console.log("[Photo Check] photoUploaded:", photosUploaded);
+      console.log("[Photo Check] garage_photo_upload:", photoFlag);
+
+      if (!photosUploaded && (!photoFlag || photoFlag === '')) {
+        responseData.open_upload = true;
+        assistantReply = "Awesome! Could you upload a photo of your garage so we can complete your project profile?";
+      } else {
+        console.log("[✅ Intake + Photo Complete] Submitting final summary...");
+        await generateSummaryPDF(userIntakeOverrides[sessionId], sessionId);
+        responseData.show_summary = true;
+        assistantReply = "All set! Here's a summary of your project.";
+      }
+    }
   } else {
     assistantReply = await chatResponder(userConversations[sessionId]);
   }
 
   userConversations[sessionId].push({ role: 'assistant', content: assistantReply });
-
-  const responseData = {
-    reply: assistantReply,
-    sessionId,
-  };
-
-  // 🔁 If all required fields are done...
-  if (done) {
-    const photoFlag = userIntakeOverrides[sessionId].garage_photo_upload;
-    const photosUploaded = userUploadedPhotos[sessionId]?.length > 0;
-
-    console.log("[Photo Check] photoUploaded:", photosUploaded);
-    console.log("[Photo Check] garage_photo_upload:", photoFlag);
-
-    // 📸 Ask for photo upload if not already done or skipped
-    if (!photosUploaded && (!photoFlag || photoFlag === '')) {
-      responseData.open_upload = true;
-    }
-
-    // 🧾 Generate summary only if photo uploaded OR skipped
-    if (photosUploaded || photoFlag === "Skipped") {
-      console.log("[✅ Intake + Photo Complete] Submitting final summary...");
-      await generateSummaryPDF(userIntakeOverrides[sessionId], sessionId);
-      responseData.show_summary = true;
-    }
-  }
+  responseData.reply = assistantReply;
 
   res.status(200).json(responseData);
 });
