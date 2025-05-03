@@ -61,7 +61,7 @@ app.post('/message', async (req, res) => {
   userConversations[sessionId].push({ role: 'user', content: message });
 
   // 🧠 Run intake field extractor
-  await intakeExtractor(sessionId, message, userIntakeOverrides);
+  await intakeExtractor(message, userIntakeOverrides);
 
   // 💬 Generate chat reply
   const assistantReply = await chatResponder(userConversations[sessionId]);
