@@ -63,13 +63,17 @@ app.post('/message', async (req, res) => {
   // 🧠 Run intake extractor ONLY after first round
 if (userConversations[sessionId].length > 1) {
   const extractedFields = await intakeExtractor(message);
-  Object.assign(userIntakeOverrides[sessionId], extractedFields);
+  for (const key in extractedFields) {
+    const value = extractedFields[key];
+    if (value && value.trim() !== '') {
+      userIntakeOverrides[sessionId][key] = value;
+    }
+  }
 
-  console.log("[intakeExtractor] Updated intake data:", userIntakeOverrides[sessionId]);
+  console.log("[intakeExtractor] Smart-merged updated intake:", userIntakeOverrides[sessionId]);
 } else {
   console.log("[intakeExtractor] Skipped — waiting for user to give real input.");
 }
-
 
   // 💬 Generate chat reply
   const assistantReply = await chatResponder(userConversations[sessionId]);
