@@ -92,10 +92,11 @@ if (userConversations[sessionId].length > 1) {
     await generateSummaryPDF(userIntakeOverrides[sessionId], sessionId);
     responseData.show_summary = true;
 
-    if (!userIntakeOverrides[sessionId].photoUploaded && !userIntakeOverrides[sessionId].garage_photo_upload) {
-      responseData.open_upload = true;
-    }
-  }
+   const photoFlag = userIntakeOverrides[sessionId].garage_photo_upload;
+if (!userIntakeOverrides[sessionId].photoUploaded && (!photoFlag || photoFlag === '')) {
+  responseData.open_upload = true;
+}
+
 
   res.status(200).json(responseData);
 });
