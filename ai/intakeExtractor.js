@@ -21,7 +21,12 @@ async function intakeExtractor(conversation) {
     });
 
     const content = completion.choices[0].message.content;
-    return JSON.parse(content);
+    const parsedFields = JSON.parse(content);
+
+    // ✅ New log added here:
+    console.log("[intakeExtractor] Fields extracted:", parsedFields);
+
+    return parsedFields;
   } catch (error) {
     console.error("intakeExtractor AI error:", error.message);
     return {};
