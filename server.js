@@ -55,28 +55,20 @@ app.post('/message', async (req, res) => {
 
   userConversations[sessionId].push({ role: 'user', content: message });
 
-  let extractedFields = {};
-  let responseData = { sessionId };
-
-  // 🧠 Use full conversation for extraction
-  if (userConversations[sessionId].length > 1) {
-    extractedFields = await intakeExtractor(userConversations[sessionId]);
-    for (const key in extractedFields) {
-      const value = extractedFields[key];
-      if (value && value.trim() !== '') {
-        userIntakeOverrides[sessionId][key] = value;
-      }
+  const { fields, readyForCheck } = await intakeExtractor(userConversations[sessionId]);
+  for (const key in fields) {
+    const value = fields[key];
+    if (value && value.trim() !== '') {
+      userIntakeOverrides[sessionId][key] = value;
     }
-    console.log("[intakeExtractor] Smart-merged updated intake:", userIntakeOverrides[sessionId]);
-  } else {
-    console.log("[intakeExtractor] Skipped — waiting for user to give real input.");
   }
 
-  const noNewFields = Object.values(extractedFields).every(val => !val || val.trim() === '');
-  let assistantReply;
+  console.log("[intakeExtractor] Smart-merged updated intake:", userIntakeOverrides[sessionId]);
 
-  // ✅ Only run doneChecker when no new fields were found
-  if (noNewFields) {
+  let assistantReply;
+  const responseData = { sessionId };
+
+  if (readyForCheck) {
     const { done, missing } = await doneChecker(userIntakeOverrides[sessionId]);
 
     if (!done && missing.length > 0) {
