@@ -16,7 +16,6 @@ const {
   ensureSession
 } = require('./utils/sessions');
 
-const { submitFinalIntakeSummary } = require('./utils/submit');
 
 const app = express();
 const port = process.env.PORT || 10000;
@@ -78,7 +77,7 @@ app.post('/message', async (req, res) => {
 
   if (isDone) {
     console.log("[✅ Intake Complete] Submitting final summary...");
-    await submitFinalIntakeSummary(userIntakeOverrides[sessionId], sessionId);
+    await generateSummaryPDF(userIntakeOverrides[sessionId], sessionId);
     responseData.show_summary = true;
 
     if (!userIntakeOverrides[sessionId].photoUploaded && !userIntakeOverrides[sessionId].garage_photo_upload) {
