@@ -5,7 +5,7 @@ const fs = require("fs");
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 async function doneChecker(fields) {
-  let donePrompt = "Check if all required fields are complete.";
+  let donePrompt = "";
   try {
     donePrompt = fs.readFileSync("./prompts/intake-done-checker.txt", "utf8");
   } catch (err) {
@@ -15,7 +15,6 @@ async function doneChecker(fields) {
   try {
     const promptWithFields = donePrompt.replace("{{fields}}", JSON.stringify(fields, null, 2));
 
-    // ✅ Log the fields being checked
     console.log("[doneChecker] Checking fields:", fields);
 
     const completion = await openai.chat.completions.create({
@@ -25,15 +24,16 @@ async function doneChecker(fields) {
       ]
     });
 
-    const response = completion.choices[0].message.content;
+    const content = completion.choices[0].message.content;
+    const isDone = content.includes("✅");
+    const missingMatches = content.match(/Missing:\s*(.*)/i);
+    const missing = missingMatches ? missingMatches[1].split(",").map(f => f.trim()) : [];
 
-    // ✅ Log what the AI said
-    console.log("[doneChecker] AI response:", response);
-
-    return response.includes("✅");
+    console.log("[doneChecker] AI response:", content);
+    return { done: isDone, missing };
   } catch (error) {
     console.error("doneChecker AI error:", error.message);
-    return false;
+    return { done: false, missing: [] };
   }
 }
 
