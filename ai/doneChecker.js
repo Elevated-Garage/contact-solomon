@@ -13,14 +13,23 @@ async function doneChecker(fields) {
   }
 
   try {
+    const promptWithFields = donePrompt.replace("{{fields}}", JSON.stringify(fields, null, 2));
+
+    // ✅ Log the fields being checked
+    console.log("[doneChecker] Checking fields:", fields);
+
     const completion = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
       messages: [
-        { role: "system", content: donePrompt.replace("{{fields}}", JSON.stringify(fields, null, 2)) }
+        { role: "system", content: promptWithFields }
       ]
     });
 
     const response = completion.choices[0].message.content;
+
+    // ✅ Log what the AI said
+    console.log("[doneChecker] AI response:", response);
+
     return response.includes("✅");
   } catch (error) {
     console.error("doneChecker AI error:", error.message);
