@@ -203,6 +203,15 @@ if (isJustSayingHello) {
       const assistantReply = completion.choices[0].message.content;
       userConversations[sessionId].push({ role: 'assistant', content: assistantReply });
       // ✅ Field completion logic — tells the AI if all required data has been captured
+const requiredFields = [
+  "full_name", "email", "phone", "garage_goals", "square_footage",
+  "must_have_features", "budget", "start_date", "final_notes"
+];
+
+const isFieldComplete = requiredFields.every(field =>
+  userIntakeOverrides[sessionId]?.[field] &&
+  userIntakeOverrides[sessionId][field].trim() !== ""
+);
 
 // 🧠 Let frontend know if AI should prompt the photo upload
 // === Done-check logic ===
@@ -337,5 +346,7 @@ app.post("/update-intake", (req, res) => {
 
   userIntakeOverrides[sessionId][field] = value;
   res.status(200).json({ success: true });
-}); // 👈 correct closing of app.post
-
+}); // 👈 you were missing this closing parenthesis!
+app.listen(port, () => {
+  console.log(`✅ Contact Solomon backend running on port ${port}`);
+});
