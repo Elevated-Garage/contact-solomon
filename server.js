@@ -202,13 +202,8 @@ if (isJustSayingHello) {
     if (completion && completion.choices && completion.choices.length > 0) {
       const assistantReply = completion.choices[0].message.content;
       userConversations[sessionId].push({ role: 'assistant', content: assistantReply });
-      // ✅ Field completion logic — tells the AI if all required data has been captured
-const isFieldComplete = requiredFields.every(field =>
-  userIntakeOverrides[sessionId]?.[field] &&
-  userIntakeOverrides[sessionId][field].trim() !== ""
-);
+      res.status(200).json({ reply: assistantReply, done: isFieldComplete, sessionId });
 
-// 🧠 Let frontend know if AI should prompt the photo upload
 // === Done-check logic ===
 const requiredFields = [
   "full_name", "email", "phone", "garage_goals", "square_footage",
@@ -242,15 +237,15 @@ if (ENABLE_AI_DONE_CHECK && !isFieldComplete) {
     console.warn("⚠️ GPT done-check failed:", err.message);
   }
 }
-
-const done = ENABLE_AI_DONE_CHECK ? isAIDone || isFieldComplete : isFieldComplete;
-
-res.status(200).json({
-  reply: assistantReply,
-  done,
-  sessionId
+    } else {
+      console.error("❌ OpenAI returned no choices.");
+      res.status(500).json({ reply: "Sorry, I couldn't generate a response.", done: false, sessionId });
+    }
+  } catch (error) {
+    console.error("❌ OpenAI Error:", error.response ? error.response.data : error.message);
+    res.status(500).json({ reply: "Sorry, I had an issue responding.", done: false, sessionId });
+  }
 });
-
 
 // == /submit-final-intake route ==
 app.post('/submit-final-intake', async (req, res) => {
