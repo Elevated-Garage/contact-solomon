@@ -1,7 +1,6 @@
 const express = require('express');
 const multer = require('multer');
 const cors = require('cors');
-const path = require('path');
 require('dotenv').config();
 
 const { generateSummaryPDF } = require('./utils/pdfBuilder');
@@ -30,10 +29,8 @@ const upload = multer({ storage });
 app.post('/upload-photos', upload.array('photos'), (req, res) => {
   const sessionId = req.headers['x-session-id'];
   ensureSession(sessionId);
-
   req.files.forEach(file => userUploadedPhotos[sessionId].push(file));
   userIntakeOverrides[sessionId].photoUploaded = true;
-
   res.status(200).json({ success: true });
 });
 
@@ -41,10 +38,8 @@ app.post('/upload-photos', upload.array('photos'), (req, res) => {
 app.post("/skip-photo-upload", (req, res) => {
   const sessionId = req.headers["x-session-id"];
   if (!sessionId) return res.status(400).send("Missing session ID");
-
   ensureSession(sessionId);
   userIntakeOverrides[sessionId].garage_photo_upload = "Skipped";
-
   res.status(200).send({ message: "Photo upload skipped." });
 });
 
@@ -52,7 +47,6 @@ app.post("/skip-photo-upload", (req, res) => {
 app.post('/message', async (req, res) => {
   const sessionId = req.headers['x-session-id'] || generateSessionId();
   const { message } = req.body;
-
   ensureSession(sessionId);
 
   if (!message || typeof message !== 'string' || message.trim() === '') {
@@ -62,10 +56,11 @@ app.post('/message', async (req, res) => {
   userConversations[sessionId].push({ role: 'user', content: message });
 
   let extractedFields = {};
-  if (userConversations[sessionId].length > 1) {
-    extractedFields = // In server.js
-const extractedFields = await intakeExtractor(userConversations[sessionId]);
+  let responseData = { sessionId };
 
+  // 🧠 Use full conversation for extraction
+  if (userConversations[sessionId].length > 1) {
+    extractedFields = await intakeExtractor(userConversations[sessionId]);
     for (const key in extractedFields) {
       const value = extractedFields[key];
       if (value && value.trim() !== '') {
@@ -77,10 +72,10 @@ const extractedFields = await intakeExtractor(userConversations[sessionId]);
     console.log("[intakeExtractor] Skipped — waiting for user to give real input.");
   }
 
-  let assistantReply;
-  let responseData = { sessionId };
-
   const noNewFields = Object.values(extractedFields).every(val => !val || val.trim() === '');
+  let assistantReply;
+
+  // ✅ Only run doneChecker when no new fields were found
   if (noNewFields) {
     const { done, missing } = await doneChecker(userIntakeOverrides[sessionId]);
 
@@ -109,7 +104,6 @@ const extractedFields = await intakeExtractor(userConversations[sessionId]);
 
   userConversations[sessionId].push({ role: 'assistant', content: assistantReply });
   responseData.reply = assistantReply;
-
   res.status(200).json(responseData);
 });
 
@@ -117,4 +111,3 @@ const extractedFields = await intakeExtractor(userConversations[sessionId]);
 app.listen(port, () => {
   console.log(`✅ Contact Solomon backend running on port ${port}`);
 });
-
