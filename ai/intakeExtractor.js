@@ -44,9 +44,16 @@ async function intakeExtractor(conversation) {
       "final_notes"
     ];
 
-    const readyForCheck = requiredKeys.every(
-  key => parsedFields[key] && parsedFields[key].trim() !== ""
-);
+    const fillers = ["no", "none", "n/a", "not sure", "idk", "soon", "help", "?"];
+
+    const isValid = value => {
+      if (!value) return false;
+      const cleaned = value.trim().toLowerCase();
+      return cleaned !== "" && !fillers.includes(cleaned);
+    };
+
+    const readyForCheck = requiredKeys.every(key => isValid(parsedFields[key]));
+
     console.log("[intakeExtractor] Fields extracted:", parsedFields);
     console.log("[intakeExtractor] Ready for doneChecker:", readyForCheck);
 
