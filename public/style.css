@@ -185,7 +185,18 @@ body::before {
   outline: none;
   display: flex;
   align-items: center;
+  position: relative; /* required for ::before positioning */
 }
+
+#input-field:empty::before {
+  content: "type answer here...";
+  color: #888; /* placeholder color */
+  position: absolute;
+  left: 0.75rem;
+  top: 0.6rem;
+  pointer-events: none;
+}
+
 
 #send-button {
   background-color: #B91B21;
