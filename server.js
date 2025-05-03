@@ -204,11 +204,6 @@ if (isJustSayingHello) {
       userConversations[sessionId].push({ role: 'assistant', content: assistantReply });
       // ✅ Field completion logic — tells the AI if all required data has been captured
 
-const isFieldComplete = requiredFields.every(field =>
-  userIntakeOverrides[sessionId]?.[field] &&
-  userIntakeOverrides[sessionId][field].trim() !== ""
-);
-
 // 🧠 Let frontend know if AI should prompt the photo upload
 // === Done-check logic ===
 const requiredFields = [
