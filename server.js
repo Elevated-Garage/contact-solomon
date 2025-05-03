@@ -199,13 +199,7 @@ if (isJustSayingHello) {
       temperature: 0.7
     });
 
-    if (completion && completion.choices && completion.choices.length > 0) {
-      const assistantReply = completion.choices[0].message.content;
-      userConversations[sessionId].push({ role: 'assistant', content: assistantReply });
-      res.status(200).json({ reply: assistantReply, done: isFieldComplete, sessionId });
-
-// === Done-check logic ===
-const requiredFields = [
+    const requiredFields = [
   "full_name", "email", "phone", "garage_goals", "square_footage",
   "must_have_features", "budget", "start_date", "final_notes"
 ];
@@ -214,6 +208,14 @@ const isFieldComplete = requiredFields.every(field =>
   userIntakeOverrides[sessionId]?.[field] &&
   userIntakeOverrides[sessionId][field].trim() !== ""
 );
+
+if (completion && completion.choices && completion.choices.length > 0) {
+      const assistantReply = completion.choices[0].message.content;
+      userConversations[sessionId].push({ role: 'assistant', content: assistantReply });
+      res.status(200).json({ reply: assistantReply, done: isFieldComplete, sessionId });
+
+// === Done-check logic ===
+
 
 let isAIDone = false;
 
@@ -309,7 +311,17 @@ async function extractIntakeData(conversationHistory) {
       temperature: 0
     });
 
-    if (completion && completion.choices && completion.choices.length > 0) {
+    const requiredFields = [
+  "full_name", "email", "phone", "garage_goals", "square_footage",
+  "must_have_features", "budget", "start_date", "final_notes"
+];
+
+const isFieldComplete = requiredFields.every(field =>
+  userIntakeOverrides[sessionId]?.[field] &&
+  userIntakeOverrides[sessionId][field].trim() !== ""
+);
+
+if (completion && completion.choices && completion.choices.length > 0) {
       return JSON.parse(completion.choices[0].message.content);
     } else {
       console.error("❌ Extraction failed: No choices returned.");
