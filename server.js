@@ -87,15 +87,21 @@ if (userConversations[sessionId].length > 1) {
   // ✅ Check completion
   const isDone = await doneChecker(userIntakeOverrides[sessionId]);
 
-  if (isDone) {
-    console.log("[✅ Intake Complete] Submitting final summary...");
-    await generateSummaryPDF(userIntakeOverrides[sessionId], sessionId);
-    responseData.show_summary = true;
+if (isDone) {
+  console.log("[✅ Intake Complete] Submitting final summary...");
+  await generateSummaryPDF(userIntakeOverrides[sessionId], sessionId);
+  responseData.show_summary = true;
 
-   const photoFlag = userIntakeOverrides[sessionId].garage_photo_upload;
-if (!userIntakeOverrides[sessionId].photoUploaded && (!photoFlag || photoFlag === '')) {
-  responseData.open_upload = true;
+  // ✅ NEW photo uploader logic with logs
+  const photoFlag = userIntakeOverrides[sessionId].garage_photo_upload;
+  console.log("[Photo Check] photoUploaded:", userIntakeOverrides[sessionId].photoUploaded);
+  console.log("[Photo Check] garage_photo_upload:", photoFlag);
+
+  if (!userIntakeOverrides[sessionId].photoUploaded && (!photoFlag || photoFlag === '')) {
+    responseData.open_upload = true;
+  }
 }
+
 
 
   res.status(200).json(responseData);
