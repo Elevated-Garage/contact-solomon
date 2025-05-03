@@ -215,10 +215,8 @@ const isFieldComplete = requiredFields.every(field =>
 
 // 🧠 Let frontend know if AI should prompt the photo upload
 // === Done-check logic ===
-const requiredFields = [
-  "full_name", "email", "phone", "garage_goals", "square_footage",
-  "must_have_features", "budget", "start_date", "final_notes"
-];
+// requiredFields already declared above
+
 
 const isFieldComplete = requiredFields.every(field =>
   userIntakeOverrides[sessionId]?.[field] &&
@@ -347,12 +345,6 @@ app.post("/update-intake", (req, res) => {
   userIntakeOverrides[sessionId][field] = value;
   res.status(200).json({ success: true });
 }); // 👈 you were missing this closing parenthesis!
-app.listen(port, () => {
-  console.log(`✅ Contact Solomon backend running on port ${port}`);
-});
-  }
-})
-
 app.listen(port, () => {
   console.log(`✅ Contact Solomon backend running on port ${port}`);
 });
