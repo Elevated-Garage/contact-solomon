@@ -339,7 +339,3 @@ app.post("/update-intake", (req, res) => {
   res.status(200).json({ success: true });
 }); // 👈 correct closing of app.post
 
-// ✅ Properly closed app.listen
-app.listen(port, () => {
-  console.log(`✅ Contact Solomon backend running on port ${port}`);
-});
