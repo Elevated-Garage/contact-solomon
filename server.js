@@ -249,7 +249,7 @@ res.status(200).json({
   sessionId
 });
 
-});
+};
 
 
 // == /submit-final-intake route ==
