@@ -43,12 +43,10 @@ async function intakeExtractor(conversation) {
       "start_date",
       "final_notes"
     ];
-    const filledCount = requiredKeys.filter(
-      key => parsedFields[key] && parsedFields[key].trim() !== ""
-    ).length;
 
-    const readyForCheck = filledCount >= 5;
-
+    const readyForCheck = requiredKeys.every(
+  key => parsedFields[key] && parsedFields[key].trim() !== ""
+);
     console.log("[intakeExtractor] Fields extracted:", parsedFields);
     console.log("[intakeExtractor] Ready for doneChecker:", readyForCheck);
 
