@@ -132,62 +132,57 @@ app.post('/message', async (req, res) => {
 
   userConversations[sessionId].push({ role: 'user', content: message });
 
-  
-// 👇 Add this inside your /message route, right after userConversations[sessionId].push(...)
-if (!(sessionId in userIntakeOverrides)) {
-  userIntakeOverrides[sessionId] = {};
-}
-
-const isJustSayingHello = /solomon.*(help|design|garage|start|hi|hello|there)/i.test(message);
-
-if (isJustSayingHello) {
-  console.log("🧘 Skipping field extraction: initial greeting or assistant callout.");
-} else {
-  const intakeExtractionPrompt = extractionPrompt.replace("{{message}}", message);
-
-  try {
-    const extractionCompletion = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
-      messages: [
-        { role: "system", content: "You are a structured field extractor." },
-        { role: "user", content: intakeExtractionPrompt }
-      ],
-      temperature: 0
-    });
-
-    const extracted = JSON.parse(extractionCompletion.choices[0].message.content);
-    const fields = [
-      "full_name",
-      "email",
-      "phone",
-      "garage_goals",
-      "square_footage",
-      "must_have_features",
-      "budget",
-      "start_date",
-      "final_notes"
-    ];
-
-    console.log("📂 BEFORE merge:", JSON.stringify(userIntakeOverrides[sessionId], null, 2));
-    
-  for (const field of fields) {
-  if (
-    extracted[field] &&
-    (!userIntakeOverrides[sessionId][field] || userIntakeOverrides[sessionId][field] === "")
-  ) {
-    userIntakeOverrides[sessionId][field] = extracted[field];
+  if (!(sessionId in userIntakeOverrides)) {
+    userIntakeOverrides[sessionId] = {};
   }
-}
 
-    console.log("💾 AFTER merge:", JSON.stringify(userIntakeOverrides[sessionId], null, 2));
+  const isJustSayingHello = /solomon.*(help|design|garage|start|hi|hello|there)/i.test(message);
 
-    console.log("📦 GPT Extracted Fields:", extracted);
-    console.log("💾 Full Overrides Snapshot:", JSON.stringify(userIntakeOverrides[sessionId], null, 2));
-  } catch (err) {
-    console.warn("⚠️ GPT intake extraction failed:", err.message);
+  if (isJustSayingHello) {
+    console.log("🧘 Skipping field extraction: initial greeting or assistant callout.");
+  } else {
+    const intakeExtractionPrompt = extractionPrompt.replace("{{message}}", message);
+
+    try {
+      const extractionCompletion = await openai.chat.completions.create({
+        model: "gpt-3.5-turbo",
+        messages: [
+          { role: "system", content: "You are a structured field extractor." },
+          { role: "user", content: intakeExtractionPrompt }
+        ],
+        temperature: 0
+      });
+
+      const extracted = JSON.parse(extractionCompletion.choices[0].message.content);
+      const fields = [
+        "full_name",
+        "email",
+        "phone",
+        "garage_goals",
+        "square_footage",
+        "must_have_features",
+        "budget",
+        "start_date",
+        "final_notes"
+      ];
+
+      console.log("📂 BEFORE merge:", JSON.stringify(userIntakeOverrides[sessionId], null, 2));
+
+      for (const field of fields) {
+        if (
+          extracted[field] &&
+          (!userIntakeOverrides[sessionId][field] || userIntakeOverrides[sessionId][field] === "")
+        ) {
+          userIntakeOverrides[sessionId][field] = extracted[field];
+        }
+      }
+
+      console.log("💾 AFTER merge:", JSON.stringify(userIntakeOverrides[sessionId], null, 2));
+      console.log("📦 GPT Extracted Fields:", extracted);
+    } catch (err) {
+      console.warn("⚠️ GPT intake extraction failed:", err.message);
+    }
   }
-}
-
 
   try {
     const conversationHistory = [
@@ -204,52 +199,55 @@ if (isJustSayingHello) {
     if (completion && completion.choices && completion.choices.length > 0) {
       const assistantReply = completion.choices[0].message.content;
       userConversations[sessionId].push({ role: 'assistant', content: assistantReply });
-      // ✅ Field completion logic — tells the AI if all required data has been captured
-const requiredFields = [
-  "full_name", "email", "phone", "garage_goals", "square_footage",
-  "must_have_features", "budget", "start_date", "final_notes"
-];
 
-const isFieldComplete = requiredFields.every(field =>
-  userIntakeOverrides[sessionId]?.[field] &&
-  userIntakeOverrides[sessionId][field].trim() !== ""
-);
+      const requiredFields = [
+        "full_name", "email", "phone", "garage_goals", "square_footage",
+        "must_have_features", "budget", "start_date", "final_notes"
+      ];
 
-// 🧠 Let frontend know if AI should prompt the photo upload
-// === Done-check logic ===
+      const isFieldComplete = requiredFields.every(field =>
+        userIntakeOverrides[sessionId]?.[field] &&
+        userIntakeOverrides[sessionId][field].trim() !== ""
+      );
 
-let isAIDone = false;
+      let isAIDone = false;
 
-if (ENABLE_AI_DONE_CHECK && !isFieldComplete) {
-  try {
-    const doneCheck = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
-      messages: [
-        {
-          role: "system",
-          content: "You are a completion checker. Based on this chat history, respond ONLY with JSON: {\"done\": true} or {\"done\": false}."
-        },
-        ...conversationHistory
-      ],
-      temperature: 0
-    });
+      if (ENABLE_AI_DONE_CHECK && !isFieldComplete) {
+        try {
+          const doneCheck = await openai.chat.completions.create({
+            model: "gpt-3.5-turbo",
+            messages: [
+              {
+                role: "system",
+                content: "You are a completion checker. Based on this chat history, respond ONLY with JSON: {\"done\": true} or {\"done\": false}."
+              },
+              ...conversationHistory
+            ],
+            temperature: 0
+          });
 
-    const parsed = JSON.parse(doneCheck.choices[0].message.content);
-    isAIDone = parsed.done === true;
+          const parsed = JSON.parse(doneCheck.choices[0].message.content);
+          isAIDone = parsed.done === true;
+        } catch (err) {
+          console.warn("⚠️ GPT done-check failed:", err.message);
+        }
+      }
+
+      const done = ENABLE_AI_DONE_CHECK ? isAIDone || isFieldComplete : isFieldComplete;
+
+      res.status(200).json({
+        reply: assistantReply,
+        done,
+        sessionId
+      });
+    } else {
+      res.status(500).send("No response from AI.");
+    }
   } catch (err) {
-    console.warn("⚠️ GPT done-check failed:", err.message);
+    console.error("❌ GPT completion error:", err.message);
+    res.status(500).send("Something went wrong.");
   }
-}
-
-const done = ENABLE_AI_DONE_CHECK ? isAIDone || isFieldComplete : isFieldComplete;
-
-res.status(200).json({
-  reply: assistantReply,
-  done,
-  sessionId
 });
-
-};
 
 
 // == /submit-final-intake route ==
