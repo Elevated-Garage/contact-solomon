@@ -203,10 +203,6 @@ if (isJustSayingHello) {
       const assistantReply = completion.choices[0].message.content;
       userConversations[sessionId].push({ role: 'assistant', content: assistantReply });
       // ✅ Field completion logic — tells the AI if all required data has been captured
-const requiredFields = [
-  "full_name", "email", "phone", "garage_goals", "square_footage",
-  "must_have_features", "budget", "start_date", "final_notes"
-];
 
 const isFieldComplete = requiredFields.every(field =>
   userIntakeOverrides[sessionId]?.[field] &&
