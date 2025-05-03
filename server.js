@@ -337,7 +337,10 @@ app.post("/update-intake", (req, res) => {
 
   userIntakeOverrides[sessionId][field] = value;
   res.status(200).json({ success: true });
-}); // 👈 you were missing this closing parenthesis!
+}); // 👈 correct closing of app.post
+
+// ✅ Properly closed app.listen
 app.listen(port, () => {
   console.log(`✅ Contact Solomon backend running on port ${port}`);
-}
+}); // 👈 this was missing
+
