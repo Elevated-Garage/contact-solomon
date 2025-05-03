@@ -81,7 +81,7 @@ if (userConversations[sessionId].length > 1) {
   };
 
   // ✅ Check completion
-  const isDone = await doneChecker(sessionId, userIntakeOverrides);
+  const isDone = await doneChecker(userIntakeOverrides[sessionId]);
 
   if (isDone) {
     console.log("[✅ Intake Complete] Submitting final summary...");
