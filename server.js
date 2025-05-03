@@ -243,7 +243,7 @@ res.status(200).json({
   done,
   sessionId
 });
-}); // closes /message
+
 
 
 // == /submit-final-intake route ==
