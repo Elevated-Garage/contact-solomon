@@ -63,7 +63,9 @@ app.post('/message', async (req, res) => {
 
   let extractedFields = {};
   if (userConversations[sessionId].length > 1) {
-    extractedFields = await intakeExtractor(message);
+    extractedFields = // In server.js
+const extractedFields = await intakeExtractor(userConversations[sessionId]);
+
     for (const key in extractedFields) {
       const value = extractedFields[key];
       if (value && value.trim() !== '') {
