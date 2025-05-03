@@ -102,6 +102,7 @@ app.post('/upload-photos', upload.array('photos'), (req, res) => {
   req.files.forEach(file => userUploadedPhotos[sessionId].push(file));
   res.status(200).json({ success: true });
 });
+}); // closes /message
 
 app.post("/skip-photo-upload", (req, res) => {
   const sessionId = req.headers["x-session-id"];
@@ -243,6 +244,7 @@ res.status(200).json({
   done,
   sessionId
 });
+}); // closes /message
 
 
 // == /submit-final-intake route ==
@@ -280,6 +282,7 @@ res.status(200).json({
   reply: "✅ Thank you for submitting your project! Our team will review everything and reach out to you shortly.",
   done: true
 });
+}); // closes /message
 
     } else {
       console.log(`⚠️ [${sessionId}] No sufficient intake data or uploaded photos.`);
@@ -290,6 +293,7 @@ res.status(200).json({
     res.status(500).send("Server Error during final intake processing.");
   }
 });
+}); // closes /message
 
 async function extractIntakeData(conversationHistory) {
   const transcript = conversationHistory
@@ -338,3 +342,4 @@ app.post("/update-intake", (req, res) => {
 app.listen(port, () => {
   console.log(`✅ Contact Solomon backend running on port ${port}`);
 });
+}); // closes /message
