@@ -215,14 +215,6 @@ const isFieldComplete = requiredFields.every(field =>
 
 // 🧠 Let frontend know if AI should prompt the photo upload
 // === Done-check logic ===
-  "full_name", "email", "phone", "garage_goals", "square_footage",
-  "must_have_features", "budget", "start_date", "final_notes"
-];
-
-const isFieldComplete = requiredFields.every(field =>
-  userIntakeOverrides[sessionId]?.[field] &&
-  userIntakeOverrides[sessionId][field].trim() !== ""
-);
 
 let isAIDone = false;
 
