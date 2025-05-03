@@ -1,20 +1,31 @@
-const { OpenAI } = require("openai");
-const extractionPromptTemplate = require("fs").readFileSync("./prompts/extraction-prompt.txt", "utf8");
+require("dotenv").config();
+const OpenAI = require("openai");
+const fs = require("fs");
+
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-async function extractIntakeFields(message) {
-  const intakePrompt = extractionPromptTemplate.replace("{{message}}", message);
+async function intakeExtractor(conversation) {
+  let intakePrompt = "Extract key intake data from the user's message.";
+  try {
+    intakePrompt = fs.readFileSync("./prompts/intake-extractor-prompt.txt", "utf8");
+  } catch (err) {
+    console.warn("Prompt file missing or unreadable (intakeExtractor):", err.message);
+  }
 
-  const completion = await openai.chat.completions.create({
-    model: "gpt-3.5-turbo",
-    messages: [
-      { role: "system", content: "You are a structured field extractor." },
-      { role: "user", content: intakePrompt }
-    ],
-    temperature: 0
-  });
+  try {
+    const completion = await openai.chat.completions.create({
+      model: "gpt-3.5-turbo",
+      messages: [
+        { role: "system", content: intakePrompt.replace("{{message}}", conversation) }
+      ]
+    });
 
-  return JSON.parse(completion.choices[0].message.content);
+    const content = completion.choices[0].message.content;
+    return JSON.parse(content);
+  } catch (error) {
+    console.error("intakeExtractor AI error:", error.message);
+    return {};
+  }
 }
 
-module.exports = extractIntakeFields;
+module.exports = intakeExtractor;
