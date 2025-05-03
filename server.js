@@ -341,4 +341,4 @@ app.post("/update-intake", (req, res) => {
 app.listen(port, () => {
   console.log(`✅ Contact Solomon backend running on port ${port}`);
 });
-}); // closes /message
+}; // closes /message
