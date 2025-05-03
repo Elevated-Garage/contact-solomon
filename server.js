@@ -249,6 +249,8 @@ res.status(200).json({
   sessionId
 });
 
+});
+
 
 // == /submit-final-intake route ==
 app.post('/submit-final-intake', async (req, res) => {
