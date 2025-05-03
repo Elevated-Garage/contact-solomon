@@ -6,7 +6,7 @@ const path = require('path');
 require('dotenv').config();
 
 const { generateSummaryPDF } = require('./utils/pdfBuilder');
-const { generateSessionId } = require('./utils/pdfBuilder');
+const { generateSessionId } = require('./utils/sessions');
 const intakeExtractor = require('./ai/intakeExtractor');
 const chatResponder = require('./ai/chatResponder');
 const doneChecker = require('./ai/doneChecker');
