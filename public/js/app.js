@@ -106,15 +106,20 @@ form?.addEventListener('submit', async (e) => {
     const data = await res.json();
     appendMessage('Solomon', data.reply);
 
-    if (data.show_summary || data.open_upload) {
-  finalizeIntakeFlow();
-}
+    if (data.triggerUpload) {
+      console.log("📸 AI requested photo upload. Triggering file input...");
+      document.getElementById("file-upload")?.click();
+    }
 
-    
+    if (data.show_summary || data.open_upload) {
+      finalizeIntakeFlow();
+    }
+
   } catch (err) {
     appendMessage('Solomon', '❌ Error responding. Please try again.');
   }
 });
+
 
 // Drag-click area to open file dialog
 dragArea?.addEventListener("click", (e) => {
