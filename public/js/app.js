@@ -105,6 +105,15 @@ form?.addEventListener('submit', async (e) => {
 
     const data = await res.json();
     appendMessage('Solomon', data.reply);
+    
+    if (data.triggerUpload) {
+  const uploader = document.getElementById("photo-uploader");
+  if (uploader) {
+    uploader.classList.remove("hidden");
+    uploader.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+}
+
 
     if (data.triggerUpload) {
       console.log("📸 AI requested photo upload. Triggering file input...");
