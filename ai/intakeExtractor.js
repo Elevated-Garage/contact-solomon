@@ -47,15 +47,18 @@ async function intakeExtractor(conversation) {
     const fillers = ["n/a", "not sure", "idk", "soon", "help", "?"];
     const acceptedShortAnswers = ["no", "none", "nope", "nothing else"];
 
-    const isValid = (value) => {
-      if (!value) return false;
-      const cleaned = value.trim().toLowerCase();
-      if (cleaned === "") return false;
-      if (fillers.includes(cleaned)) return false;
-      return true; // Accept short valid responses like "no"
-    };
+   const isValid = (value, key) => {
+  if (!value) return false;
+  const cleaned = value.trim().toLowerCase();
+  if (cleaned === "") return false;
+  if (acceptedShortAnswers.includes(cleaned)) return true; // ✅ always allow "no", etc.
+  if (fillers.includes(cleaned)) return false;
+  return true;
+};
 
-    const readyForCheck = requiredKeys.every(key => isValid(parsedFields[key]));
+
+    const readyForCheck = requiredKeys.every(key => isValid(parsedFields[key], key));
+
 
     console.log("[intakeExtractor] Fields extracted:", parsedFields);
     console.log("[intakeExtractor] Ready for doneChecker:", readyForCheck);
