@@ -55,10 +55,8 @@ app.post('/message', async (req, res) => {
 
   userConversations[sessionId].push({ role: 'user', content: message });
 
-  // Extract fields from updated conversation
   const { fields } = await intakeExtractor(userConversations[sessionId]);
 
-  // Merge new fields into session memory
   for (const key in fields) {
     const value = fields[key];
     if (value && value.trim() !== '') {
@@ -71,7 +69,6 @@ app.post('/message', async (req, res) => {
   let assistantReply;
   const responseData = { sessionId };
 
-  // Manual field completeness check (fallback if extractor fails to mark it)
   const requiredFields = [
     "full_name",
     "email",
@@ -88,44 +85,48 @@ app.post('/message', async (req, res) => {
     return val && val.trim().length > 0;
   });
 
+  const sessionMemory = {
+    intakeData: userIntakeOverrides[sessionId],
+    photoUploaded: userUploadedPhotos[sessionId]?.length > 0,
+    doneCheckerComplete: allFieldsPresent,
+    photoRequested: false // initialize if needed
+  };
+
   if (allFieldsPresent) {
     const { done, missing } = await doneChecker(userIntakeOverrides[sessionId]);
 
     if (!done && missing.length > 0) {
-      // Re-ask any missing fields
       const enhancedHistory = [
         ...userConversations[sessionId],
         { role: 'system', content: `missing_fields: ${JSON.stringify(missing)}` }
       ];
-      assistantReply = await chatResponder(enhancedHistory);
+      const chatResponse = await chatResponder(enhancedHistory, missing, sessionMemory);
+      assistantReply = chatResponse.message;
     } else {
-      const photoFlag = userIntakeOverrides[sessionId].garage_photo_upload;
-      const photosUploaded = userUploadedPhotos[sessionId]?.length > 0;
+      const chatResponse = await chatResponder(userConversations[sessionId], [], sessionMemory);
+      assistantReply = chatResponse.message;
 
-      console.log("[Photo Check] photoUploaded:", photosUploaded);
-      console.log("[Photo Check] garage_photo_upload:", photoFlag);
-
-      if (!photosUploaded && (!photoFlag || photoFlag === '')) {
-        responseData.open_upload = true;
-        assistantReply = "Awesome! Could you upload a photo of your garage so we can complete your project profile?";
+      if (chatResponse.signal === "triggerUploader") {
+        responseData.triggerUpload = true;
       } else {
         console.log("[✅ Intake + Photo Complete] Submitting final summary...");
         await generateSummaryPDF(userIntakeOverrides[sessionId], sessionId);
         responseData.show_summary = true;
-        assistantReply = "All set! Here's a summary of your project.";
       }
     }
   } else {
-    // Not all fields complete — continue normal AI conversation
-    assistantReply = await chatResponder(userConversations[sessionId]);
+    const chatResponse = await chatResponder(userConversations[sessionId], [], sessionMemory);
+    assistantReply = chatResponse.message;
+
+    if (chatResponse.signal === "triggerUploader") {
+      responseData.triggerUpload = true;
+    }
   }
 
   userConversations[sessionId].push({ role: 'assistant', content: assistantReply });
   responseData.reply = assistantReply;
   res.status(200).json(responseData);
 });
-
-
 
 // === Start server ===
 app.listen(port, () => {
