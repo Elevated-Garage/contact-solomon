@@ -55,7 +55,10 @@ app.post('/message', async (req, res) => {
 
   userConversations[sessionId].push({ role: 'user', content: message });
 
-  const { fields, readyForCheck } = await intakeExtractor(userConversations[sessionId]);
+  // Extract fields from conversation
+  const { fields } = await intakeExtractor(userConversations[sessionId]);
+
+  // Merge extracted fields into shared memory
   for (const key in fields) {
     const value = fields[key];
     if (value && value.trim() !== '') {
@@ -64,6 +67,24 @@ app.post('/message', async (req, res) => {
   }
 
   console.log("[intakeExtractor] Smart-merged updated intake:", userIntakeOverrides[sessionId]);
+
+  // ✅ Compute readiness for doneChecker after merging
+  const requiredKeys = [
+    "full_name", "email", "phone",
+    "garage_goals", "square_footage", "must_have_features",
+    "budget", "start_date", "final_notes"
+  ];
+
+  const isValid = value => {
+    if (!value) return false;
+    const cleaned = value.trim().toLowerCase();
+    const fillers = ["no", "none", "n/a", "not sure", "idk", "soon", "help", "?"];
+    return cleaned !== "" && !fillers.includes(cleaned);
+  };
+
+  const readyForCheck = requiredKeys.every(
+    key => isValid(userIntakeOverrides[sessionId][key])
+  );
 
   let assistantReply;
   const responseData = { sessionId };
@@ -104,6 +125,7 @@ app.post('/message', async (req, res) => {
   responseData.reply = assistantReply;
   res.status(200).json(responseData);
 });
+
 
 // === Start server ===
 app.listen(port, () => {
