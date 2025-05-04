@@ -165,7 +165,7 @@ body::before {
   gap: 10px;
   background-color: rgba(255, 85, 95, 0.1);
   backdrop-filter: blur(8px);
-  padding: 10px 14px;
+  padding: 9px 11px;
   border-radius: 12px;
   box-shadow: 0 -2px 8px rgba(185, 27, 33, 0.1);
   flex-shrink: 0;
