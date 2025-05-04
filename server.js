@@ -55,10 +55,10 @@ app.post('/message', async (req, res) => {
 
   userConversations[sessionId].push({ role: 'user', content: message });
 
-  // Extract fields from conversation
+  // Extract fields from updated conversation
   const { fields } = await intakeExtractor(userConversations[sessionId]);
 
-  // Merge extracted fields into shared memory
+  // Merge new fields into session memory
   for (const key in fields) {
     const value = fields[key];
     if (value && value.trim() !== '') {
@@ -68,37 +68,35 @@ app.post('/message', async (req, res) => {
 
   console.log("[intakeExtractor] Smart-merged updated intake:", userIntakeOverrides[sessionId]);
 
-  // ✅ Compute readiness for doneChecker after merging
-  const requiredKeys = [
-    "full_name", "email", "phone",
-    "garage_goals", "square_footage", "must_have_features",
-    "budget", "start_date", "final_notes"
-  ];
-
-  const isValid = value => {
-    if (!value) return false;
-    const cleaned = value.trim().toLowerCase();
-    const fillers = ["no", "none", "n/a", "not sure", "idk", "soon", "help", "?"];
-    return cleaned !== "" && !fillers.includes(cleaned);
-  };
-
-  const readyForCheck = requiredKeys.every(
-    key => isValid(userIntakeOverrides[sessionId][key])
-  );
-
   let assistantReply;
   const responseData = { sessionId };
 
-  if (readyForCheck) {
+  // Manual field completeness check (fallback if extractor fails to mark it)
+  const requiredFields = [
+    "full_name",
+    "email",
+    "phone",
+    "garage_goals",
+    "square_footage",
+    "must_have_features",
+    "budget",
+    "start_date",
+    "final_notes"
+  ];
+  const allFieldsPresent = requiredFields.every(key => {
+    const val = userIntakeOverrides[sessionId][key];
+    return val && val.trim().length > 0;
+  });
+
+  if (allFieldsPresent) {
     const { done, missing } = await doneChecker(userIntakeOverrides[sessionId]);
 
     if (!done && missing.length > 0) {
-      // ⬇️ Add missing_fields to message history as a system message
+      // Re-ask any missing fields
       const enhancedHistory = [
         ...userConversations[sessionId],
         { role: 'system', content: `missing_fields: ${JSON.stringify(missing)}` }
       ];
-
       assistantReply = await chatResponder(enhancedHistory);
     } else {
       const photoFlag = userIntakeOverrides[sessionId].garage_photo_upload;
@@ -118,6 +116,7 @@ app.post('/message', async (req, res) => {
       }
     }
   } else {
+    // Not all fields complete — continue normal AI conversation
     assistantReply = await chatResponder(userConversations[sessionId]);
   }
 
@@ -125,6 +124,7 @@ app.post('/message', async (req, res) => {
   responseData.reply = assistantReply;
   res.status(200).json(responseData);
 });
+
 
 
 // === Start server ===
