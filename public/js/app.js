@@ -105,6 +105,12 @@ form?.addEventListener('submit', async (e) => {
 
     const data = await res.json();
     appendMessage('Solomon', data.reply);
+
+    if (data.show_summary || data.open_upload) {
+  finalizeIntakeFlow();
+}
+
+    
   } catch (err) {
     appendMessage('Solomon', '❌ Error responding. Please try again.');
   }
