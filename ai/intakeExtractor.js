@@ -31,7 +31,7 @@ async function intakeExtractor(conversation) {
     const rawJSON = content.slice(jsonStart, jsonEnd);
     const parsedFields = JSON.parse(rawJSON);
 
-    // ✅ Determine readiness to run doneChecker
+    // ✅ Check if fields are valid
     const requiredKeys = [
       "full_name",
       "email",
@@ -44,19 +44,15 @@ async function intakeExtractor(conversation) {
       "final_notes"
     ];
 
-    const fillersGlobal = ["n/a", "not sure", "idk", "soon", "help", "?"];
-    const fillersRestricted = ["no", "none"];
+    const fillers = ["n/a", "not sure", "idk", "soon", "help", "?"];
 
-    const isValid = (value, key) => {
+    const isValid = (value) => {
       if (!value) return false;
       const cleaned = value.trim().toLowerCase();
-      if (cleaned === "") return false;
-      if (fillersGlobal.includes(cleaned)) return false;
-      if (fillersRestricted.includes(cleaned) && key !== "final_notes") return false;
-      return true;
+      return cleaned !== "" && !fillers.includes(cleaned);
     };
 
-    const readyForCheck = requiredKeys.every(key => isValid(parsedFields[key], key));
+    const readyForCheck = requiredKeys.every(key => isValid(parsedFields[key]));
 
     console.log("[intakeExtractor] Fields extracted:", parsedFields);
     console.log("[intakeExtractor] Ready for doneChecker:", readyForCheck);
@@ -69,4 +65,3 @@ async function intakeExtractor(conversation) {
 }
 
 module.exports = intakeExtractor;
-
