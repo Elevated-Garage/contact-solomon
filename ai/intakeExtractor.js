@@ -45,14 +45,19 @@ async function intakeExtractor(conversation) {
     ];
 
     const fillers = ["n/a", "not sure", "idk", "soon", "help", "?"];
+const universallyAcceptable = ["no", "none", "nope", "nothing else"];
 
-    const isValid = (value) => {
-      if (!value) return false;
-      const cleaned = value.trim().toLowerCase();
-      return cleaned !== "" && !fillers.includes(cleaned);
-    };
+const isValid = (value) => {
+  if (!value) return false;
+  const cleaned = value.trim().toLowerCase();
+  if (cleaned === "") return false;
+  if (universallyAcceptable.includes(cleaned)) return true;
+  if (fillers.includes(cleaned)) return false;
+  return true;
+};
 
-    const readyForCheck = requiredKeys.every(key => isValid(parsedFields[key]));
+const readyForCheck = requiredKeys.every(key => isValid(parsedFields[key]));
+
 
     console.log("[intakeExtractor] Fields extracted:", parsedFields);
     console.log("[intakeExtractor] Ready for doneChecker:", readyForCheck);
