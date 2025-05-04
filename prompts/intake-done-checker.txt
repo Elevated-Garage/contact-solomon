@@ -15,7 +15,7 @@ The required fields are:
 - final_notes
 
 Rules for completeness:
-- A field is incomplete if it is missing, blank, or contains vague or non-substantive answers such as: "n/a", "not sure", "idk", "soon", "help", "?".
+- A field is incomplete if it is missing or blank.
 - Short, dismissive responses such as "no", "none", "nope", or "nothing else" are considered valid and complete for **all fields**.
 - These checks are case-insensitive.
 - Any other non-empty value should be considered complete.
