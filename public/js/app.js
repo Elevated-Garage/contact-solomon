@@ -114,12 +114,6 @@ form?.addEventListener('submit', async (e) => {
   }
 }
 
-
-    if (data.triggerUpload) {
-      console.log("📸 AI requested photo upload. Triggering file input...");
-      document.getElementById("file-upload")?.click();
-    }
-
     if (data.show_summary || data.open_upload) {
       finalizeIntakeFlow();
     }
