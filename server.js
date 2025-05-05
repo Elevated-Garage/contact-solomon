@@ -12,7 +12,7 @@ const {
   userConversations,
   userUploadedPhotos,
   userIntakeOverrides,
-  userFlags,         // ✅ Add this line
+  userFlags,
   ensureSession
 } = require('./utils/sessions');
 
@@ -56,10 +56,8 @@ app.post('/message', async (req, res) => {
 
   userConversations[sessionId].push({ role: 'user', content: message });
 
-  // Extract new fields from the user's message
   const { fields } = await intakeExtractor(userConversations[sessionId]);
 
-  // Merge extracted fields into memory
   for (const key in fields) {
     const value = fields[key];
     if (value && value.trim() !== '') {
@@ -72,14 +70,12 @@ app.post('/message', async (req, res) => {
   let assistantReply;
   const responseData = { sessionId };
 
-  // Shared memory object passed to chatResponder
   const sessionMemory = {
     intakeData: userIntakeOverrides[sessionId],
     photoUploaded: userUploadedPhotos[sessionId]?.length > 0,
     photoRequested: userFlags[sessionId]?.photoRequested || false
   };
 
-  // Manual completeness check
   const requiredFields = [
     "full_name", "email", "phone",
     "garage_goals", "square_footage",
@@ -94,34 +90,44 @@ app.post('/message', async (req, res) => {
   if (allFieldsPresent) {
     const { done, missing } = await doneChecker(userIntakeOverrides[sessionId]);
 
-    if (!done && missing.length > 0) {
-      const enhancedHistory = [
-        ...userConversations[sessionId],
-        { role: 'system', content: `missing_fields: ${JSON.stringify(missing)}` }
-      ];
+    const chatHistory = done && missing.length === 0
+      ? userConversations[sessionId]
+      : [...userConversations[sessionId], { role: 'system', content: `missing_fields: ${JSON.stringify(missing)}` }];
 
-      const chatResponse = await chatResponder(enhancedHistory, missing, sessionMemory);
-      assistantReply = chatResponse.message;
+    const chatResponse = await chatResponder(chatHistory, done ? [] : missing, sessionMemory);
+    assistantReply = chatResponse.message;
 
-      // 🔁 Sync updated memory flag
-     const chatResponse = await chatResponder(userConversations[sessionId], [], sessionMemory);
-assistantReply = chatResponse.message;
+    if (sessionMemory.photoRequested) {
+      if (!userFlags[sessionId]) userFlags[sessionId] = {};
+      userFlags[sessionId].photoRequested = true;
+    }
 
-// 🔁 Sync updated memory flag
-if (sessionMemory.photoRequested) {
-  if (!userFlags[sessionId]) userFlags[sessionId] = {};
-  userFlags[sessionId].photoRequested = true;
-}
+    if (chatResponse.signal === "triggerUploader") {
+      responseData.triggerUpload = true;
+    } else {
+      console.log("[✅ Intake + Photo Complete] Submitting final summary...");
+      await generateSummaryPDF(userIntakeOverrides[sessionId], sessionId);
+      responseData.show_summary = true;
+    }
+  } else {
+    const chatResponse = await chatResponder(userConversations[sessionId], [], sessionMemory);
+    assistantReply = chatResponse.message;
 
-// 👇 REPLACE THIS BLOCK 👇
-if (chatResponse.signal === "triggerUploader") {
-  responseData.triggerUpload = true;
-} else {
-  // This part gets replaced
-}
+    if (sessionMemory.photoRequested) {
+      if (!userFlags[sessionId]) userFlags[sessionId] = {};
+      userFlags[sessionId].photoRequested = true;
+    }
 
+    if (chatResponse.signal === "triggerUploader") {
+      responseData.triggerUpload = true;
+    }
+  }
 
-// === Start server ===
+  userConversations[sessionId].push({ role: 'assistant', content: assistantReply });
+  responseData.reply = assistantReply;
+  res.status(200).json(responseData);
+});
+
 app.listen(port, () => {
   console.log(`✅ Contact Solomon backend running on port ${port}`);
 });
