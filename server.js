@@ -12,6 +12,7 @@ const {
   userConversations,
   userUploadedPhotos,
   userIntakeOverrides,
+  userFlags,         // ✅ Add this line
   ensureSession
 } = require('./utils/sessions');
 
