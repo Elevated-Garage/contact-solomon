@@ -29,21 +29,53 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
 // === Upload route ===
-app.post('/upload-photos', upload.array('photos'), (req, res) => {
+app.post('/upload-photos', upload.array('photos'), async (req, res) => {
   const sessionId = req.headers['x-session-id'];
   ensureSession(sessionId);
+
   req.files.forEach(file => userUploadedPhotos[sessionId].push(file));
   userIntakeOverrides[sessionId].garage_photo_upload = "Uploaded";
-  res.status(200).json({ success: true });
+
+  try {
+    const pdfBuffer = await generateSummaryPDF(userIntakeOverrides[sessionId]);
+    await uploadToDrive({
+      fileName: `Garage-Quote-${sessionId}.pdf`,
+      mimeType: 'application/pdf',
+      buffer: pdfBuffer,
+      folderId: process.env.GDRIVE_FOLDER_ID
+    });
+
+    console.log("[📸 Intake + Photo Complete] Summary PDF created and uploaded (upload path).");
+    res.status(200).json({ success: true, show_summary: true });
+  } catch (err) {
+    console.error("❌ Failed to upload PDF after photo:", err.message);
+    res.status(500).json({ success: false, error: err.message });
+  }
 });
 
 // === Skip photo upload route ===
-app.post("/skip-photo-upload", (req, res) => {
+app.post("/skip-photo-upload", async (req, res) => {
   const sessionId = req.headers["x-session-id"];
   if (!sessionId) return res.status(400).send("Missing session ID");
   ensureSession(sessionId);
+
   userIntakeOverrides[sessionId].garage_photo_upload = "Skipped";
-  res.status(200).send({ message: "Photo upload skipped." });
+
+  try {
+    const pdfBuffer = await generateSummaryPDF(userIntakeOverrides[sessionId]);
+    await uploadToDrive({
+      fileName: `Garage-Quote-${sessionId}.pdf`,
+      mimeType: 'application/pdf',
+      buffer: pdfBuffer,
+      folderId: process.env.GDRIVE_FOLDER_ID
+    });
+
+    console.log("[📸 Intake + Photo Complete] Summary PDF created and uploaded (skip path).");
+    res.status(200).json({ message: "Photo upload skipped.", show_summary: true });
+  } catch (err) {
+    console.error("❌ Failed to upload PDF after skip:", err.message);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // === Main AI route ===
