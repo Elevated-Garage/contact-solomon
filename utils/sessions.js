@@ -1,24 +1,26 @@
 // utils/sessions.js
 
-// In-memory session store
+// 🧠 In-memory session stores
 const userConversations = {};
 const userUploadedPhotos = {};
 const userIntakeOverrides = {};
+const userFlags = {}; // ✅ New: for state like photoRequested, skipTracking, etc.
 
-// ✅ FIXED: Removed stray closing brace that caused a syntax error
-// ❌ This line was outside any function: }
-
+/**
+ * Generates a unique session ID.
+ */
 function generateSessionId() {
   return Math.random().toString(36).substring(2, 15);
 }
 
 /**
- * Returns or initializes a session entry.
+ * Initializes memory for a new session.
  */
 function ensureSession(sessionId) {
   if (!userConversations[sessionId]) userConversations[sessionId] = [];
   if (!userUploadedPhotos[sessionId]) userUploadedPhotos[sessionId] = [];
   if (!userIntakeOverrides[sessionId]) userIntakeOverrides[sessionId] = {};
+  if (!userFlags[sessionId]) userFlags[sessionId] = {}; // ✅ Now included
 }
 
 /**
@@ -28,15 +30,16 @@ function clearSession(sessionId) {
   delete userConversations[sessionId];
   delete userUploadedPhotos[sessionId];
   delete userIntakeOverrides[sessionId];
+  delete userFlags[sessionId]; // ✅ Clears flags too
 }
 
+// 🧾 Export all session data handlers
 module.exports = {
   userConversations,
   userUploadedPhotos,
   userIntakeOverrides,
+  userFlags, // ✅ Exposed for shared flag access
   ensureSession,
   clearSession,
-  generateSessionId // ✅ This was missing from your export
+  generateSessionId
 };
-
-
