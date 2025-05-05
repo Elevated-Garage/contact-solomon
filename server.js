@@ -27,6 +27,8 @@ app.use(express.static('public'));
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
+const { uploadToDrive } = require('./utils/googleUploader');
+
 
 // === Upload route ===
 app.post('/upload-photos', upload.array('photos'), async (req, res) => {
