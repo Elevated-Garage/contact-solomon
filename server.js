@@ -203,6 +203,7 @@ await uploadToDrive({
 });
 
 return res.status(200).json({ show_summary: true });
+});
 
 
 // === Start server ===
