@@ -104,49 +104,22 @@ app.post('/message', async (req, res) => {
       assistantReply = chatResponse.message;
 
       // 🔁 Sync updated memory flag
-      if (sessionMemory.photoRequested) {
-        if (!userFlags[sessionId]) userFlags[sessionId] = {};
-        userFlags[sessionId].photoRequested = true;
-      }
+     const chatResponse = await chatResponder(userConversations[sessionId], [], sessionMemory);
+assistantReply = chatResponse.message;
 
-    } else {
-      const chatResponse = await chatResponder(userConversations[sessionId], [], sessionMemory);
-      assistantReply = chatResponse.message;
+// 🔁 Sync updated memory flag
+if (sessionMemory.photoRequested) {
+  if (!userFlags[sessionId]) userFlags[sessionId] = {};
+  userFlags[sessionId].photoRequested = true;
+}
 
-      // 🔁 Sync updated memory flag
-      if (sessionMemory.photoRequested) {
-        if (!userFlags[sessionId]) userFlags[sessionId] = {};
-        userFlags[sessionId].photoRequested = true;
-      }
+// 👇 REPLACE THIS BLOCK 👇
+if (chatResponse.signal === "triggerUploader") {
+  responseData.triggerUpload = true;
+} else {
+  // This part gets replaced
+}
 
-      if (chatResponse.signal === "triggerUploader") {
-        responseData.triggerUpload = true;
-      } else {
-        console.log("[✅ Intake + Photo Complete] Submitting final summary...");
-        await generateSummaryPDF(userIntakeOverrides[sessionId], sessionId);
-        responseData.show_summary = true;
-      }
-    }
-
-  } else {
-    const chatResponse = await chatResponder(userConversations[sessionId], [], sessionMemory);
-    assistantReply = chatResponse.message;
-
-    // 🔁 Sync updated memory flag
-    if (sessionMemory.photoRequested) {
-      if (!userFlags[sessionId]) userFlags[sessionId] = {};
-      userFlags[sessionId].photoRequested = true;
-    }
-
-    if (chatResponse.signal === "triggerUploader") {
-      responseData.triggerUpload = true;
-    }
-  }
-
-  userConversations[sessionId].push({ role: 'assistant', content: assistantReply });
-  responseData.reply = assistantReply;
-  res.status(200).json(responseData);
-});
 
 // === Start server ===
 app.listen(port, () => {
