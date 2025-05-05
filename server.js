@@ -55,8 +55,10 @@ app.post('/message', async (req, res) => {
 
   userConversations[sessionId].push({ role: 'user', content: message });
 
+  // Extract new fields from the user's message
   const { fields } = await intakeExtractor(userConversations[sessionId]);
 
+  // Merge extracted fields into memory
   for (const key in fields) {
     const value = fields[key];
     if (value && value.trim() !== '') {
@@ -69,28 +71,24 @@ app.post('/message', async (req, res) => {
   let assistantReply;
   const responseData = { sessionId };
 
+  // Shared memory object passed to chatResponder
+  const sessionMemory = {
+    intakeData: userIntakeOverrides[sessionId],
+    photoUploaded: userUploadedPhotos[sessionId]?.length > 0,
+    photoRequested: userFlags[sessionId]?.photoRequested || false
+  };
+
+  // Manual completeness check
   const requiredFields = [
-    "full_name",
-    "email",
-    "phone",
-    "garage_goals",
-    "square_footage",
-    "must_have_features",
-    "budget",
-    "start_date",
-    "final_notes"
+    "full_name", "email", "phone",
+    "garage_goals", "square_footage",
+    "must_have_features", "budget",
+    "start_date", "final_notes"
   ];
   const allFieldsPresent = requiredFields.every(key => {
     const val = userIntakeOverrides[sessionId][key];
     return val && val.trim().length > 0;
   });
-
-  const sessionMemory = {
-    intakeData: userIntakeOverrides[sessionId],
-    photoUploaded: userUploadedPhotos[sessionId]?.length > 0,
-    doneCheckerComplete: allFieldsPresent,
-    photoRequested: false // initialize if needed
-  };
 
   if (allFieldsPresent) {
     const { done, missing } = await doneChecker(userIntakeOverrides[sessionId]);
@@ -100,11 +98,25 @@ app.post('/message', async (req, res) => {
         ...userConversations[sessionId],
         { role: 'system', content: `missing_fields: ${JSON.stringify(missing)}` }
       ];
+
       const chatResponse = await chatResponder(enhancedHistory, missing, sessionMemory);
       assistantReply = chatResponse.message;
+
+      // 🔁 Sync updated memory flag
+      if (sessionMemory.photoRequested) {
+        if (!userFlags[sessionId]) userFlags[sessionId] = {};
+        userFlags[sessionId].photoRequested = true;
+      }
+
     } else {
       const chatResponse = await chatResponder(userConversations[sessionId], [], sessionMemory);
       assistantReply = chatResponse.message;
+
+      // 🔁 Sync updated memory flag
+      if (sessionMemory.photoRequested) {
+        if (!userFlags[sessionId]) userFlags[sessionId] = {};
+        userFlags[sessionId].photoRequested = true;
+      }
 
       if (chatResponse.signal === "triggerUploader") {
         responseData.triggerUpload = true;
@@ -114,9 +126,16 @@ app.post('/message', async (req, res) => {
         responseData.show_summary = true;
       }
     }
+
   } else {
     const chatResponse = await chatResponder(userConversations[sessionId], [], sessionMemory);
     assistantReply = chatResponse.message;
+
+    // 🔁 Sync updated memory flag
+    if (sessionMemory.photoRequested) {
+      if (!userFlags[sessionId]) userFlags[sessionId] = {};
+      userFlags[sessionId].photoRequested = true;
+    }
 
     if (chatResponse.signal === "triggerUploader") {
       responseData.triggerUpload = true;
