@@ -1,3 +1,5 @@
+// server.js (Patched: Enforces photo confirmation before summary)
+
 const express = require('express');
 const multer = require('multer');
 const cors = require('cors');
@@ -31,7 +33,7 @@ app.post('/upload-photos', upload.array('photos'), (req, res) => {
   const sessionId = req.headers['x-session-id'];
   ensureSession(sessionId);
   req.files.forEach(file => userUploadedPhotos[sessionId].push(file));
-  userIntakeOverrides[sessionId].photoUploaded = true;
+  userIntakeOverrides[sessionId].garage_photo_upload = "Uploaded";
   res.status(200).json({ success: true });
 });
 
@@ -56,8 +58,10 @@ app.post('/message', async (req, res) => {
 
   userConversations[sessionId].push({ role: 'user', content: message });
 
+  // Extract new fields from the user's message
   const { fields } = await intakeExtractor(userConversations[sessionId]);
 
+  // Merge extracted fields into memory
   for (const key in fields) {
     const value = fields[key];
     if (value && value.trim() !== '') {
@@ -90,24 +94,35 @@ app.post('/message', async (req, res) => {
   if (allFieldsPresent) {
     const { done, missing } = await doneChecker(userIntakeOverrides[sessionId]);
 
-    const chatHistory = done && missing.length === 0
-      ? userConversations[sessionId]
-      : [...userConversations[sessionId], { role: 'system', content: `missing_fields: ${JSON.stringify(missing)}` }];
-
-    const chatResponse = await chatResponder(chatHistory, done ? [] : missing, sessionMemory);
-    assistantReply = chatResponse.message;
-
-    if (sessionMemory.photoRequested) {
-      if (!userFlags[sessionId]) userFlags[sessionId] = {};
-      userFlags[sessionId].photoRequested = true;
-    }
-
-    if (chatResponse.signal === "triggerUploader") {
-      responseData.triggerUpload = true;
+    if (!done && missing.length > 0) {
+      const enhancedHistory = [
+        ...userConversations[sessionId],
+        { role: 'system', content: `missing_fields: ${JSON.stringify(missing)}` }
+      ];
+      const chatResponse = await chatResponder(enhancedHistory, missing, sessionMemory);
+      assistantReply = chatResponse.message;
     } else {
-      console.log("[✅ Intake + Photo Complete] Submitting final summary...");
-      await generateSummaryPDF(userIntakeOverrides[sessionId], sessionId);
-      responseData.show_summary = true;
+      const chatResponse = await chatResponder(userConversations[sessionId], [], sessionMemory);
+      assistantReply = chatResponse.message;
+
+      // Sync memory
+      if (sessionMemory.photoRequested) {
+        if (!userFlags[sessionId]) userFlags[sessionId] = {};
+        userFlags[sessionId].photoRequested = true;
+      }
+
+      // 👇 Photo enforcement BEFORE summary
+      const photoFlag = userIntakeOverrides[sessionId]?.garage_photo_upload;
+      const photosUploaded = userUploadedPhotos[sessionId]?.length > 0;
+
+      if (!photosUploaded && (!photoFlag || photoFlag === '')) {
+        responseData.triggerUpload = true;
+        assistantReply = "📸 Before we finish, could you upload a photo of your garage or choose to skip it?";
+      } else {
+        console.log("[✅ Intake + Photo Complete] Submitting final summary...");
+        await generateSummaryPDF(userIntakeOverrides[sessionId], sessionId);
+        responseData.show_summary = true;
+      }
     }
   } else {
     const chatResponse = await chatResponder(userConversations[sessionId], [], sessionMemory);
@@ -128,6 +143,7 @@ app.post('/message', async (req, res) => {
   res.status(200).json(responseData);
 });
 
+// === Start server ===
 app.listen(port, () => {
   console.log(`✅ Contact Solomon backend running on port ${port}`);
 });
