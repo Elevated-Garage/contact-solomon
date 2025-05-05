@@ -190,10 +190,18 @@ app.post('/submit-final-intake', async (req, res) => {
     return res.status(200).json({ triggerUpload: true });
   }
 
-  console.log("[📸 Intake + Photo Complete] Submitting final summary (from confirmation route)...");
-  await generateSummaryPDF(intakeData, sessionId);
-  return res.status(200).json({ show_summary: true });
+ console.log("[📸 Intake + Photo Complete] Submitting final summary (from confirmation route)...");
+
+const pdfBuffer = await generateSummaryPDF(intakeData);
+await uploadToDrive({
+  fileName: `Garage-Quote-${sessionId}.pdf`,
+  mimeType: 'application/pdf',
+  buffer: pdfBuffer,
+  folderId: process.env.GDRIVE_FOLDER_ID
 });
+
+return res.status(200).json({ show_summary: true });
+
 
 // === Start server ===
 app.listen(port, () => {
