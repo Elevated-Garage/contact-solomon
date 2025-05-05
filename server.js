@@ -143,6 +143,26 @@ app.post('/message', async (req, res) => {
   res.status(200).json(responseData);
 });
 
+// === Final Intake Submission Route ===
+app.post('/submit-final-intake', async (req, res) => {
+  const sessionId = req.headers['x-session-id'];
+  if (!sessionId) return res.status(400).send("Missing session ID");
+  ensureSession(sessionId);
+
+  const intakeData = userIntakeOverrides[sessionId];
+  const hasUploadedPhotos = userUploadedPhotos[sessionId]?.length > 0;
+  const photoFlag = intakeData?.garage_photo_upload;
+
+  // Ensure either upload or skip occurred before allowing summary
+  if (!hasUploadedPhotos && (!photoFlag || photoFlag === '')) {
+    return res.status(200).json({ triggerUpload: true });
+  }
+
+  console.log("[📸 Intake + Photo Complete] Submitting final summary (from confirmation route)...");
+  await generateSummaryPDF(intakeData, sessionId);
+  return res.status(200).json({ show_summary: true });
+});
+
 // === Start server ===
 app.listen(port, () => {
   console.log(`✅ Contact Solomon backend running on port ${port}`);
