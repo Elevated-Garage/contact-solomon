@@ -33,5 +33,3 @@ Respond ONLY with a valid JSON object. No markdown formatting. No assistant labe
 Here is the full conversation transcript:
 {{message}}
 
-
-
