@@ -52,6 +52,15 @@ async function intakeExtractor(conversation) {
   return cleaned !== "";
 };
 
+    
+    // ✅ Normalize short acceptable answers for final_notes
+    if (parsedFields.final_notes) {
+      const shortAnswer = parsedFields.final_notes.toLowerCase().trim();
+      if (["no", "none", "nope", "nothing else", "n/a"].includes(shortAnswer)) {
+        parsedFields.final_notes = "nothing else";
+      }
+    }
+
     const readyForCheck = requiredKeys.every(key => isValid(parsedFields[key]));
 
     console.log("[intakeExtractor] Fields extracted:", parsedFields);
