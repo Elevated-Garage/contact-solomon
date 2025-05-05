@@ -61,6 +61,16 @@ async function finalizeIntakeFlow() {
     });
     const data = await res.json();
 
+    if (data.triggerUpload) {
+      const uploader = document.getElementById("photo-uploader");
+      if (uploader) {
+        console.log("📸 Displaying photo uploader");
+        uploader.classList.remove("hidden");
+        uploader.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }
+
+
     if (isIntakeComplete(data)) {
       showSummary(data);
     } else {
@@ -92,6 +102,16 @@ form?.addEventListener('submit', async (e) => {
     });
 
     const data = await res.json();
+
+    if (data.triggerUpload) {
+      const uploader = document.getElementById("photo-uploader");
+      if (uploader) {
+        console.log("📸 Displaying photo uploader");
+        uploader.classList.remove("hidden");
+        uploader.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }
+
     appendMessage('Solomon', data.reply);
   } catch (err) {
     appendMessage('Solomon', '❌ Error responding. Please try again.');
@@ -267,6 +287,16 @@ async function finalizeIntakeFlow() {
       headers: { "x-session-id": sessionId }
     });
     const data = await res.json();
+
+    if (data.triggerUpload) {
+      const uploader = document.getElementById("photo-uploader");
+      if (uploader) {
+        console.log("📸 Displaying photo uploader");
+        uploader.classList.remove("hidden");
+        uploader.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }
+
 
     if (isIntakeComplete(data)) {
       showSummary(data);
