@@ -224,9 +224,6 @@ app.post('/submit-final-intake', async (req, res) => {
   return res.status(200).json({ show_summary: true, ...intakeData });
 });
 
-return res.status(200).json({ show_summary: true });
-});
-
 
 // === Start server ===
 app.listen(port, () => {
