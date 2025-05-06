@@ -326,6 +326,8 @@ function promptNextMissingField() {
 
 // Enhanced finalizeIntakeFlow with fallback prompting
 async function finalizeIntakeFlow() {
+  if (summaryAlreadySubmitted) return; // 🛑 Prevent loop
+
   try {
     const res = await fetch("/submit-final-intake", {
       method: "POST",
@@ -333,31 +335,36 @@ async function finalizeIntakeFlow() {
     });
     const data = await res.json();
 
-console.log("📦 Intake data received:", data);
-console.log("🔍 shouldTriggerPhotoStep:", shouldTriggerPhotoStep(data));
+    console.log("📦 Intake data received:", data);
+    console.log("🔍 shouldTriggerPhotoStep:", shouldTriggerPhotoStep(data));
 
-if (shouldTriggerPhotoStep(data)) {
-  console.log("📸 Attempting to show photo uploader...");
-  const uploader = document.getElementById("photo-uploader");
-  if (uploader) {
-    console.log("✅ Found uploader. Displaying it.");
-    openPhotoUploader();
-    uploader.scrollIntoView({ behavior: 'smooth' });
-  } else {
-    console.warn("❌ #photo-uploader not found in DOM.");
-  }
-
-} else {
-  missingFieldsQueue = getMissingFields(data);
-  currentMissingIndex = 0;
-  promptNextMissingField();
-}
-
+    if (shouldTriggerPhotoStep(data)) {
+      console.log("📸 Attempting to show photo uploader...");
+      const uploader = document.getElementById("photo-uploader");
+      if (uploader) {
+        console.log("✅ Found uploader. Displaying it.");
+        openPhotoUploader();
+        uploader.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        console.warn("❌ #photo-uploader not found in DOM.");
+      }
+    } else {
+      if (data.show_summary) {
+        summaryAlreadySubmitted = true; // ✅ Set flag to stop re-triggering
+        appendMessage("Solomon", "✅ Thanks! Here's your personalized garage summary. Let us know if you'd like to schedule a follow-up.");
+        showSummaryDownload();
+      } else {
+        missingFieldsQueue = getMissingFields(data);
+        currentMissingIndex = 0;
+        promptNextMissingField();
+      }
+    }
   } catch (err) {
     console.error("❌ Intake submission failed:", err.message);
     appendMessage("Solomon", "Sorry, something went wrong submitting your answers. Please try again.");
   }
 }
+
 
 // --- Utility: Close the photo uploader ---
 
