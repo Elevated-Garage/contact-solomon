@@ -222,13 +222,24 @@ body::before {
   align-items: center;
   justify-content: center;
   background: white;
-  padding: 10px;
+  padding: 24px; /* ↓ Reduced padding */
   border-radius: 12px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* ↓ Softer shadow */
   text-align: center;
-  max-width: 400px;
+  max-width: 320px; /* ↓ Narrower max width */
   width: 100%;
-  gap: 24px; /* spacing between stacked elements */
+  gap: 16px; /* ↓ Reduced spacing between children */
+}
+
+.upload-box h2 {
+  color: #B91B21; /* Title color */
+  font-size: 1.5rem;
+}
+
+.upload-box .subtitle {
+  color: #666; /* Subtitle color */
+  font-size: 0.95rem;
+  margin-top: -12px; /* Optional: pulls it closer to the title */
 }
 
 .drag-area {
