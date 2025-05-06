@@ -190,7 +190,7 @@ app.post('/submit-final-intake', async (req, res) => {
   ensureSession(sessionId);
 
   const intakeData = userIntakeOverrides[sessionId];
-  if (intakeData.summary_smitted) {
+  if (intakeData.summary_submitted) {
   console.log("⚠️ Summary already submitted. Skipping re-upload.");
   return res.status(200).json({ show_summary: true, ...intakeData });
 }
