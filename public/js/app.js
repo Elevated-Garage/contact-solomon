@@ -1,4 +1,3 @@
-
 const form = document.getElementById('chat-form');
 console.log("✅ form element:", form);
 const input = document.getElementById('input-field');
@@ -349,14 +348,6 @@ if (shouldTriggerPhotoStep(data)) {
 }
 
 // --- Utility: Close the photo uploader ---
-function closePhotoUploader() {
-  const uploader = document.getElementById("photo-uploader");
-  if (uploader) {
-    uploader.classList.add("hidden");
-  }
-}
-
-
 
 function openPhotoUploader() {
   const uploader = document.getElementById("photo-uploader");
