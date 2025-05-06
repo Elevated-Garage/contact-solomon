@@ -217,12 +217,10 @@ body::before {
 
 /* === Uploader === */
 .upload-center-wrapper {
-  display: flex;
+ display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
   padding: 20px;
-  background: #f8f8f8;
   box-sizing: border-box;
 }
 
