@@ -34,6 +34,16 @@ function appendMessage(sender, message) {
   chatLog.scrollTop = chatLog.scrollHeight;
 }
 
+// Typing indicator control
+function showTyping() {
+  const typing = document.getElementById('typing');
+  if (typing) typing.style.display = 'block';
+}
+
+function hideTyping() {
+  const typing = document.getElementById('typing');
+  if (typing) typing.style.display = 'none';
+}
 
  function shouldTriggerPhotoStep(data) {
   const requiredFields = [
