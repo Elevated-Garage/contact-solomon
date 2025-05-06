@@ -1,12 +1,4 @@
 
-function scrollToBottom() {
-  const chatContainer = document.getElementById('chat-container');
-  if (chatContainer) {
-    chatContainer.scrollTop = chatContainer.scrollHeight;
-  }
-}
-
-
 const form = document.getElementById('chat-form');
 console.log("✅ form element:", form);
 const input = document.getElementById('input-field');
