@@ -34,9 +34,8 @@ function appendMessage(sender, message) {
 
   // ✅ Scroll only after the message is rendered
 requestAnimationFrame(() => {
-  chatLog.scrollTop = chatLog.scrollHeight;
+  msg.scrollIntoView({ behavior: 'smooth', block: 'end' });
 });
-
 
 // Typing indicator control
 function showTyping() {
