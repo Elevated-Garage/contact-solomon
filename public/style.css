@@ -110,6 +110,7 @@ body::before {
 }
 
 
+
 #chat-log {
   flex-grow: 1;
   overflow-y: auto;
@@ -152,7 +153,12 @@ body::before {
   border-bottom-left-radius: 4px;
 }
 
-
+#typing {
+  color: #B91B21; /* or any other hex/rgb color */
+  font-style: italic;
+  font-size: 0.95rem;
+  padding: 8px 0;
+}
 
 /* === Form Input & Buttons === */
 
