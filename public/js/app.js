@@ -309,6 +309,8 @@ if (shouldTriggerPhotoStep(data)) {
     console.log("✅ Found uploader. Displaying it.");
     uploader.classList.remove("hidden");
     uploader.scrollIntoView({ behavior: 'smooth' });
+    chatLog.scrollTop = chatLog.scrollHeight;
+
   } else {
     console.warn("❌ #photo-uploader not found in DOM.");
   }
