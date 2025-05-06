@@ -349,13 +349,6 @@ if (shouldTriggerPhotoStep(data)) {
 }
 
 // --- Utility: Close the photo uploader ---
-function closePhotoUploader() {
-  const uploader = document.getElementById("photo-uploader");
-  if (uploader) {
-    uploader.classList.add("hidden");
-  }
-}
-
 
 
 function openPhotoUploader() {
