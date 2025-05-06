@@ -33,9 +33,11 @@ function appendMessage(sender, message) {
   chatLog.appendChild(msg);
 
   // ✅ Scroll only after the message is rendered
-requestAnimationFrame(() => {
-  msg.scrollIntoView({ behavior: 'smooth', block: 'end' });
-});
+  requestAnimationFrame(() => {
+    msg.scrollIntoView({ behavior: 'smooth', block: 'end' });
+  });
+}
+
 
 // Typing indicator control
 function showTyping() {
@@ -347,6 +349,13 @@ if (shouldTriggerPhotoStep(data)) {
 }
 
 // --- Utility: Close the photo uploader ---
+function closePhotoUploader() {
+  const uploader = document.getElementById("photo-uploader");
+  if (uploader) {
+    uploader.classList.add("hidden");
+  }
+}
+
 
 
 function openPhotoUploader() {
