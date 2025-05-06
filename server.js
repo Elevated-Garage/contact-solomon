@@ -190,6 +190,11 @@ app.post('/submit-final-intake', async (req, res) => {
   ensureSession(sessionId);
 
   const intakeData = userIntakeOverrides[sessionId];
+  if (intakeData.summary_smitted) {
+  console.log("⚠️ Summary already submitted. Skipping re-upload.");
+  return res.status(200).json({ show_summary: true, ...intakeData });
+}
+
   const hasUploadedPhotos = userUploadedPhotos[sessionId]?.length > 0;
   const photoFlag = intakeData?.garage_photo_upload;
 
