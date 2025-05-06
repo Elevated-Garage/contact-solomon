@@ -387,3 +387,12 @@ if (shouldTriggerPhotoStep(data)) {
     appendMessage("Solomon", "Sorry, something went wrong submitting your answers. Please try again.");
   }
 }
+
+// --- Utility: Close the photo uploader ---
+function closePhotoUploader() {
+  const uploader = document.getElementById("photo-uploader");
+  if (uploader) {
+    uploader.classList.add("hidden");
+  }
+}
+
