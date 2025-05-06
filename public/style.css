@@ -290,10 +290,6 @@ body::before {
   stroke: white;
 }
 
-.file-input {
-  display: none;
-}
-
 
 /* === Utility === */
 .hidden { display: none !important; }
