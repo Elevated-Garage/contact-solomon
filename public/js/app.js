@@ -25,6 +25,7 @@ if (!sessionId) {
 }
 console.log("🧭 Using session ID:", sessionId);
 
+let summaryAlreadySubmitted = false; // 🛡 Prevent infinite summary submissions
 
 // Append message to chat log
 function appendMessage(sender, message) {
