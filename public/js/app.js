@@ -77,8 +77,13 @@ function appendMessage(sender, message) {
   msg.classList.add('message', sender === 'You' ? 'user' : 'bot');
   msg.innerHTML = `<div class="bubble">${message}</div>`;
   chatLog.appendChild(msg);
-  chatLog.scrollTop = chatLog.scrollHeight;
+
+  // ✅ Scroll only after the message is rendered
+  requestAnimationFrame(() => {
+    msg.scrollIntoView({ behavior: 'smooth', block: 'end' });
+  });
 }
+
 
 // Typing indicator control
 function showTyping() {
