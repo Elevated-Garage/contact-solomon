@@ -304,17 +304,21 @@ console.log("🔍 shouldTriggerPhotoStep:", shouldTriggerPhotoStep(data));
 
 if (shouldTriggerPhotoStep(data)) {
   console.log("📸 Attempting to show photo uploader...");
-  const uploader = document.getElementById("photo-uploader");
-  if (uploader) {
-  console.log("✅ Found uploader. Displaying it.");
-  uploader.classList.remove("hidden");
 
-  // Smooth scroll the chat container to bottom
-  chatLog.scrollTo({ top: chatLog.scrollHeight, behavior: "smooth" });
+  setTimeout(() => {
+    const uploader = document.getElementById("photo-uploader");
+    if (uploader) {
+      console.log("✅ Found uploader. Displaying it.");
+      uploader.classList.remove("hidden");
 
-  } else {
-    console.warn("❌ #photo-uploader not found in DOM.");
-  }
+      // Smooth scroll the chat container to bottom after reveal
+      chatLog.scrollTo({ top: chatLog.scrollHeight, behavior: "smooth" });
+    } else {
+      console.warn("❌ #photo-uploader not found in DOM.");
+    }
+  }, 300); // Delay to allow message to render first
+}
+
 
 } else {
   missingFieldsQueue = getMissingFields(data);
