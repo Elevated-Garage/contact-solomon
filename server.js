@@ -97,11 +97,17 @@ app.post('/message', async (req, res) => {
 
   // Merge extracted fields into memory
   for (const key in fields) {
-    const value = fields[key];
-    if (value && value.trim() !== '') {
-      userIntakeOverrides[sessionId][key] = value;
-    }
+  const value = fields[key];
+
+  // 🛡️ Don't overwrite uploaded photo flag with an empty string
+  if (key === 'garage_photo_upload' && (!value || value.trim() === '')) {
+    continue;
   }
+
+  if (value && value.trim() !== '') {
+    userIntakeOverrides[sessionId][key] = value;
+  }
+}
 
   console.log("[intakeExtractor] Smart-merged updated intake:", userIntakeOverrides[sessionId]);
 
