@@ -227,6 +227,10 @@ app.post('/submit-final-intake', async (req, res) => {
     folderId: process.env.GDRIVE_FOLDER_ID
   });
 
+  // ✅ Set the flag to prevent duplicates
+  userIntakeOverrides[sessionId].summary_submitted = true;
+
+
   return res.status(200).json({ show_summary: true, ...intakeData });
 });
 
