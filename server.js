@@ -158,12 +158,13 @@ app.post('/message', async (req, res) => {
       const photosUploaded = userUploadedPhotos[sessionId]?.length > 0;
 
      if (!photosUploaded && (!photoFlag || photoFlag === '')) {
-        responseData.triggerUpload = true;
-        assistantReply = "📸 Before we finish, could you upload a photo of your garage or choose to skip it?";
-      } else {
-        console.log("[✅ Intake + Photo Complete] Ready to finalize summary.");
-        responseData.show_summary = true;
-      }
+       responseData.triggerUpload = true;
+       assistantReply = "📸 Before we finish, could you upload a photo of your garage or choose to skip it?";
+     } else if (!userIntakeOverrides[sessionId].summary_submitted) {
+       console.log("[✅ Intake + Photo Complete] Ready to finalize summary.");
+       responseData.show_summary = true;
+     }
+
     }
   } else {
     const chatResponse = await chatResponder(userConversations[sessionId], [], sessionMemory);
