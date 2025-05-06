@@ -1,27 +1,15 @@
-<div id="photo-uploader" class="photo-uploader hidden">
-  <h2 class="uploader-title">Upload Your Garage Photos</h2>
+<div class="upload-box" id="photo-uploader">
+  <h2>Upload Your Garage Photos</h2>
 
-  <div id="drag-area" class="drag-area" onclick="document.getElementById('file-upload').click();">
-    <input id="file-upload" type="file" accept="image/*" multiple hidden />
-    <div class="upload-icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#B91B21" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-        <polyline points="17 8 12 3 7 8" />
-        <line x1="12" y1="3" x2="12" y2="15" />
-      </svg>
-    </div>
-    <p class="upload-text">Drag & Drop photos here or <span class="upload-click">click to upload</span></p>
+  <div class="drag-area" onclick="document.getElementById('file-upload').click();">
+    <input type="file" id="file-upload" accept="image/*" multiple hidden />
+    <p>📎 Drag and drop images here or click to select</p>
   </div>
 
   <div id="thumbnail-wrapper" class="thumbnail-wrapper"></div>
 
-  <div class="upload-actions">
-    <button id="photo-submit" class="action-button" title="Submit Photos" aria-label="Submit Photos">
-      ✅ Submit
-    </button>
-    <button id="photo-skip" class="action-button skip" title="Skip Upload" aria-label="Skip Upload">
-      ❌ Skip
-    </button>
+  <div style="display: flex; gap: 20px;">
+    <button class="submit-button" id="photo-submit" title="Submit Photos">✅</button>
+    <button class="skip-button" id="photo-skip" title="Skip Photo Upload">❌</button>
   </div>
 </div>
-
