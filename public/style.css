@@ -467,6 +467,25 @@ input[type="date"] {
   border: 1px solid #ccc;
 }
 
+
+#chat-log {
+  overflow-y: scroll;
+  scrollbar-width: thin; /* For Firefox */
+  scrollbar-color: #B91B21 transparent; /* Bar visible, track transparent */
+}
+
+/* Chrome, Edge, Safari */
+#chat-log::-webkit-scrollbar {
+  width: 8px;
+}
+#chat-log::-webkit-scrollbar-track {
+  background: transparent; /* Hides the track */
+}
+#chat-log::-webkit-scrollbar-thumb {
+  background-color: #B91B21;  /* Red bar */
+  border-radius: 8px;
+}
+
 /* === Responsive Layout for Mobile Devices === */
 @media (max-width: 600px) {
   #main-centered-container {
