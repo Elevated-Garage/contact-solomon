@@ -217,12 +217,15 @@ body::before {
 
 /* === Uploader === */
 .upload-center-wrapper {
- display: flex;
+  display: flex;
   justify-content: center;
   align-items: center;
   padding: 20px;
+  width: 100%;
+  max-width: 100vw;
   box-sizing: border-box;
 }
+
 
 .upload-box {
   background: white;
