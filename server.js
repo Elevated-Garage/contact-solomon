@@ -193,19 +193,35 @@ app.post('/submit-final-intake', async (req, res) => {
   const hasUploadedPhotos = userUploadedPhotos[sessionId]?.length > 0;
   const photoFlag = intakeData?.garage_photo_upload;
 
-  // Ensure either upload or skip occurred before allowing summary
-  if (!hasUploadedPhotos && (!photoFlag || photoFlag === '')) {
-    return res.status(200).json({ triggerUpload: true });
+  const requiredFields = [
+    "full_name", "email", "phone",
+    "garage_goals", "square_footage",
+    "must_have_features", "budget",
+    "start_date", "final_notes",
+    "garage_photo_upload"
+  ];
+
+  const missingFields = requiredFields.filter(field => {
+    const value = intakeData[field];
+    return !value || value.trim?.() === "";
+  });
+
+  if (missingFields.length > 0) {
+    console.log("⚠️ Still missing fields:", missingFields);
+    return res.status(200).json(intakeData); // triggers frontend prompt logic
   }
 
- console.log("[📸 Intake + Photo Complete] Submitting final summary (from confirmation route)...");
+  console.log("[📸 Intake + Photo Complete] Submitting final summary (from confirmation route)...");
 
-const pdfBuffer = await generateSummaryPDF(intakeData);
-await uploadToDrive({
-  fileName: `Garage-Quote-${sessionId}.pdf`,
-  mimeType: 'application/pdf',
-  buffer: pdfBuffer,
-  folderId: process.env.GDRIVE_FOLDER_ID
+  const pdfBuffer = await generateSummaryPDF(intakeData);
+  await uploadToDrive({
+    fileName: `Garage-Quote-${sessionId}.pdf`,
+    mimeType: 'application/pdf',
+    buffer: pdfBuffer,
+    folderId: process.env.GDRIVE_FOLDER_ID
+  });
+
+  return res.status(200).json({ show_summary: true, ...intakeData });
 });
 
 return res.status(200).json({ show_summary: true });
