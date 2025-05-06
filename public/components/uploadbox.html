@@ -1,23 +1,18 @@
-<div id="photo-uploader" class="upload-box-wrapper">
-  <div class="upload-box">
+<did="photo-uploader" class="hidden">
+  <div>
     <h2>Upload Photos</h2>
-
     <div class="drag-area" id="drag-area">
-      <input id="file-upload" type="file" accept="image/*" multiple hidden />
       <p>Drag & Drop Photos Here or Click to Select</p>
+      <input type="file" id="fileElem" class="file-input" accept="image/*" multiple />
     </div>
-
-    <div id="thumbnail-wrapper" class="thumbnail-wrapper"></div>
-
     <div class="button-row">
-      <button id="photo-submit" class="submit-button" title="Submit Photos" aria-label="Submit Photos">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#B91B21" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="20 6 9 17 4 12"></polyline>
+      <button class="submit-button" title="Submit Photos">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12" />
         </svg>
       </button>
-
-      <button id="photo-skip" class="submit-button skip-button" title="Skip Upload" aria-label="Skip Upload">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#B91B21" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+      <button class="submit-button skip-button" title="Skip">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
           <line x1="6" y1="6" x2="18" y2="18"></line>
           <line x1="6" y1="18" x2="18" y2="6"></line>
         </svg>
@@ -25,3 +20,4 @@
     </div>
   </div>
 </div>
+
