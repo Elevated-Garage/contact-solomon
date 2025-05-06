@@ -289,6 +289,9 @@ body::before {
 .skip-button:hover svg line {
   stroke: white;
 }
+.file-input {
+   display: none;
+}
 
 
 /* === Utility === */
