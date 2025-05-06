@@ -217,75 +217,72 @@ body::before {
 
 /* === Uploader === */
 .upload-box {
-  max-width: 600px;
-  margin: 40px auto;
-  padding: 24px;
-  background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 24px;
-  z-index: 100;
+  background: white;
+  padding: 40px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  max-width: 400px;
+  width: 100%;
 }
 
 .upload-box h2 {
-  font-size: 1.5rem;
-  color: #333;
-  margin-bottom: 8px;
+  margin-bottom: 20px;
 }
 
 .drag-area {
   border: 2px dashed #ccc;
-  border-radius: 12px;
-  padding: 32px;
-  width: 100%;
-  text-align: center;
+  border-radius: 10px;
+  padding: 30px;
+  margin-bottom: 20px;
   cursor: pointer;
-  background: #fdfdfd;
-  transition: border-color 0.3s;
+  background: #fafafa;
+  transition: border-color 0.3s, background 0.3s;
 }
 
-.drag-area:hover {
+.drag-area.highlight {
   border-color: #B91B21;
+  background: #fff0f0;
 }
 
-.drag-area p {
-  margin: 0;
-  font-size: 1rem;
-  color: #666;
+.file-input {
+  display: none;
 }
 
 .submit-button {
-  background: #fff;
-  border: 2px solid #B91B21;
+  background-color: transparent;
+  border: 2px solid transparent;
   border-radius: 50%;
-  padding: 12px;
+  width: 48px;
+  height: 48px;
+  margin: 0 8px;
   cursor: pointer;
-  transition: background 0.3s, transform 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s;
+}
+
+.submit-button svg polyline,
+.skip-button svg line {
+  stroke: #B91B21;
 }
 
 .submit-button:hover {
-  background: #FBE9E7;
-  transform: scale(1.05);
+  background-color: #B91B21;
 }
 
-.skip-button {
-  background: #fff;
-  border: 2px solid #ccc;
-  border-radius: 50%;
-  padding: 12px;
-  transition: background 0.3s, transform 0.2s;
+.submit-button:hover svg polyline {
+  stroke: white;
 }
 
 .skip-button:hover {
-  background-color: #f1f1f1;
-  color: #333;
-  cursor: pointer;
-  transform: scale(1.02);
+  background-color: #B91B21;
 }
 
+.skip-button:hover svg line {
+  stroke: white;
+}
 
 /* === Utility === */
 .hidden { display: none !important; }
