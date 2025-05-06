@@ -24,52 +24,6 @@ if (!sessionId) {
 }
 console.log("🧭 Using session ID:", sessionId);
 
-form?.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const userMessage = input.innerText.trim();
-  if (!userMessage) return;
-
-  appendMessage('You', userMessage);
-  input.innerText = '';
-
-  // 👇 Show typing indicator
-  showTyping();
-
-  try {
-    const res = await fetch('/message', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-session-id': sessionId
-      },
-      body: JSON.stringify({ message: userMessage })
-    });
-
-    // 👇 Hide typing indicator when response arrives
-    hideTyping();
-
-    const data = await res.json();
-    appendMessage('Solomon', data.reply);
-
-    if (data.triggerUpload) {
-      const uploader = document.getElementById("photo-uploader");
-      if (uploader) {
-        openPhotoUploader();
-        uploader.scrollIntoView({ behavior: "smooth", block: "center" });
-      }
-    }
-
-    if (data.show_summary || data.open_upload) {
-      finalizeIntakeFlow();
-    }
-
-  } catch (err) {
-    hideTyping(); // 👈 Also hide on error
-    appendMessage('Solomon', '❌ Error responding. Please try again.');
-  }
-});
-
-
 
 // Append message to chat log
 function appendMessage(sender, message) {
@@ -145,14 +99,16 @@ function showSummary(data) {
   downloadSection.style.display = 'block';
 }
 
-// Form submission (chat)
 form?.addEventListener('submit', async (e) => {
   e.preventDefault();
-  const userMessage = input.innerText.trim(); // ✅ use innerText for contenteditable div
+  const userMessage = input.innerText.trim();
   if (!userMessage) return;
 
   appendMessage('You', userMessage);
   input.innerText = '';
+
+  // 👇 Show typing indicator
+  showTyping();
 
   try {
     const res = await fetch('/message', {
@@ -164,22 +120,26 @@ form?.addEventListener('submit', async (e) => {
       body: JSON.stringify({ message: userMessage })
     });
 
+    // 👇 Hide typing indicator when response arrives
+    hideTyping();
+
     const data = await res.json();
     appendMessage('Solomon', data.reply);
-    
+
     if (data.triggerUpload) {
-  const uploader = document.getElementById("photo-uploader");
-  if (uploader) {
-    openPhotoUploader();
-    uploader.scrollIntoView({ behavior: "smooth", block: "center" });
-  }
-}
+      const uploader = document.getElementById("photo-uploader");
+      if (uploader) {
+        openPhotoUploader();
+        uploader.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }
 
     if (data.show_summary || data.open_upload) {
       finalizeIntakeFlow();
     }
 
   } catch (err) {
+    hideTyping(); // 👈 Also hide on error
     appendMessage('Solomon', '❌ Error responding. Please try again.');
   }
 });
