@@ -51,7 +51,7 @@ function hideTyping() {
   if (typing) typing.style.display = 'none';
 }
 
- function shouldTriggerPhotoStep(data) {
+function shouldTriggerPhotoStep(data) {
   const requiredFields = [
     "full_name",
     "email",
@@ -63,8 +63,15 @@ function hideTyping() {
     "start_date",
     "final_notes"
   ];
-  return requiredFields.every(field => data[field] && data[field].trim() !== "");
+
+  const basicComplete = requiredFields.every(field => data[field] && data[field].trim() !== "");
+
+  // ✅ Only trigger photo step if it's still missing
+  const photoIncomplete = !data.garage_photo_upload || data.garage_photo_upload.trim() === "";
+
+  return basicComplete && photoIncomplete;
 }
+
 
 // Check if all required fields are filled
 function isIntakeComplete(data) {
