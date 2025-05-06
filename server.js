@@ -39,18 +39,20 @@ app.post('/upload-photos', upload.array('photos'), async (req, res) => {
   userIntakeOverrides[sessionId].garage_photo_upload = "Uploaded";
 
   try {
-    const pdfBuffer = await generateSummaryPDF(userIntakeOverrides[sessionId]);
-    await uploadToDrive({
-      fileName: `Garage-Quote-${sessionId}.pdf`,
-      mimeType: 'application/pdf',
-      buffer: pdfBuffer,
-      folderId: process.env.GDRIVE_FOLDER_ID
-    });
+    // Optional: Upload each photo to Drive
+    for (const file of req.files) {
+      await uploadToDrive({
+        fileName: `${Date.now()}_${file.originalname}`,
+        mimeType: file.mimetype,
+        buffer: file.buffer,
+        folderId: process.env.GDRIVE_FOLDER_ID
+      });
+    }
 
-    console.log("[📸 Intake + Photo Complete] Summary PDF created and uploaded (upload path).");
-    res.status(200).json({ success: true, show_summary: true });
+    console.log("[📸 Photos uploaded successfully]");
+    res.status(200).json({ success: true });
   } catch (err) {
-    console.error("❌ Failed to upload PDF after photo:", err.message);
+    console.error("❌ Failed to upload photo(s):", err.message);
     res.status(500).json({ success: false, error: err.message });
   }
 });
@@ -155,12 +157,11 @@ app.post('/message', async (req, res) => {
       const photoFlag = userIntakeOverrides[sessionId]?.garage_photo_upload;
       const photosUploaded = userUploadedPhotos[sessionId]?.length > 0;
 
-      if (!photosUploaded && (!photoFlag || photoFlag === '')) {
+     if (!photosUploaded && (!photoFlag || photoFlag === '')) {
         responseData.triggerUpload = true;
         assistantReply = "📸 Before we finish, could you upload a photo of your garage or choose to skip it?";
       } else {
-        console.log("[✅ Intake + Photo Complete] Submitting final summary...");
-        await generateSummaryPDF(userIntakeOverrides[sessionId], sessionId);
+        console.log("[✅ Intake + Photo Complete] Ready to finalize summary.");
         responseData.show_summary = true;
       }
     }
