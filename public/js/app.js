@@ -239,6 +239,7 @@ submitBtn?.addEventListener("click", async () => {
 
     if (res.ok) {
       console.log("✅ Photos uploaded.");
+      closePhotoUploader(); // 👈 hide the uploader
       await finalizeIntakeFlow();
     } else {
       alert("❌ Upload failed. Please try again.");
@@ -257,6 +258,7 @@ skipBtn?.addEventListener("click", async () => {
       headers: { "x-session-id": sessionId }
     });
     console.log("✅ Photo upload skipped.");
+    closePhotoUploader(); // 👈 hide the uploader
     await finalizeIntakeFlow();
   } catch (err) {
     console.error("❌ Error skipping photo upload:", err.message);
