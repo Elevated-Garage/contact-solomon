@@ -311,7 +311,7 @@ if (shouldTriggerPhotoStep(data)) {
 
   // Smooth scroll the chat container to bottom
   chatLog.scrollTo({ top: chatLog.scrollHeight, behavior: "smooth" });
-}
+
   } else {
     console.warn("❌ #photo-uploader not found in DOM.");
   }
