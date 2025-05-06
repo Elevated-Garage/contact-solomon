@@ -16,6 +16,8 @@ const submitBtn = document.getElementById("photo-submit");
 const skipBtn = document.getElementById("photo-skip");
 const thumbnailWrapper = document.getElementById("thumbnail-wrapper");
 
+let tempListener = null;
+
 let sessionId = localStorage.getItem('solomonSession');
 if (!sessionId) {
   sessionId = crypto.randomUUID();
@@ -281,8 +283,10 @@ function promptNextMissingField() {
   const prompt = intakeFieldPrompts[field];
   appendMessage("Solomon", prompt);
 
-  // Temporarily repurpose form submission for this missing field
-  const tempListener = async function (e) {
+  // Remove any previously attached temp listener
+  if (tempListener) form.removeEventListener("submit", tempListener);
+
+  tempListener = async function (e) {
     e.preventDefault();
     const answer = input.innerText.trim();
     if (!answer) return;
