@@ -370,7 +370,7 @@ if (shouldTriggerPhotoStep(data)) {
   const uploader = document.getElementById("photo-uploader");
   if (uploader) {
     console.log("✅ Found uploader. Displaying it.");
-    openPhotoUploader();
+    uploader.classList.remove("hidden");
     uploader.scrollIntoView({ behavior: 'smooth' });
   } else {
     console.warn("❌ #photo-uploader not found in DOM.");
@@ -396,22 +396,4 @@ function closePhotoUploader() {
   }
 }
 
-function openPhotoUploader() {
-  const uploader = document.getElementById("photo-uploader");
-  if (uploader) {
-    uploader.classList.remove("fade-out", "hidden");
-    uploader.classList.add("fade-in");
-  }
-}
-
-function closePhotoUploader() {
-  const uploader = document.getElementById("photo-uploader");
-  if (uploader) {
-    uploader.classList.remove("fade-in");
-    uploader.classList.add("fade-out");
-    setTimeout(() => {
-      uploader.classList.add("hidden");
-    }, 350); // Matches .fade-out animation duration
-  }
-}
 
