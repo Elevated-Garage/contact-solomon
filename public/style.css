@@ -237,6 +237,20 @@ body::before {
   gap: 16px; /* ↓ Reduced spacing between children */
 }
 
+.upload-center-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;         /* Full vertical height */
+  width: 100vw;          /* Full horizontal width */
+  position: fixed;       /* Stay on top of the page */
+  top: 0;
+  left: 0;
+  background: rgba(0, 0, 0, 0.25); /* Optional: semi-transparent background */
+  z-index: 9999;         /* Ensure it’s above other content */
+}
+
+
 .upload-box h2 {
   color: #B91B21; /* Title color */
   font-size: 1.5rem;
