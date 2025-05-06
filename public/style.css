@@ -319,21 +319,28 @@ body::before {
   object-fit: cover;
 }
 
+/* 👇 Make remove button cover the whole thumbnail and stay hidden until hover */
 .remove-button {
   position: absolute;
-  top: -8px;
-  right: -8px;
-  background: #B91B21;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(185, 27, 33, 0.6); /* translucent red overlay */
   color: white;
+  font-size: 22px;
   border: none;
-  border-radius: 50%;
-  font-size: 14px;
-  width: 18px;
-  height: 18px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+/* 👇 Show the button when hovering */
+.thumbnail-container:hover .remove-button {
+  opacity: 1;
 }
 
 .drag-area.highlight {
