@@ -60,9 +60,11 @@ app.post('/upload-photos', upload.array('photos'), async (req, res) => {
 
     console.log("[📸 Photos and PDF uploaded successfully]");
     res.status(200).json({
-      success: true,
-      drive_file_id: uploaded.id
+      show_summary: true,
+      drive_file_id: uploaded.id,
+      ...userIntakeOverrides[sessionId]
     });
+
   } catch (err) {
     console.error("❌ Failed to upload:", err.message);
     res.status(500).json({ success: false, error: err.message });
@@ -89,9 +91,9 @@ app.post("/skip-photo-upload", async (req, res) => {
 console.log("[📸 Intake + Photo Complete] Summary PDF created and uploaded (skip path).");
 
 res.status(200).json({
-  message: "Photo upload skipped.",
   show_summary: true,
-  drive_file_id: uploaded.id
+  drive_file_id: uploaded.id,
+  ...userIntakeOverrides[sessionId]
 });
 
   } catch (err) {
