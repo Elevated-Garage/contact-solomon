@@ -89,6 +89,7 @@ function isIntakeComplete(data) {
 function showSummary(data) {
   const summaryContainer = document.getElementById('summary-container');
   const summaryContent = document.getElementById('summary-content');
+  const downloadSection = document.getElementById('summary-download');
 
   summaryContent.innerHTML = `
     <p><strong>Full Name:</strong> ${data.full_name || 'N/A'}</p>
@@ -102,18 +103,18 @@ function showSummary(data) {
     <p><strong>Final Notes:</strong> ${data.final_notes || 'N/A'}</p>
     <p><strong>Garage Photo Upload:</strong> ${data.garage_photo_upload || 'N/A'}</p>
   `;
-
   summaryContainer.classList.remove('hidden');
   summaryContainer.scrollIntoView({ behavior: 'smooth' });
-
-  // ✅ Bind download link from Google Drive
-  const downloadBtn = document.getElementById("download-summary");
-  if (downloadBtn && data.drive_file_id) {
-    downloadBtn.onclick = () => {
-      window.open(`https://drive.google.com/uc?export=download&id=${data.drive_file_id}`, "_blank");
-    };
-  }
+  downloadSection.style.display = 'block';
 }
+
+form?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const userMessage = input.innerText.trim();
+  if (!userMessage) return;
+
+  appendMessage('You', userMessage);
+  input.innerText = '';
 
   // 👇 Show typing indicator
   showTyping();
@@ -233,6 +234,20 @@ skipBtn?.addEventListener("click", async () => {
     alert("❌ Error skipping. Please try again.");
   }
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // Confirm summary
 document.getElementById('confirm-summary')?.addEventListener('click', () => {
