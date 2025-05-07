@@ -367,7 +367,7 @@ async function finalizeIntakeFlow() {
       showSummary(data);
 
       // ✅ Attach Google Drive download link
- if (data.drive_file_id) {
+if (data.drive_file_id) {
   const downloadBtn = document.getElementById("download-summary");
   if (downloadBtn) {
     // ✅ Tag the button with the Google Drive file ID
@@ -383,12 +383,12 @@ async function finalizeIntakeFlow() {
     console.warn("⚠️ Unclear intake state. Possibly a session reset.");
     appendMessage("Solomon", "✅ Looks like we've already got everything we need. You're all set!");
   }
-}
-  } catch (err) {
-    console.error("❌ Intake submission failed:", err.message);
-    console.error("📛 Full error object:", err);
-    appendMessage("Solomon", "Sorry, something went wrong submitting your answers. Please try again.");
-  }
+} // ✅ <- this closes the "else" block correctly
+
+} catch (err) {
+  console.error("❌ Intake submission failed:", err.message);
+  console.error("📛 Full error object:", err);
+  appendMessage("Solomon", "Sorry, something went wrong submitting your answers. Please try again.");
 }
 
 
