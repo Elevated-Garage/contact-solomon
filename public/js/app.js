@@ -236,22 +236,18 @@ skipBtn?.addEventListener("click", async () => {
 });
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 // Confirm summary
 document.getElementById('confirm-summary')?.addEventListener('click', () => {
   alert('✅ Project summary confirmed. Our team will reach out soon!');
+});
+
+document.getElementById('download-summary')?.addEventListener('click', () => {
+  const driveId = document.getElementById('download-summary')?.getAttribute("data-drive-id");
+  if (driveId) {
+    window.open(`https://drive.google.com/uc?export=download&id=${driveId}`, "_blank");
+  } else {
+    alert("⚠️ Your PDF isn't ready yet. Try again shortly.");
+  }
 });
 
 
