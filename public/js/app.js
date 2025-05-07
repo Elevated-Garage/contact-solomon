@@ -366,26 +366,43 @@ async function finalizeIntakeFlow() {
       showSummary(data);
 
       // ✅ Attach Google Drive download link
-      if (data.drive_file_id) {
-        const downloadBtn = document.getElementById("download-summary");
-        if (downloadBtn) {
-          downloadBtn.onclick = () => {
-            window.open(`https://drive.google.com/uc?export=download&id=${data.drive_file_id}`, "_blank");
-          };
-        }
-      }
+      console.log("📦 Intake data received:", data);
+console.log("🔍 shouldTriggerPhotoStep:", shouldTriggerPhotoStep(data));
 
-    } else {
-      const missing = getMissingFields(data);
-      if (missing.length > 0) {
-        missingFieldsQueue = missing;
-        currentMissingIndex = 0;
-        promptNextMissingField();
-      } else {
-        console.warn("⚠️ Unclear intake state. Possibly a session reset.");
-        appendMessage("Solomon", "✅ Looks like we've already got everything we need. You're all set!");
-      }
-    }
+if (shouldTriggerPhotoStep(data)) {
+  console.log("📸 Attempting to show photo uploader...");
+  const uploader = document.getElementById("photo-uploader");
+  if (uploader) {
+    console.log("✅ Found uploader. Displaying it.");
+    openPhotoUploader();
+    uploader.scrollIntoView({ behavior: 'smooth' });
+  } else {
+    console.warn("❌ #photo-uploader not found in DOM.");
+  }
+
+} else if (data.show_summary || data.summary_submitted) {
+  summaryAlreadySubmitted = true;
+  appendMessage("Solomon", "✅ Thanks! Here's your personalized garage summary. Let us know if you'd like to schedule a follow-up.");
+  showSummary(data);
+
+  // ✅ Attach Google Drive download link
+  const downloadBtn = document.getElementById("download-summary");
+  if (downloadBtn && data.drive_file_id) {
+    downloadBtn.setAttribute("data-drive-id", data.drive_file_id);
+  }
+
+} else {
+  const missing = getMissingFields(data);
+  if (missing.length > 0) {
+    missingFieldsQueue = missing;
+    currentMissingIndex = 0;
+    promptNextMissingField();
+  } else {
+    console.warn("⚠️ Unclear intake state. Possibly a session reset.");
+    appendMessage("Solomon", "✅ Looks like we've already got everything we need. You're all set!");
+  }
+}
+
 
   } catch (err) {
     console.error("❌ Intake submission failed:", err.message);
