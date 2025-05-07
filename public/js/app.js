@@ -1,3 +1,4 @@
+
 const form = document.getElementById('chat-form');
 console.log("✅ form element:", form);
 const input = document.getElementById('input-field');
@@ -243,6 +244,10 @@ document.getElementById("download-summary")?.addEventListener("click", () => {
   } else {
     alert("⚠️ PDF not available yet. Please try again shortly.");
   }
+
+
+
+
 });
 
 
@@ -367,28 +372,32 @@ async function finalizeIntakeFlow() {
       showSummary(data);
 
       // ✅ Attach Google Drive download link
-if (data.drive_file_id) {
-  const downloadBtn = document.getElementById("download-summary");
-  if (downloadBtn) {
-    // ✅ Tag the button with the Google Drive file ID
-    downloadBtn.setAttribute("data-drive-id", data.drive_file_id);
-  }
-} else {
-  const missing = getMissingFields(data);
-  if (missing.length > 0) {
-    missingFieldsQueue = missing;
-    currentMissingIndex = 0;
-    promptNextMissingField();
-  } else {
-    console.warn("⚠️ Unclear intake state. Possibly a session reset.");
-    appendMessage("Solomon", "✅ Looks like we've already got everything we need. You're all set!");
-  }
-} // ✅ <- this closes the "else" block correctly
+      if (data.drive_file_id) {
+        const downloadBtn = document.getElementById("download-summary");
+        if (downloadBtn) {
+          downloadBtn.onclick = () => {
+            window.open(`https://drive.google.com/uc?export=download&id=${data.drive_file_id}`, "_blank");
+          };
+        }
+      }
 
-} catch (err) {
-  console.error("❌ Intake submission failed:", err.message);
-  console.error("📛 Full error object:", err);
-  appendMessage("Solomon", "Sorry, something went wrong submitting your answers. Please try again.");
+    } else {
+      const missing = getMissingFields(data);
+      if (missing.length > 0) {
+        missingFieldsQueue = missing;
+        currentMissingIndex = 0;
+        promptNextMissingField();
+      } else {
+        console.warn("⚠️ Unclear intake state. Possibly a session reset.");
+        appendMessage("Solomon", "✅ Looks like we've already got everything we need. You're all set!");
+      }
+    }
+
+  } catch (err) {
+    console.error("❌ Intake submission failed:", err.message);
+    console.error("📛 Full error object:", err);
+    appendMessage("Solomon", "Sorry, something went wrong submitting your answers. Please try again.");
+  }
 }
 
 
@@ -411,7 +420,5 @@ function closePhotoUploader() {
     setTimeout(() => {
       uploader.classList.add("hidden");
     }, 350);
-  }
-}
   }
 }
