@@ -413,3 +413,5 @@ function closePhotoUploader() {
     }, 350);
   }
 }
+  }
+}
