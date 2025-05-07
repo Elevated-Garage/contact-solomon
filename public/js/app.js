@@ -349,21 +349,20 @@ async function finalizeIntakeFlow() {
         console.warn("❌ #photo-uploader not found in DOM.");
       }
     } else {
-      if (data.show_summary) {
-        summaryAlreadySubmitted = true; // ✅ Set flag to stop re-triggering
-        appendMessage("Solomon", "✅ Thanks! Here's your personalized garage summary. Let us know if you'd like to schedule a follow-up.");
-        showSummaryDownload();
-      } else {
-        missingFieldsQueue = getMissingFields(data);
-        currentMissingIndex = 0;
-        promptNextMissingField();
-      }
-    }
-  } catch (err) {
-    console.error("❌ Intake submission failed:", err.message);
-    appendMessage("Solomon", "Sorry, something went wrong submitting your answers. Please try again.");
+  if (data.show_summary || data.summary_submitted) {
+    summaryAlreadySubmitted = true; // ✅ Prevent loop
+    appendMessage("Solomon", "✅ Thanks! Here's your personalized garage summary. Let us know if you'd like to schedule a follow-up.");
+    showSummaryDownload();
+  } else if (getMissingFields(data).length > 0) {
+    missingFieldsQueue = getMissingFields(data);
+    currentMissingIndex = 0;
+    promptNextMissingField();
+  } else {
+    console.warn("⚠️ Unclear intake state. Possibly a session reset.");
+    appendMessage("Solomon", "✅ Looks like we've already got everything we need. You're all set!");
   }
 }
+
 
 
 // --- Utility: Close the photo uploader ---
