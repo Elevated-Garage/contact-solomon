@@ -39,7 +39,7 @@ app.post('/upload-photos', upload.array('photos'), async (req, res) => {
   userIntakeOverrides[sessionId].garage_photo_upload = "Uploaded";
 
   try {
-    // Optional: Upload each photo to Drive
+    // Upload each photo to Drive (optional but already implemented)
     for (const file of req.files) {
       await uploadToDrive({
         fileName: `${Date.now()}_${file.originalname}`,
@@ -49,10 +49,22 @@ app.post('/upload-photos', upload.array('photos'), async (req, res) => {
       });
     }
 
-    console.log("[📸 Photos uploaded successfully]");
-    res.status(200).json({ success: true });
+    // ✅ Now generate and upload the PDF
+    const pdfBuffer = await generateSummaryPDF(userIntakeOverrides[sessionId]);
+    const uploaded = await uploadToDrive({
+      fileName: `Garage-Quote-${sessionId}.pdf`,
+      mimeType: 'application/pdf',
+      buffer: pdfBuffer,
+      folderId: process.env.GDRIVE_FOLDER_ID
+    });
+
+    console.log("[📸 Photos and PDF uploaded successfully]");
+    res.status(200).json({
+      success: true,
+      drive_file_id: uploaded.id
+    });
   } catch (err) {
-    console.error("❌ Failed to upload photo(s):", err.message);
+    console.error("❌ Failed to upload:", err.message);
     res.status(500).json({ success: false, error: err.message });
   }
 });
@@ -67,15 +79,21 @@ app.post("/skip-photo-upload", async (req, res) => {
 
   try {
     const pdfBuffer = await generateSummaryPDF(userIntakeOverrides[sessionId]);
-    await uploadToDrive({
-      fileName: `Garage-Quote-${sessionId}.pdf`,
-      mimeType: 'application/pdf',
-      buffer: pdfBuffer,
-      folderId: process.env.GDRIVE_FOLDER_ID
-    });
+    const uploaded = await uploadToDrive({
+  fileName: `Garage-Quote-${sessionId}.pdf`,
+  mimeType: 'application/pdf',
+  buffer: pdfBuffer,
+  folderId: process.env.GDRIVE_FOLDER_ID
+});
 
-    console.log("[📸 Intake + Photo Complete] Summary PDF created and uploaded (skip path).");
-    res.status(200).json({ message: "Photo upload skipped.", show_summary: true });
+console.log("[📸 Intake + Photo Complete] Summary PDF created and uploaded (skip path).");
+
+res.status(200).json({
+  message: "Photo upload skipped.",
+  show_summary: true,
+  drive_file_id: uploaded.id
+});
+
   } catch (err) {
     console.error("❌ Failed to upload PDF after skip:", err.message);
     res.status(500).json({ error: err.message });
