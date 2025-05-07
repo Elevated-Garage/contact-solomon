@@ -157,13 +157,19 @@ app.post('/message', async (req, res) => {
       const photoFlag = userIntakeOverrides[sessionId]?.garage_photo_upload;
       const photosUploaded = userUploadedPhotos[sessionId]?.length > 0;
 
-     if (!photosUploaded && (!photoFlag || photoFlag === '')) {
-       responseData.triggerUpload = true;
-       assistantReply = "📸 Before we finish, could you upload a photo of your garage or choose to skip it?";
-     } else if (!userIntakeOverrides[sessionId].summary_submitted) {
-       console.log("[✅ Intake + Photo Complete] Ready to finalize summary.");
-       responseData.show_summary = true;
-     }
+      const photoConfirmed =
+      userIntakeOverrides[sessionId]?.garage_photo_upload === "Uploaded" ||
+      userIntakeOverrides[sessionId]?.garage_photo_upload === "Skipped" ||
+      userUploadedPhotos[sessionId]?.length > 0;
+
+    if (!photoConfirmed) {
+      responseData.triggerUpload = true;
+      assistantReply = "📸 Before we finish, could you upload a photo of your garage or choose to skip it?";
+    } else if (!userIntakeOverrides[sessionId].summary_submitted) {
+      console.log("[✅ Intake + Photo Complete] Ready to finalize summary.");
+      responseData.show_summary = true;
+    }
+
 
     }
   } else {
