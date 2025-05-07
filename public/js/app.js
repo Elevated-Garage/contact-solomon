@@ -367,7 +367,17 @@ async function finalizeIntakeFlow() {
     } else if (data.show_summary || data.summary_submitted) {
       summaryAlreadySubmitted = true;
       appendMessage("Solomon", "✅ Thanks! Here's your personalized garage summary. Let us know if you'd like to schedule a follow-up.");
-     showSummary(data);
+      showSummary(data);
+
+      // ✅ Attach Google Drive download link
+      if (data.drive_file_id) {
+        const downloadBtn = document.getElementById("download-summary");
+        if (downloadBtn) {
+          downloadBtn.onclick = () => {
+            window.open(`https://drive.google.com/uc?export=download&id=${data.drive_file_id}`, "_blank");
+          };
+        }
+      }
 
     } else {
       const missing = getMissingFields(data);
@@ -387,6 +397,7 @@ async function finalizeIntakeFlow() {
     appendMessage("Solomon", "Sorry, something went wrong submitting your answers. Please try again.");
   }
 }
+
 
 
 // --- Utility: Close the photo uploader ---
