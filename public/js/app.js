@@ -70,7 +70,7 @@ function getMissingFields(data) {
     if (field === "garage_photo_upload") return false; // 🔒 skip asking this via text
     return !data[field] || data[field].trim?.() === "";
   });
-
+}
 
 
   const basicComplete = requiredFields.every(field => data[field] && data[field].trim() !== "");
