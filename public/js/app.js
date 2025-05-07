@@ -333,10 +333,18 @@ async function finalizeIntakeFlow() {
       method: "POST",
       headers: { "x-session-id": sessionId }
     });
-    const data = await res.json();
 
+    if (!res.ok) {
+      throw new Error(`Server responded with status ${res.status}`);
+    }
+
+    const data = await res.json();
     console.log("📦 Intake data received:", data);
     console.log("🔍 shouldTriggerPhotoStep:", shouldTriggerPhotoStep(data));
+
+    if (!data || typeof data !== 'object') {
+      throw new Error("Received invalid intake data");
+    }
 
     if (shouldTriggerPhotoStep(data)) {
       console.log("📸 Attempting to show photo uploader...");
@@ -348,13 +356,14 @@ async function finalizeIntakeFlow() {
       } else {
         console.warn("❌ #photo-uploader not found in DOM.");
       }
+    } else if (data.show_summary || data.summary_submitted) {
+      summaryAlreadySubmitted = true;
+      appendMessage("Solomon", "✅ Thanks! Here's your personalized garage summary. Let us know if you'd like to schedule a follow-up.");
+      showSummaryDownload();
     } else {
-      if (data.show_summary || data.summary_submitted) {
-        summaryAlreadySubmitted = true; // ✅ Prevent loop
-        appendMessage("Solomon", "✅ Thanks! Here's your personalized garage summary. Let us know if you'd like to schedule a follow-up.");
-        showSummaryDownload();
-      } else if (getMissingFields(data).length > 0) {
-        missingFieldsQueue = getMissingFields(data);
+      const missing = getMissingFields(data);
+      if (missing.length > 0) {
+        missingFieldsQueue = missing;
         currentMissingIndex = 0;
         promptNextMissingField();
       } else {
@@ -362,12 +371,13 @@ async function finalizeIntakeFlow() {
         appendMessage("Solomon", "✅ Looks like we've already got everything we need. You're all set!");
       }
     }
+
   } catch (err) {
     console.error("❌ Intake submission failed:", err.message);
+    console.error("❌ Stack trace:", err.stack);
     appendMessage("Solomon", "Sorry, something went wrong submitting your answers. Please try again.");
   }
 }
-
 
 // --- Utility: Close the photo uploader ---
 
