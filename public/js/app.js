@@ -335,16 +335,24 @@ async function finalizeIntakeFlow() {
     });
 
     if (!res.ok) {
-      throw new Error(`Server responded with status ${res.status}`);
+      throw new Error(`❌ Server responded with status ${res.status}`);
     }
 
-    const data = await res.json();
-    console.log("📦 Intake data received:", data);
-    console.log("🔍 shouldTriggerPhotoStep:", shouldTriggerPhotoStep(data));
+    const text = await res.text();
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch (jsonErr) {
+      console.error("❌ Failed to parse JSON. Raw response:", text);
+      throw new Error("Invalid JSON format received from server.");
+    }
 
     if (!data || typeof data !== 'object') {
-      throw new Error("Received invalid intake data");
+      throw new Error("❌ Intake data is not an object.");
     }
+
+    console.log("📦 Intake data received:", data);
+    console.log("🔍 shouldTriggerPhotoStep:", shouldTriggerPhotoStep(data));
 
     if (shouldTriggerPhotoStep(data)) {
       console.log("📸 Attempting to show photo uploader...");
@@ -374,10 +382,11 @@ async function finalizeIntakeFlow() {
 
   } catch (err) {
     console.error("❌ Intake submission failed:", err.message);
-    console.error("❌ Stack trace:", err.stack);
+    console.error("📛 Full error object:", err);
     appendMessage("Solomon", "Sorry, something went wrong submitting your answers. Please try again.");
   }
 }
+
 
 // --- Utility: Close the photo uploader ---
 
