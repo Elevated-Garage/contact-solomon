@@ -367,27 +367,23 @@ async function finalizeIntakeFlow() {
       showSummary(data);
 
       // ✅ Attach Google Drive download link
-      if (data.drive_file_id) {
-        const downloadBtn = document.getElementById("download-summary");
-        if (downloadBtn) {
-          downloadBtn.onclick = () => {
-            window.open(`https://drive.google.com/uc?export=download&id=${data.drive_file_id}`, "_blank");
-          };
-        }
-      }
-
-    } else {
-      const missing = getMissingFields(data);
-      if (missing.length > 0) {
-        missingFieldsQueue = missing;
-        currentMissingIndex = 0;
-        promptNextMissingField();
-      } else {
-        console.warn("⚠️ Unclear intake state. Possibly a session reset.");
-        appendMessage("Solomon", "✅ Looks like we've already got everything we need. You're all set!");
-      }
-    }
-
+ if (data.drive_file_id) {
+  const downloadBtn = document.getElementById("download-summary");
+  if (downloadBtn) {
+    // ✅ Tag the button with the Google Drive file ID
+    downloadBtn.setAttribute("data-drive-id", data.drive_file_id);
+  }
+} else {
+  const missing = getMissingFields(data);
+  if (missing.length > 0) {
+    missingFieldsQueue = missing;
+    currentMissingIndex = 0;
+    promptNextMissingField();
+  } else {
+    console.warn("⚠️ Unclear intake state. Possibly a session reset.");
+    appendMessage("Solomon", "✅ Looks like we've already got everything we need. You're all set!");
+  }
+}
   } catch (err) {
     console.error("❌ Intake submission failed:", err.message);
     console.error("📛 Full error object:", err);
