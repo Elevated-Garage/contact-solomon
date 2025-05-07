@@ -52,7 +52,7 @@ function hideTyping() {
   if (typing) typing.style.display = 'none';
 }
 
-function getMissingFields(data) {
+function shouldTriggerPhotoStep(data) {
   const requiredFields = [
     "full_name",
     "email",
@@ -62,16 +62,8 @@ function getMissingFields(data) {
     "must_have_features",
     "budget",
     "start_date",
-    "final_notes",
-    "garage_photo_upload"
+    "final_notes"
   ];
-
-  return requiredFields.filter(field => {
-    if (field === "garage_photo_upload") return false; // 🔒 skip asking this via text
-    return !data[field] || data[field].trim?.() === "";
-  });
-}
-
 
   const basicComplete = requiredFields.every(field => data[field] && data[field].trim() !== "");
 
