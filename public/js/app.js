@@ -372,12 +372,9 @@ async function finalizeIntakeFlow() {
 
       // ✅ Attach Google Drive download link
       const downloadBtn = document.getElementById("download-summary");
-      if (downloadBtn && data.drive_file_id) {
-        downloadBtn.setAttribute("data-drive-id", data.drive_file_id);
-        downloadBtn.onclick = () => {
-          window.open(`https://drive.google.com/uc?export=download&id=${data.drive_file_id}`, "_blank");
-        };
-      }
+if (downloadBtn && data.drive_file_id) {
+  downloadBtn.setAttribute("data-drive-id", data.drive_file_id);
+}
 
 
 
@@ -422,3 +419,17 @@ function closePhotoUploader() {
     }, 350);
   }
 }
+
+
+// ✅ GLOBAL LISTENER FOR DOWNLOAD BUTTON (RELIABLE EVEN IF DYNAMICALLY LOADED)
+document.addEventListener('click', (e) => {
+  if (e.target && e.target.id === 'download-summary') {
+    const driveId = e.target.getAttribute('data-drive-id');
+    if (driveId) {
+      console.log("⬇️ Global click listener: Opening PDF with ID", driveId);
+      window.open(`https://drive.google.com/uc?export=download&id=${driveId}`, '_blank');
+    } else {
+      console.warn("⚠️ No drive_file_id found on button.");
+    }
+  }
+});
