@@ -105,7 +105,8 @@ function showSummary(data) {
     <p><strong>Garage Photo Upload:</strong> ${data.garage_photo_upload || 'N/A'}</p>
   `;
 
-  modal.classList.remove('hidden'); // ✅ show the modal
+  modal.classList.remove('fade-out', 'hidden');
+  modal.classList.add('fade-in');
   downloadSection.style.display = 'block';
 
   const downloadBtn = document.getElementById("download-summary");
@@ -436,3 +437,15 @@ document.addEventListener('click', (e) => {
     }
   }
 });
+
+document.getElementById('close-summary')?.addEventListener('click', () => {
+  const modal = document.getElementById('summary-modal');
+  if (modal) {
+    modal.classList.remove('fade-in');
+    modal.classList.add('fade-out');
+    setTimeout(() => {
+      modal.classList.add('hidden');
+    }, 350);
+  }
+});
+
