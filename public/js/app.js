@@ -88,7 +88,7 @@ function isIntakeComplete(data) {
 // Display summary data
 
 function showSummary(data) {
-  const summaryContainer = document.getElementById('summary-container');
+  const modal = document.getElementById('summary-modal');
   const summaryContent = document.getElementById('summary-content');
   const downloadSection = document.getElementById('summary-download');
 
@@ -105,8 +105,7 @@ function showSummary(data) {
     <p><strong>Garage Photo Upload:</strong> ${data.garage_photo_upload || 'N/A'}</p>
   `;
 
-  summaryContainer.classList.remove('hidden');
-  summaryContainer.scrollIntoView({ behavior: 'smooth' });
+  modal.classList.remove('hidden'); // ✅ show the modal
   downloadSection.style.display = 'block';
 
   const downloadBtn = document.getElementById("download-summary");
@@ -119,6 +118,7 @@ function showSummary(data) {
     console.warn("⚠️ Download button or drive_file_id missing.");
   }
 }
+
 
 
 
