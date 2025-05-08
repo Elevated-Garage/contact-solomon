@@ -246,7 +246,9 @@ app.post('/submit-final-intake', async (req, res) => {
 
   console.log("[📸 Intake + Photo Complete] Submitting final summary (from confirmation route)...");
 
-  const pdfBuffer = await generateSummaryPDF(intakeData);
+  const photos = userUploadedPhotos[sessionId] || [];
+  const pdfBuffer = await generateSummaryPDF(intakeData, photos);
+
   const uploaded = await uploadToDrive({
     fileName: `Garage-Quote-${sessionId}.pdf`,
     mimeType: 'application/pdf',
