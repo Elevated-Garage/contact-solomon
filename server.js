@@ -214,11 +214,11 @@ app.post('/create-checkout-session', async (req, res) => {
       mode: 'subscription',
       line_items: [
         {
-          price: 'price_YOUR_ONETIME_FEE_ID', // <- Replace with actual Stripe Price ID
+          price: 'price_1RMcneEDhetaP7L8rVlmhf8I', // Onboarding & Setup fee
           quantity: 1,
         },
         {
-          price: 'price_YOUR_MONTHLY_SUB_ID', // <- Replace with actual Stripe Price ID
+          price: 'price_1RMcbGEDhetaP7L8LTRSl42m', // Monthly Solo plan
           quantity: 1,
         }
       ],
@@ -237,7 +237,6 @@ app.post('/create-checkout-session', async (req, res) => {
     res.status(500).send('Failed to create checkout session');
   }
 });
-
 
 // === Final Intake Submission Route ===
 app.post('/submit-final-intake', async (req, res) => {
