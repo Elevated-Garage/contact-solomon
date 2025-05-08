@@ -247,16 +247,6 @@ document.getElementById('confirm-summary')?.addEventListener('click', () => {
   alert('✅ Project summary confirmed. Our team will reach out soon!');
 });
 
-document.getElementById('download-summary')?.addEventListener('click', () => {
-  const driveId = document.getElementById('download-summary')?.getAttribute("data-drive-id");
-  if (driveId) {
-    window.open(`https://drive.google.com/uc?export=download&id=${driveId}`, "_blank");
-  } else {
-    alert("⚠️ Your PDF isn't ready yet. Try again shortly.");
-  }
-});
-
-
 // --- Begin field definitions and Solomon-style prompts ---
 const intakeFieldPrompts = {
   full_name: "What’s your full name?",
@@ -371,13 +361,16 @@ async function finalizeIntakeFlow() {
       appendMessage("Solomon", "✅ Thanks! Here's your personalized garage summary. Let us know if you'd like to schedule a follow-up.");
       showSummary(data);
 
+
       // ✅ Attach Google Drive download link
-      if (data.drive_file_id) {
-        const downloadBtn = document.getElementById("download-summary");
-        if (downloadBtn) {
-          downloadBtn.setAttribute("data-drive-id", data.drive_file_id);
-        }
+      const downloadBtn = document.getElementById("download-summary");
+      if (downloadBtn && data.drive_file_id) {
+        downloadBtn.setAttribute("data-drive-id", data.drive_file_id);
+        downloadBtn.onclick = () => {
+          window.open(`https://drive.google.com/uc?export=download&id=${data.drive_file_id}`, "_blank");
+        };
       }
+
 
 
     } else {
