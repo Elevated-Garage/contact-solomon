@@ -206,6 +206,39 @@ app.post('/message', async (req, res) => {
   res.status(200).json(responseData);
 });
 
+// === Stripe Checkout Session Route ===
+app.post('/create-checkout-session', async (req, res) => {
+  try {
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      mode: 'subscription',
+      line_items: [
+        {
+          price: 'price_YOUR_ONETIME_FEE_ID', // <- Replace with actual Stripe Price ID
+          quantity: 1,
+        },
+        {
+          price: 'price_YOUR_MONTHLY_SUB_ID', // <- Replace with actual Stripe Price ID
+          quantity: 1,
+        }
+      ],
+      subscription_data: {
+        trial_settings: {
+          end_behavior: { missing_payment_method: 'cancel' }
+        }
+      },
+      success_url: 'https://yourdomain.com/success',
+      cancel_url: 'https://yourdomain.com/cancel',
+    });
+
+    res.json({ id: session.id });
+  } catch (err) {
+    console.error('❌ Stripe session error:', err.message);
+    res.status(500).send('Failed to create checkout session');
+  }
+});
+
+
 // === Final Intake Submission Route ===
 app.post('/submit-final-intake', async (req, res) => {
   const sessionId = req.headers['x-session-id'];
