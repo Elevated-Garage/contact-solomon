@@ -209,20 +209,6 @@ skipBtn?.addEventListener("click", async () => {
   }
 });
 
-// Summary Download
-document.getElementById('download-summary')?.addEventListener('click', () => {
-  const summary = document.getElementById('summary-content')?.innerText;
-  const blob = new Blob([summary], { type: 'text/plain' });
-  const url = URL.createObjectURL(blob);
-
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'garage_project_summary.txt';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-});
-
 // Confirm summary
 document.getElementById('confirm-summary')?.addEventListener('click', () => {
   alert('✅ Project summary confirmed. Our team will reach out soon!');
