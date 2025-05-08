@@ -4,108 +4,106 @@ const path = require('path');
 
 async function generateSummaryPDF(data, photos = []) {
   const pdfDoc = await PDFDocument.create();
+  const logoBytes = fs.readFileSync(path.join(__dirname, 'public/assets/9.png'));
+  const watermarkBytes = fs.readFileSync(path.join(__dirname, 'public/assets/Elevated Garage Icon Final.png'));
+  const logoImage = await pdfDoc.embedPng(logoBytes);
+  const watermarkImage = await pdfDoc.embedPng(watermarkBytes);
   const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+  const fontSize = 12;
 
-  const logoBytes = fs.readFileSync(path.join(__dirname, '../public/assets/9.png'));
-  const watermarkBytes = fs.readFileSync(path.join(__dirname, '../public/assets/Elevated Garage Icon Final.png'));
-  const logoImg = await pdfDoc.embedPng(logoBytes);
-  const watermarkImg = await pdfDoc.embedPng(watermarkBytes);
-
-  const addFooterAndWatermark = (page) => {
+  const drawWatermark = (page) => {
     const { width, height } = page.getSize();
-    const wmDims = watermarkImg.scale(0.5);
-
-    page.drawImage(watermarkImg, {
+    const wmDims = watermarkImage.scale(0.5);
+    page.drawImage(watermarkImage, {
       x: (width - wmDims.width) / 2,
       y: (height - wmDims.height) / 2,
       width: wmDims.width,
       height: wmDims.height,
-      opacity: 0.05,
-    });
-
-    page.drawText("Phone: 208-625-1175    Web: elevatedgarage.com", {
-      x: 50,
-      y: 30,
-      size: 10,
-      font,
-      color: rgb(0.5, 0.5, 0.5),
+      opacity: 0.06,
     });
   };
 
-  // === First Page ===
-  const page = pdfDoc.addPage();
-  const { width, height } = page.getSize();
-  addFooterAndWatermark(page);
+  const createStyledPage = () => {
+    const page = pdfDoc.addPage();
+    const { width, height } = page.getSize();
+    drawWatermark(page);
+    return { page, width, height };
+  };
 
-  const logoDims = logoImg.scale(0.25);
-  page.drawImage(logoImg, {
-    x: 50,
-    y: height - logoDims.height - 20,
+  // Page 1: Summary Details
+  const { page, width, height } = createStyledPage();
+
+  // Logo
+  const logoDims = logoImage.scale(0.3);
+  page.drawImage(logoImage, {
+    x: width / 2 - logoDims.width / 2,
+    y: height - logoDims.height - 40,
     width: logoDims.width,
     height: logoDims.height,
   });
 
   let y = height - logoDims.height - 60;
-  const fontSize = 12;
 
-  const drawHeader = (title) => {
-    page.drawText(title, {
+  const writeSectionTitle = (text) => {
+    page.drawText(text, {
       x: 50,
       y,
-      size: fontSize + 2,
+      size: fontSize + 1,
       font,
-      color: rgb(0.71, 0.08, 0.13),
+      color: rgb(0.7, 0, 0),
     });
     y -= 20;
   };
 
-  const drawLine = (label, value) => {
-    page.drawText(`${label}: ${value || 'N/A'}`, {
-      x: 60,
-      y,
-      size: fontSize,
-      font,
-      color: rgb(0, 0, 0),
-    });
-    y -= 18;
+  const writeField = (label, value) => {
+    page.drawText(`${label}:`, { x: 50, y, size: fontSize, font, color: rgb(0.2, 0.2, 0.2) });
+    y -= 16;
+    page.drawText(value || 'N/A', { x: 70, y, size: fontSize, font });
+    y -= 24;
   };
 
-  drawHeader("Client Information");
-  drawLine('Full Name', data.full_name);
-  drawLine('Email', data.email);
-  drawLine('Phone', data.phone);
-  y -= 10;
+  writeSectionTitle("Client Information");
+  writeField("Full Name", data.full_name);
+  writeField("Email", data.email);
+  writeField("Phone", data.phone);
 
-  drawHeader("Garage Project Details");
-  drawLine('Garage Goals', data.garage_goals);
-  drawLine('Square Footage', data.square_footage);
-  drawLine('Must-Have Features', data.must_have_features);
-  drawLine('Budget', data.budget);
-  drawLine('Preferred Start Date', data.start_date);
-  drawLine('Final Notes', data.final_notes);
+  writeSectionTitle("Garage Project Overview");
+  writeField("Client Vision for the Garage", data.garage_goals);
+  writeField("Garage Dimensions", `${data.square_footage} sq ft`);
+  writeField("Estimated Investment Range", `$${data.budget}`);
 
-  // === Image Pages ===
+  writeSectionTitle("Key Requirements");
+  writeField("Must-Have Features", data.must_have_features);
+  writeField("Preferred Start Date", data.start_date);
+  writeField("Final Notes", data.final_notes);
+
+  // Footer
+  page.drawText(`Phone: ${data.phone || 'N/A'}   Web: elevatedgarage.com`, {
+    x: 50,
+    y: 30,
+    size: 10,
+    font,
+    color: rgb(0.5, 0.5, 0.5),
+  });
+
+  // Photos (Page 2+)
   for (const file of photos) {
     const imgBytes = file.buffer;
-    const image = file.mimetype === 'image/png'
+    const img = file.mimetype === 'image/png'
       ? await pdfDoc.embedPng(imgBytes)
       : await pdfDoc.embedJpg(imgBytes);
-
-    const imgPage = pdfDoc.addPage();
-    const imgDims = image.scale(0.5);
-    addFooterAndWatermark(imgPage);
-
+    const imgPage = createStyledPage().page;
+    const imgDims = img.scale(0.5);
     imgPage.drawText("Uploaded Photo", {
       x: 50,
       y: imgPage.getHeight() - 40,
-      size: 14,
+      size: fontSize + 1,
       font,
-      color: rgb(0.71, 0.08, 0.13),
+      color: rgb(0.7, 0, 0),
     });
-
-    imgPage.drawImage(image, {
+    imgPage.drawImage(img, {
       x: 50,
-      y: imgPage.getHeight() - imgDims.height - 60,
+      y: imgPage.getHeight() - imgDims.height - 80,
       width: imgDims.width,
       height: imgDims.height,
     });
@@ -116,4 +114,3 @@ async function generateSummaryPDF(data, photos = []) {
 }
 
 module.exports = { generateSummaryPDF };
-
