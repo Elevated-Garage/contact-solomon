@@ -253,8 +253,8 @@ skipBtn?.addEventListener("click", async () => {
 // Close Summary
 document.getElementById('close-summary')?.addEventListener('click', () => {
   document.getElementById('summary-modal')?.classList.add('hidden');
-  alert('✅ Project summary confirmed. Our team will reach out soon!');
 });
+
 
 
 // --- Begin field definitions and Solomon-style prompts ---
