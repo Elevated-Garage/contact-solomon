@@ -23,23 +23,22 @@ async function uploadToDrive({ fileName, mimeType, buffer, folderId }) {
   };
 
   const response = await drive.files.create({
-  requestBody: fileMetadata,
-  media,
-  fields: 'id',
-});
+    requestBody: fileMetadata,
+    media,
+    fields: 'id',
+  });
 
-// ✅ Make it public
-await drive.permissions.create({
-  fileId: response.data.id,
-  requestBody: {
-    role: 'reader',
-    type: 'anyone',
-  },
-});
+  // ✅ Make it public
+  await drive.permissions.create({
+    fileId: response.data.id,
+    requestBody: {
+      role: 'reader',
+      type: 'anyone',
+    },
+  });
 
-console.log(`📁 Uploaded file to Google Drive (ID: ${response.data.id})`);
-return { id: response.data.id };
-
+  console.log(`📁 Uploaded file to Google Drive (ID: ${response.data.id})`);
+  return { id: response.data.id };
 }
 
 module.exports = { uploadToDrive };
