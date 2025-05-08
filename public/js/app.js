@@ -106,6 +106,12 @@ function showSummary(data) {
   summaryContainer.classList.remove('hidden');
   summaryContainer.scrollIntoView({ behavior: 'smooth' });
   downloadSection.style.display = 'block';
+  // 🔗 Attach the drive_file_id to the visible button
+  const downloadBtn = document.getElementById("download-summary");
+  if (downloadBtn && data.drive_file_id) {
+    downloadBtn.setAttribute("data-drive-id", data.drive_file_id);
+  }
+
 }
 
 form?.addEventListener('submit', async (e) => {
