@@ -354,46 +354,35 @@ async function finalizeIntakeFlow() {
     console.log("📦 Intake data received:", data);
     console.log("🔍 shouldTriggerPhotoStep:", shouldTriggerPhotoStep(data));
 
-    if (shouldTriggerPhotoStep(data)) {
-      console.log("📸 Attempting to show photo uploader...");
-      const uploader = document.getElementById("photo-uploader");
-      if (uploader) {
-        console.log("✅ Found uploader. Displaying it.");
-        openPhotoUploader();
-        uploader.scrollIntoView({ behavior: 'smooth' });
-      } else {
-        console.warn("❌ #photo-uploader not found in DOM.");
-      }
-    } else if (data.show_summary || data.summary_submitted) {
-      summaryAlreadySubmitted = true;
-      appendMessage("Solomon", "✅ Thanks! Here's your personalized garage summary.");
+   if (shouldTriggerPhotoStep(data)) {
+  ...
+} else if (data.show_summary || data.summary_submitted) {
+  summaryAlreadySubmitted = true;
+  appendMessage("Solomon", "✅ Thanks! Here's your personalized garage summary.");
 
-      // ⏳ Delay to ensure #download-summary button is loaded from summary.html
-      setTimeout(() => {
-        showSummary(data);
-      }, 100);
-    }
+  // ⏳ Delay to ensure DOM elements are ready
+  setTimeout(() => {
+    showSummary(data);
+  }, 100);
 
+  // ✅ Tag button for download
+  const downloadBtn = document.getElementById("download-summary");
+  if (downloadBtn && data.drive_file_id) {
+    downloadBtn.setAttribute("data-drive-id", data.drive_file_id);
+  }
 
-      // ✅ Attach Google Drive download link
-      const downloadBtn = document.getElementById("download-summary");
-if (downloadBtn && data.drive_file_id) {
-  downloadBtn.setAttribute("data-drive-id", data.drive_file_id);
+} else {
+  const missing = getMissingFields(data);
+  if (missing.length > 0) {
+    missingFieldsQueue = missing;
+    currentMissingIndex = 0;
+    promptNextMissingField();
+  } else {
+    console.warn("⚠️ Unclear intake state. Possibly a session reset.");
+    appendMessage("Solomon", "✅ Looks like we've already got everything we need. You're all set!");
+  }
 }
 
-
-
-    } else {
-      const missing = getMissingFields(data);
-      if (missing.length > 0) {
-        missingFieldsQueue = missing;
-        currentMissingIndex = 0;
-        promptNextMissingField();
-      } else {
-        console.warn("⚠️ Unclear intake state. Possibly a session reset.");
-        appendMessage("Solomon", "✅ Looks like we've already got everything we need. You're all set!");
-      }
-    }
 
   } catch (err) {
     console.error("❌ Intake submission failed:", err.message);
@@ -401,8 +390,6 @@ if (downloadBtn && data.drive_file_id) {
     appendMessage("Solomon", "Sorry, something went wrong submitting your answers. Please try again.");
   }
 }
-
-
 
 // --- Utility: Close the photo uploader ---
 
