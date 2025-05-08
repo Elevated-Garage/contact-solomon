@@ -574,3 +574,6 @@ input[type="date"] {
   width: 90%;
 }
 
+.hidden {
+  display: none;
+}
