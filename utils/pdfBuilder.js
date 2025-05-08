@@ -23,7 +23,7 @@ async function generateSummaryPDF(data, photos = []) {
       opacity: 0.05,
     });
 
-    page.drawText("📞 208-625-1175    🌐 elevatedgarage.com", {
+    page.drawText("Phone: 208-625-1175    Web: elevatedgarage.com", {
       x: 50,
       y: 30,
       size: 10,
@@ -70,13 +70,13 @@ async function generateSummaryPDF(data, photos = []) {
     y -= 18;
   };
 
-  drawHeader("👤 Client Information");
+  drawHeader("Client Information");
   drawLine('Full Name', data.full_name);
   drawLine('Email', data.email);
   drawLine('Phone', data.phone);
   y -= 10;
 
-  drawHeader("🚗 Garage Project Details");
+  drawHeader("Garage Project Details");
   drawLine('Garage Goals', data.garage_goals);
   drawLine('Square Footage', data.square_footage);
   drawLine('Must-Have Features', data.must_have_features);
@@ -95,7 +95,7 @@ async function generateSummaryPDF(data, photos = []) {
     const imgDims = image.scale(0.5);
     addFooterAndWatermark(imgPage);
 
-    imgPage.drawText("📸 Uploaded Photo", {
+    imgPage.drawText("Uploaded Photo", {
       x: 50,
       y: imgPage.getHeight() - 40,
       size: 14,
