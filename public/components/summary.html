@@ -1,16 +1,13 @@
 <div id="summary-modal" class="modal hidden">
-  <div class="modal-content">
-    <form id="chat-form" class="form-col" onsubmit="event.preventDefault();">
-      <h2>📝 Your Garage Project Summary</h2>
-
-      <div id="summary-content" class="summary-box">
-        <!-- Dynamic summary content will be inserted here -->
-      </div>
-
-      <div id="summary-download" style="margin-top: 20px; text-align: center;">
-        <button id="download-summary" type="button" class="btn-large">Download Summary</button>
-        <button id="confirm-summary" type="button" class="btn-large">Confirm & Submit</button>
-      </div>
-    </form>
+  <div class="modal-content" id="summary-container">
+    <span class="close-btn" onclick="document.getElementById('summary-modal').classList.add('hidden')">&times;</span>
+    <h2>📝 Your Garage Project Summary</h2>
+    <div id="summary-content" class="summary-box">
+      <!-- Summary gets inserted here -->
+    </div>
+    <div id="summary-download" style="margin-top: 20px; text-align: center;">
+      <button id="download-summary" type="button" class="btn-large">Download Summary</button>
+      <button id="confirm-summary" type="button" class="btn-large">Confirm & Submit</button>
+    </div>
   </div>
 </div>
