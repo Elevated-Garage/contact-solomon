@@ -25,7 +25,7 @@
   </div>
 
   <!-- Component Loader -->
-  <script type="module">
+<script type="module">
   async function loadComponent(id, file) {
     const container = document.getElementById(id);
     if (container) {
@@ -43,7 +43,7 @@
     loadComponent("footer", "footer.html")
   ]);
 
-  // ✅ Load app.js only after all components are loaded
+  // ✅ Once all components are loaded, attach app logic
   import("/js/app.js");
 </script>
 
