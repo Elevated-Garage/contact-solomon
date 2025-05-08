@@ -355,8 +355,17 @@ async function finalizeIntakeFlow() {
     console.log("🔍 shouldTriggerPhotoStep:", shouldTriggerPhotoStep(data));
 
    if (shouldTriggerPhotoStep(data)) {
-  ...
+  console.log("📸 Attempting to show photo uploader...");
+  const uploader = document.getElementById("photo-uploader");
+  if (uploader) {
+    console.log("✅ Found uploader. Displaying it.");
+    openPhotoUploader();
+    uploader.scrollIntoView({ behavior: 'smooth' });
+  } else {
+    console.warn("❌ #photo-uploader not found in DOM.");
+  }
 } else if (data.show_summary || data.summary_submitted) {
+
   summaryAlreadySubmitted = true;
   appendMessage("Solomon", "✅ Thanks! Here's your personalized garage summary.");
 
