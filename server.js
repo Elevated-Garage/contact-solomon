@@ -241,7 +241,7 @@ app.post('/submit-final-intake', async (req, res) => {
   console.log("[📸 Intake + Photo Complete] Submitting final summary (from confirmation route)...");
 
   const pdfBuffer = await generateSummaryPDF(intakeData);
-  await uploadToDrive({
+  const uploaded = await uploadToDrive({
     fileName: `Garage-Quote-${sessionId}.pdf`,
     mimeType: 'application/pdf',
     buffer: pdfBuffer,
@@ -252,8 +252,11 @@ app.post('/submit-final-intake', async (req, res) => {
   userIntakeOverrides[sessionId].summary_submitted = true;
 
 
-  return res.status(200).json({ show_summary: true, ...intakeData });
-});
+  return res.status(200).json({
+    show_summary: true,
+    drive_file_id: uploaded.id,
+    ...userIntakeOverrides[sessionId]
+  });
 
 
 // === Start server ===
