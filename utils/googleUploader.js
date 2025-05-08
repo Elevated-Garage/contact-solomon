@@ -29,7 +29,8 @@ async function uploadToDrive({ fileName, mimeType, buffer, folderId }) {
   });
 
   console.log(`📁 Uploaded file to Google Drive (ID: ${response.data.id})`);
-  return response.data.id;
+  return { id: response.data.id }; // ✅ FIXED: return object with `.id`
 }
 
 module.exports = { uploadToDrive };
+
