@@ -86,6 +86,7 @@ function isIntakeComplete(data) {
 }
 
 // Display summary data
+
 function showSummary(data) {
   const summaryContainer = document.getElementById('summary-container');
   const summaryContent = document.getElementById('summary-content');
@@ -110,12 +111,15 @@ function showSummary(data) {
 
   const downloadBtn = document.getElementById("download-summary");
   if (downloadBtn && data.drive_file_id) {
-    downloadBtn.setAttribute("data-drive-id", data.drive_file_id);
     downloadBtn.onclick = () => {
+      console.log("⬇️ Download button clicked!");
       window.open(`https://drive.google.com/uc?export=download&id=${data.drive_file_id}`, "_blank");
     };
+  } else {
+    console.warn("⚠️ Download button or drive_file_id missing.");
   }
 }
+
 
 
 form?.addEventListener('submit', async (e) => {
