@@ -212,10 +212,15 @@ app.post('/submit-final-intake', async (req, res) => {
   ensureSession(sessionId);
 
   const intakeData = userIntakeOverrides[sessionId];
-  if (intakeData.summary_submitted) {
-  console.log("⚠️ Summary already submitted. Skipping re-upload.");
-  return res.status(200).json({ show_summary: true, ...intakeData });
+  if (intakeData.summary_submitted && intakeData.drive_file_id) {
+  console.log("⚠️ Summary already submitted. Sending existing file ID:", intakeData.drive_file_id);
+  return res.status(200).json({
+    show_summary: true,
+    drive_file_id: intakeData.drive_file_id,
+    ...intakeData
+  });
 }
+
 
   const hasUploadedPhotos = userUploadedPhotos[sessionId]?.length > 0;
   const photoFlag = intakeData?.garage_photo_upload;
