@@ -236,19 +236,6 @@ skipBtn?.addEventListener("click", async () => {
 });
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 // Confirm summary
 document.getElementById('confirm-summary')?.addEventListener('click', () => {
   alert('✅ Project summary confirmed. Our team will reach out soon!');
@@ -382,11 +369,10 @@ async function finalizeIntakeFlow() {
       if (data.drive_file_id) {
         const downloadBtn = document.getElementById("download-summary");
         if (downloadBtn) {
-          downloadBtn.onclick = () => {
-            window.open(`https://drive.google.com/uc?export=download&id=${data.drive_file_id}`, "_blank");
-          };
+          downloadBtn.setAttribute("data-drive-id", data.drive_file_id);
         }
       }
+
 
     } else {
       const missing = getMissingFields(data);
