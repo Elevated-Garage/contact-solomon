@@ -8,7 +8,6 @@
 <body>
   <div id="app">
     <div id="main-centered-container">
-
       <div id="header"></div>
 
       <!-- Main Chat Section -->
@@ -17,35 +16,34 @@
         <div id="typing"></div>
         <div id="summary"></div>
         <div id="uploadbox"></div>
-        
       </div>
 
       <div id="footer"></div>
     </div>
   </div>
 
-  <!-- Component Loader -->
-<script type="module">
-  async function loadComponent(id, file) {
-    const container = document.getElementById(id);
-    if (container) {
-      const html = await fetch(`/components/${file}`).then(r => r.text());
-      container.innerHTML = html;
+  <!-- Single Component Loader + App Init -->
+  <script type="module">
+    async function loadComponent(id, file) {
+      const container = document.getElementById(id);
+      if (container) {
+        const html = await fetch(`/components/${file}`).then(r => r.text());
+        container.innerHTML = html;
+      }
     }
-  }
 
-  await Promise.all([
-    loadComponent("header", "header.html"),
-    loadComponent("chatbox", "chatbox.html"),
-    loadComponent("uploadbox", "uploadbox.html"),
-    loadComponent("typing", "typing.html"),
-    loadComponent("summary", "summary.html"),
-    loadComponent("footer", "footer.html")
-  ]);
+    await Promise.all([
+      loadComponent("header", "header.html"),
+      loadComponent("chatbox", "chatbox.html"),
+      loadComponent("uploadbox", "uploadbox.html"),
+      loadComponent("typing", "typing.html"),
+      loadComponent("summary", "summary.html"),
+      loadComponent("footer", "footer.html")
+    ]);
 
-  // ✅ Once all components are loaded, attach app logic
-  import("/js/app.js");
-</script>
-
+    // ✅ Load app logic AFTER components render
+    import("/js/app.js");
+  </script>
 </body>
 </html>
+
