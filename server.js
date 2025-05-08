@@ -227,8 +227,8 @@ app.post('/create-checkout-session', async (req, res) => {
           end_behavior: { missing_payment_method: 'cancel' }
         }
       },
-      success_url: 'https://yourdomain.com/success',
-      cancel_url: 'https://yourdomain.com/cancel',
+      success_url: 'https://contact-solomon.onrender.com/success',
+      cancel_url: 'https://contact-solomon.onrender.com/cancel',
     });
 
     res.json({ id: session.id });
