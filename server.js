@@ -50,7 +50,8 @@ app.post('/upload-photos', upload.array('photos'), async (req, res) => {
     }
 
     // ✅ Now generate and upload the PDF
-    const pdfBuffer = await generateSummaryPDF(userIntakeOverrides[sessionId]);
+    const photos = userUploadedPhotos[sessionId] || [];
+    const pdfBuffer = await generateSummaryPDF(userIntakeOverrides[sessionId], photos);
     const uploaded = await uploadToDrive({
       fileName: `Garage-Quote-${sessionId}.pdf`,
       mimeType: 'application/pdf',
