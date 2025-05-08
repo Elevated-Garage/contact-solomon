@@ -50,6 +50,18 @@ function showSummary(data) {
   summaryContainer.classList.remove('hidden');
   summaryContainer.scrollIntoView({ behavior: 'smooth' });
   downloadSection.style.display = 'block';
+
+  const downloadBtn = document.getElementById("download-summary");
+if (downloadBtn && data.drive_file_id) {
+  downloadBtn.setAttribute("data-drive-id", data.drive_file_id);
+  console.log("✅ Attached drive_file_id to button:", data.drive_file_id);
+
+  downloadBtn.onclick = () => {
+    console.log("⬇️ Download button clicked! Opening:", `https://drive.google.com/uc?export=download&id=${data.drive_file_id}`);
+    window.open(`https://drive.google.com/uc?export=download&id=${data.drive_file_id}`, "_blank");
+  };
+} else {
+  console.warn("❌ download-summary button not found or drive_file_id missing.");
 }
 
 // Call this after upload or skip
