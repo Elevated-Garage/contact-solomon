@@ -366,8 +366,13 @@ async function finalizeIntakeFlow() {
       }
     } else if (data.show_summary || data.summary_submitted) {
       summaryAlreadySubmitted = true;
-      appendMessage("Solomon", "✅ Thanks! Here's your personalized garage summary. Let us know if you'd like to schedule a follow-up.");
-      showSummary(data);
+      appendMessage("Solomon", "✅ Thanks! Here's your personalized garage summary.");
+
+      // ⏳ Delay to ensure #download-summary button is loaded from summary.html
+      setTimeout(() => {
+        showSummary(data);
+      }, 100);
+    }
 
 
       // ✅ Attach Google Drive download link
