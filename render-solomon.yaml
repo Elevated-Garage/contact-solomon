@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: solomon
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node server.js
+    rootDir: .
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: GDRIVE_FOLDER_ID
+        value: your-google-drive-folder-id
+      - key: STRIPE_SECRET_KEY
+        value: your-stripe-secret-key
+      - key: OPENAI_API_KEY
+        value: your-openai-api-key
