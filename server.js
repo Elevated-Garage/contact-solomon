@@ -4,7 +4,9 @@ const express = require('express');
 const multer = require('multer');
 const cors = require('cors');
 require('dotenv').config();
+const path = require('path');
 
+// Solomon core modules
 const { generateSummaryPDF } = require('./utils/pdfBuilder');
 const { generateSessionId } = require('./utils/sessions');
 const intakeExtractor = require('./ai/intakeExtractor');
@@ -18,17 +20,27 @@ const {
   ensureSession
 } = require('./utils/sessions');
 
+// Admin portal
+const adminRoutes = require('./admin/admin.routes'); 
+
 const app = express();
 const port = process.env.PORT || 10000;
 
+// 🔧 Global middleware
 app.use(express.json());
 app.use(cors());
+
+// 🛡️ Admin Portal integration
+app.use('/admin', express.static(path.join(__dirname, 'admin')));
+app.use('/admin', adminRoutes);
+
+// 🌐 Public site static files
 app.use(express.static('public'));
 
+// 📂 File upload setup (used later)
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 const { uploadToDrive } = require('./utils/googleUploader');
-
 
 // === Upload route ===
 app.post('/upload-photos', upload.array('photos'), async (req, res) => {
