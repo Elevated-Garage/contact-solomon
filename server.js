@@ -43,56 +43,22 @@ const upload = multer({ storage });
 const { uploadToDrive } = require('./utils/googleUploader');
 
 // === Upload route ===
-
-app.post('/upload-photos', async upload.array('photos'), async (req, res) => {
+app.post('/upload-photos', upload.array('photos'), async (req, res) => {
   const sessionId = req.headers['x-session-id'];
   ensureSession(sessionId);
 
+  req.files.forEach(file => userUploadedPhotos[sessionId].push(file));
+  userIntakeOverrides[sessionId].garage_photo_upload = "Uploaded";
+
   try {
-    req.files.forEach(file => userUploadedPhotos[sessionId].push(file));
-    userIntakeOverrides[sessionId].garage_photo_upload = "Uploaded";
-
-    let uploaded;
-    let pdfBuffer;
-
-    if (adminConfig.enableDriveUpload?.enabled) {
-      for (const file of req.files) {
-        await uploadToDrive({
-          fileName: `${Date.now()}_${file.originalname}`,
-          mimeType: file.mimetype,
-          buffer: file.buffer,
-          folderId: process.env.GDRIVE_FOLDER_ID
-        });
-      }
-    }
-
-    if (adminConfig.enablePdfGeneration?.enabled) {
-      const photos = userUploadedPhotos[sessionId] || [];
-      pdfBuffer = await generateSummaryPDF(userIntakeOverrides[sessionId], photos);
-    }
-
-    if (adminConfig.enableDriveUpload?.enabled && pdfBuffer) {
-      uploaded = await uploadToDrive({
-        fileName: `Garage-Quote-${sessionId}.pdf`,
-        mimeType: 'application/pdf',
-        buffer: pdfBuffer,
+    // Upload each photo to Drive (optional but already implemented)
+    for (const file of req.files) {
+      await uploadToDrive({
+        fileName: `${Date.now()}_${file.originalname}`,
+        mimeType: file.mimetype,
+        buffer: file.buffer,
         folderId: process.env.GDRIVE_FOLDER_ID
       });
-    }
-
-    console.log("[📸 Photos and PDF uploaded successfully]");
-    res.status(200).json({
-      show_summary: true,
-      drive_file_id: uploaded?.id,
-      ...userIntakeOverrides[sessionId]
-    });
-
-  } catch (err) {
-    console.error("❌ Failed to upload:", err.message);
-    res.status(500).json({ success: false, error: err.message });
-  }
-});
-
     }
 
     // ✅ Now generate and upload the PDF
@@ -119,7 +85,7 @@ app.post('/upload-photos', async upload.array('photos'), async (req, res) => {
 });
 
 // === Skip photo upload route ===
-app.post("/skip-photo-upload", async async (req, res) => {
+app.post("/skip-photo-upload", async (req, res) => {
   const sessionId = req.headers["x-session-id"];
   if (!sessionId) return res.status(400).send("Missing session ID");
   ensureSession(sessionId);
@@ -150,7 +116,7 @@ res.status(200).json({
 });
 
 // === Main AI route ===
-app.post('/message', async async (req, res) => {
+app.post('/message', async (req, res) => {
   const sessionId = req.headers['x-session-id'] || generateSessionId();
   const { message } = req.body;
   ensureSession(sessionId);
@@ -253,7 +219,7 @@ app.post('/message', async async (req, res) => {
 });
 
 // === Stripe Checkout Session Route ===
-app.post('/create-checkout-session', async async (req, res) => {
+app.post('/create-checkout-session', async (req, res) => {
   try {
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -285,7 +251,7 @@ app.post('/create-checkout-session', async async (req, res) => {
 });
 
 // === Final Intake Submission Route ===
-app.post('/submit-final-intake', async async (req, res) => {
+app.post('/submit-final-intake', async (req, res) => {
   const sessionId = req.headers['x-session-id'];
   if (!sessionId) return res.status(400).send("Missing session ID");
   ensureSession(sessionId);
@@ -351,4 +317,3 @@ app.post('/submit-final-intake', async async (req, res) => {
 app.listen(port, () => {
   console.log(`✅ Contact Solomon backend running on port ${port}`);
 });
-
