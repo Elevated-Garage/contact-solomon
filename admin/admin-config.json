@@ -34,6 +34,15 @@
     "label": "Require Stripe Payment for Intake",
     "enabled": true
   },
+  "requiredFields": {
+  "type": "list",
+  "label": "Required Intake Fields",
+  "value": [
+    "full_name", "email", "phone",
+    "garage_goals", "square_footage",
+    "must_have_features", "budget",
+    "start_date", "final_notes"
+  },
   "allowSkipFields": {
     "type": "toggle",
     "label": "Allow Users to Skip Optional Fields",
