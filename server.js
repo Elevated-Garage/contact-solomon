@@ -21,8 +21,7 @@ const {
 } = require('./utils/sessions');
 
 // Admin portal
-const adminRoutes = require('./admin/admin.routes');
-const adminConfig = require('./admin/admin-config.json'); 
+const adminRoutes = require('./admin/admin.routes'); 
 
 const app = express();
 const port = process.env.PORT || 10000;
@@ -44,6 +43,7 @@ const upload = multer({ storage });
 const { uploadToDrive } = require('./utils/googleUploader');
 
 // === Upload route ===
+
 app.post('/upload-photos', upload.array('photos'), async (req, res) => {
   const sessionId = req.headers['x-session-id'];
   ensureSession(sessionId);
@@ -51,25 +51,54 @@ app.post('/upload-photos', upload.array('photos'), async (req, res) => {
   try {
     req.files.forEach(file => userUploadedPhotos[sessionId].push(file));
     userIntakeOverrides[sessionId].garage_photo_upload = "Uploaded";
-    // Upload each photo to Drive (optional but already implemented)
-    for (const file of req.files) {
-      await uploadToDrive({
-        fileName: `${Date.now()}_${file.originalname}`,
-        mimeType: file.mimetype,
-        buffer: file.buffer,
+
+    let uploaded;
+    let pdfBuffer;
+
+    if (adminConfig.enableDriveUpload?.enabled) {
+      for (const file of req.files) {
+        await uploadToDrive({
+          fileName: `${Date.now()}_${file.originalname}`,
+          mimeType: file.mimetype,
+          buffer: file.buffer,
+          folderId: process.env.GDRIVE_FOLDER_ID
+        });
+      }
+    }
+
+    if (adminConfig.enablePdfGeneration?.enabled) {
+      const photos = userUploadedPhotos[sessionId] || [];
+      pdfBuffer = await generateSummaryPDF(userIntakeOverrides[sessionId], photos);
+    }
+
+    if (adminConfig.enableDriveUpload?.enabled && pdfBuffer) {
+      uploaded = await uploadToDrive({
+        fileName: `Garage-Quote-${sessionId}.pdf`,
+        mimeType: 'application/pdf',
+        buffer: pdfBuffer,
         folderId: process.env.GDRIVE_FOLDER_ID
       });
     }
 
+    console.log("[📸 Photos and PDF uploaded successfully]");
+    res.status(200).json({
+      show_summary: true,
+      drive_file_id: uploaded?.id,
+      ...userIntakeOverrides[sessionId]
+    });
+
+  } catch (err) {
+    console.error("❌ Failed to upload:", err.message);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+    }
+
     // ✅ Now generate and upload the PDF
     const photos = userUploadedPhotos[sessionId] || [];
-    let pdfBuffer;
-    if (adminConfig.enablePdfGeneration?.enabled) {
-        pdfBuffer = await generateSummaryPDF(userIntakeOverrides[sessionId], photos);
-    }
-    let uploaded;
-    if (adminConfig.enableDriveUpload?.enabled) {
-        uploaded = await uploadToDrive({
+    const pdfBuffer = await generateSummaryPDF(userIntakeOverrides[sessionId], photos);
+    const uploaded = await uploadToDrive({
       fileName: `Garage-Quote-${sessionId}.pdf`,
       mimeType: 'application/pdf',
       buffer: pdfBuffer,
@@ -98,21 +127,15 @@ app.post("/skip-photo-upload", async (req, res) => {
   userIntakeOverrides[sessionId].garage_photo_upload = "Skipped";
 
   try {
-    let pdfBuffer;
-    if (adminConfig.enablePdfGeneration?.enabled) {
-        pdfBuffer = await generateSummaryPDF(userIntakeOverrides[sessionId]);
-    }
-    let uploaded;
-    if (adminConfig.enableDriveUpload?.enabled) {
-        uploaded = await uploadToDrive({
+    const pdfBuffer = await generateSummaryPDF(userIntakeOverrides[sessionId]);
+    const uploaded = await uploadToDrive({
   fileName: `Garage-Quote-${sessionId}.pdf`,
   mimeType: 'application/pdf',
   buffer: pdfBuffer,
   folderId: process.env.GDRIVE_FOLDER_ID
-        });
-    }
+});
 
-    console.log("[📸 Intake + Photo Complete] Summary PDF created and uploaded (skip path).");
+console.log("[📸 Intake + Photo Complete] Summary PDF created and uploaded (skip path).");
 
 res.status(200).json({
   show_summary: true,
@@ -304,9 +327,7 @@ app.post('/submit-final-intake', async (req, res) => {
   const photos = userUploadedPhotos[sessionId] || [];
   const pdfBuffer = await generateSummaryPDF(intakeData, photos);
 
-  let uploaded;
-    if (adminConfig.enableDriveUpload?.enabled) {
-        uploaded = await uploadToDrive({
+  const uploaded = await uploadToDrive({
     fileName: `Garage-Quote-${sessionId}.pdf`,
     mimeType: 'application/pdf',
     buffer: pdfBuffer,
@@ -330,3 +351,4 @@ app.post('/submit-final-intake', async (req, res) => {
 app.listen(port, () => {
   console.log(`✅ Contact Solomon backend running on port ${port}`);
 });
+
