@@ -44,7 +44,7 @@ const { uploadToDrive } = require('./utils/googleUploader');
 
 // === Upload route ===
 
-app.post('/upload-photos', upload.array('photos'), async (req, res) => {
+app.post('/upload-photos', async upload.array('photos'), async (req, res) => {
   const sessionId = req.headers['x-session-id'];
   ensureSession(sessionId);
 
@@ -93,6 +93,8 @@ app.post('/upload-photos', upload.array('photos'), async (req, res) => {
   }
 });
 
+    }
+
     // ✅ Now generate and upload the PDF
     const photos = userUploadedPhotos[sessionId] || [];
     const pdfBuffer = await generateSummaryPDF(userIntakeOverrides[sessionId], photos);
@@ -117,7 +119,7 @@ app.post('/upload-photos', upload.array('photos'), async (req, res) => {
 });
 
 // === Skip photo upload route ===
-app.post("/skip-photo-upload", async (req, res) => {
+app.post("/skip-photo-upload", async async (req, res) => {
   const sessionId = req.headers["x-session-id"];
   if (!sessionId) return res.status(400).send("Missing session ID");
   ensureSession(sessionId);
@@ -148,7 +150,7 @@ res.status(200).json({
 });
 
 // === Main AI route ===
-app.post('/message', async (req, res) => {
+app.post('/message', async async (req, res) => {
   const sessionId = req.headers['x-session-id'] || generateSessionId();
   const { message } = req.body;
   ensureSession(sessionId);
@@ -251,7 +253,7 @@ app.post('/message', async (req, res) => {
 });
 
 // === Stripe Checkout Session Route ===
-app.post('/create-checkout-session', async (req, res) => {
+app.post('/create-checkout-session', async async (req, res) => {
   try {
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -283,7 +285,7 @@ app.post('/create-checkout-session', async (req, res) => {
 });
 
 // === Final Intake Submission Route ===
-app.post('/submit-final-intake', async (req, res) => {
+app.post('/submit-final-intake', async async (req, res) => {
   const sessionId = req.headers['x-session-id'];
   if (!sessionId) return res.status(400).send("Missing session ID");
   ensureSession(sessionId);
