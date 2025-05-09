@@ -10,25 +10,42 @@ async function loadSettings() {
 
   for (const key in configData) {
     const setting = configData[key];
-    const label = document.createElement('label');
-    label.innerText = setting.label;
 
     if (setting.type === 'toggle') {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'toggle-container';
+
+      const switchLabel = document.createElement('label');
+      switchLabel.className = 'switch';
+
       const input = document.createElement('input');
       input.type = 'checkbox';
       input.checked = setting.enabled;
       input.id = key;
-      label.prepend(input);
+
+      const slider = document.createElement('span');
+      slider.className = 'slider';
+
+      switchLabel.appendChild(input);
+      switchLabel.appendChild(slider);
+
+      const labelText = document.createElement('span');
+      labelText.textContent = setting.label;
+
+      wrapper.appendChild(switchLabel);
+      wrapper.appendChild(labelText);
+
+      form.appendChild(wrapper);
     } else if (setting.type === 'textarea') {
+      const label = document.createElement('label');
+      label.innerText = setting.label;
+
       const textarea = document.createElement('textarea');
       textarea.id = key;
       textarea.value = setting.value || '';
       form.appendChild(label);
       form.appendChild(textarea);
-      continue;
     }
-
-    form.appendChild(label);
   }
 }
 
