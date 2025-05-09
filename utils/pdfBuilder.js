@@ -4,14 +4,29 @@ const path = require('path');
 
 async function generateSummaryPDF(data, photos = []) {
   const pdfDoc = await PDFDocument.create();
-  const logoBytes = fs.readFileSync(path.join(__dirname, 'public/assets/9.png'));
-  const watermarkBytes = fs.readFileSync(path.join(__dirname, 'public/assets/Elevated Garage Icon Final.png'));
-  const logoImage = await pdfDoc.embedPng(logoBytes);
-  const watermarkImage = await pdfDoc.embedPng(watermarkBytes);
   const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
   const fontSize = 12;
 
+  const ASSET_PATH = path.join(__dirname, '../branding/ElevatedGarage');
+
+  let logoImage, watermarkImage;
+
+  try {
+    const logoBytes = fs.readFileSync(path.join(ASSET_PATH, '9.png'));
+    logoImage = await pdfDoc.embedPng(logoBytes);
+  } catch (err) {
+    console.warn("⚠️ Logo image missing — skipping logo.");
+  }
+
+  try {
+    const watermarkBytes = fs.readFileSync(path.join(ASSET_PATH, 'Elevated Garage Icon Final.png'));
+    watermarkImage = await pdfDoc.embedPng(watermarkBytes);
+  } catch (err) {
+    console.warn("⚠️ Watermark image missing — skipping watermark.");
+  }
+
   const drawWatermark = (page) => {
+    if (!watermarkImage) return;
     const { width, height } = page.getSize();
     const wmDims = watermarkImage.scale(0.5);
     page.drawImage(watermarkImage, {
@@ -25,24 +40,25 @@ async function generateSummaryPDF(data, photos = []) {
 
   const createStyledPage = () => {
     const page = pdfDoc.addPage();
-    const { width, height } = page.getSize();
     drawWatermark(page);
-    return { page, width, height };
+    return page;
   };
 
-  // Page 1: Summary Details
-  const { page, width, height } = createStyledPage();
+  const page = createStyledPage();
+  const { width, height } = page.getSize();
 
-  // Logo
-  const logoDims = logoImage.scale(0.3);
-  page.drawImage(logoImage, {
-    x: width / 2 - logoDims.width / 2,
-    y: height - logoDims.height - 40,
-    width: logoDims.width,
-    height: logoDims.height,
-  });
+  // Draw logo if present
+  if (logoImage) {
+    const logoDims = logoImage.scale(0.3);
+    page.drawImage(logoImage, {
+      x: width / 2 - logoDims.width / 2,
+      y: height - logoDims.height - 40,
+      width: logoDims.width,
+      height: logoDims.height,
+    });
+  }
 
-  let y = height - logoDims.height - 60;
+  let y = height - 160;
 
   const writeSectionTitle = (text) => {
     page.drawText(text, {
@@ -56,9 +72,20 @@ async function generateSummaryPDF(data, photos = []) {
   };
 
   const writeField = (label, value) => {
-    page.drawText(`${label}:`, { x: 50, y, size: fontSize, font, color: rgb(0.2, 0.2, 0.2) });
+    page.drawText(`${label}:`, {
+      x: 50,
+      y,
+      size: fontSize,
+      font,
+      color: rgb(0.2, 0.2, 0.2)
+    });
     y -= 16;
-    page.drawText(value || 'N/A', { x: 70, y, size: fontSize, font });
+    page.drawText(value || 'N/A', {
+      x: 70,
+      y,
+      size: fontSize,
+      font
+    });
     y -= 24;
   };
 
@@ -77,7 +104,6 @@ async function generateSummaryPDF(data, photos = []) {
   writeField("Preferred Start Date", data.start_date);
   writeField("Final Notes", data.final_notes);
 
-  // Footer
   page.drawText(`Phone: ${data.phone || 'N/A'}   Web: elevatedgarage.com`, {
     x: 50,
     y: 30,
@@ -86,13 +112,13 @@ async function generateSummaryPDF(data, photos = []) {
     color: rgb(0.5, 0.5, 0.5),
   });
 
-  // Photos (Page 2+)
+  // Add photos
   for (const file of photos) {
     const imgBytes = file.buffer;
     const img = file.mimetype === 'image/png'
       ? await pdfDoc.embedPng(imgBytes)
       : await pdfDoc.embedJpg(imgBytes);
-    const imgPage = createStyledPage().page;
+    const imgPage = createStyledPage();
     const imgDims = img.scale(0.5);
     imgPage.drawText("Uploaded Photo", {
       x: 50,
