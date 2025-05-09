@@ -254,6 +254,12 @@ app.post('/create-checkout-session', async (req, res) => {
   }
 });
 
+// ✅ Safe fallback until Stripe is fully implemented
+async function hasUserPaid(sessionId) {
+  return true; // Replace with real check when ready
+}
+
+
 // === Final Intake Submission Route ===
 app.post('/submit-final-intake', async (req, res) => {
   const sessionId = req.headers['x-session-id'];
