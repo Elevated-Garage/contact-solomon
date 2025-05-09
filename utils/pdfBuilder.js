@@ -18,24 +18,24 @@ async function generateSummaryPDF(data, photos = []) {
     console.warn("⚠️ Logo image missing — skipping logo.");
   }
 
-   function drawHeaderWithLogo(page, logoImage) {
-      if (!logoImage) return;
-      const { width, height } = page.getSize();
-      const logoDims = logoImage.scale(0.3);
-      page.drawImage(logoImage, {
-        x: width / 2 - logoDims.width / 2,
-        y: height - logoDims.height - 40,
-        width: logoDims.width,
-        height: logoDims.height,
-      });
-      return height - logoDims.height - 100; // New y starting point
-    }
-
   try {
     const watermarkBytes = fs.readFileSync(path.join(ASSET_PATH, 'Elevated Garage Icon Final.png'));
     watermarkImage = await pdfDoc.embedPng(watermarkBytes);
   } catch (err) {
     console.warn("⚠️ Watermark image missing — skipping watermark.");
+  }
+
+  function drawHeaderWithLogo(page, logoImage) {
+    if (!logoImage) return;
+    const { width, height } = page.getSize();
+    const logoDims = logoImage.scale(0.3);
+    page.drawImage(logoImage, {
+      x: width / 2 - logoDims.width / 2,
+      y: height - logoDims.height - 40,
+      width: logoDims.width,
+      height: logoDims.height,
+    });
+    return height - logoDims.height - 100;
   }
 
   const drawWatermark = (page) => {
@@ -60,18 +60,7 @@ async function generateSummaryPDF(data, photos = []) {
   const page = createStyledPage();
   const { width, height } = page.getSize();
 
-  // Draw logo if present
-  if (logoImage) {
-    const logoDims = logoImage.scale(0.3);
-    page.drawImage(logoImage, {
-      x: width / 2 - logoDims.width / 2,
-      y: height - logoDims.height - 40,
-      width: logoDims.width,
-      height: logoDims.height,
-    });
-  }
-
-  let y = height - 160;
+  let y = drawHeaderWithLogo(page, logoImage) || height - 160;
 
   const writeSectionTitle = (text) => {
     page.drawText(text, {
@@ -125,7 +114,6 @@ async function generateSummaryPDF(data, photos = []) {
     color: rgb(0.5, 0.5, 0.5),
   });
 
-  // Add photos
   for (const file of photos) {
     const imgBytes = file.buffer;
     const img = file.mimetype === 'image/png'
