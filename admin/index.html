@@ -4,12 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Solomon Admin Portal</title>
-  <link rel="stylesheet" href="admin.css" />
+  <link rel="stylesheet" href="admin-modern.css" />
 </head>
 <body>
   <h1>Solomon Admin Portal</h1>
-  <form id="admin-form"></form>
-  <button onclick="saveSettings()">💾 Save Settings</button>
+
+  <div class="section-card">
+    <h2>General Toggles</h2>
+    <form id="admin-form"></form>
+    <button onclick="saveSettings()">💾 Save Settings</button>
+  </div>
 
   <script src="settings.js"></script>
 </body>
