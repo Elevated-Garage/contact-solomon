@@ -63,7 +63,11 @@ app.post('/upload-photos', upload.array('photos'), async (req, res) => {
 
     // ✅ Now generate and upload the PDF
     const photos = userUploadedPhotos[sessionId] || [];
-    const pdfBuffer = await generateSummaryPDF(userIntakeOverrides[sessionId], photos);
+    let pdfBuffer;
+    if (adminConfig.enablePdfGeneration?.enabled) {
+      pdfBuffer = await generateSummaryPDF(userIntakeOverrides[sessionId], photos);
+    }
+
     const uploaded = await uploadToDrive({
       fileName: `Garage-Quote-${sessionId}.pdf`,
       mimeType: 'application/pdf',
@@ -291,7 +295,7 @@ app.post('/submit-final-intake', async (req, res) => {
   console.log("[📸 Intake + Photo Complete] Submitting final summary (from confirmation route)...");
 
   const photos = userUploadedPhotos[sessionId] || [];
-  const pdfBuffer = await generateSummaryPDF(intakeData, photos);
+  let pdfBuffer; if (adminConfig.enablePdfGeneration?.enabled) {   pdfBuffer = await generateSummaryPDF(intakeData, photos); }
 
   const uploaded = await uploadToDrive({
     fileName: `Garage-Quote-${sessionId}.pdf`,
