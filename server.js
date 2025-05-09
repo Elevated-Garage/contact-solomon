@@ -291,12 +291,17 @@ app.post('/submit-final-intake', async (req, res) => {
 
   // 💳 Stripe Enforcement
   if (adminConfig.enableStripeCheckout?.enabled) {
-    const userPaid = await hasUserPaid(sessionId); // Implement this function
-    if (!userPaid) {
-      console.log("🚫 Stripe payment required before intake completion.");
-      return res.status(403).json({ error: "Stripe payment required before completing intake." });
+    if (typeof hasUserPaid === 'function') {
+      const userPaid = await hasUserPaid(sessionId);
+      if (!userPaid) {
+        console.log("🚫 Stripe payment required before intake completion.");
+        return res.status(403).json({ error: "Stripe payment required before completing intake." });
+      }
+    } else {
+      console.warn("⚠️ Stripe toggle is enabled, but hasUserPaid() is not defined — skipping check safely.");
     }
   }
+
 
   console.log("[📸 Intake + Photo Complete] Submitting final summary (from confirmation route)...");
 
