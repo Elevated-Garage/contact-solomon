@@ -1,53 +1,45 @@
+
+:root {
+  --primary: #B91B21;
+  --background: #f8f8f8;
+  --text: #222;
+  --card-bg: rgba(255, 255, 255, 0.85);
+  --blur: 10px;
+  --radius: 12px;
+  --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --font: 'Segoe UI', sans-serif;
+}
+
 body {
-  font-family: Arial, sans-serif;
+  font-family: var(--font);
+  background: var(--background);
+  color: var(--text);
   margin: 2rem;
-  background: #f4f4f4;
-  color: #333;
 }
 
 h1 {
   font-size: 2rem;
-  color: #B91C1C;
+  color: var(--primary);
+  margin-bottom: 1.5rem;
 }
 
-label {
-  display: block;
-  margin: 1rem 0 0.5rem;
-  font-weight: bold;
+/* Card-style section */
+.section-card {
+  background: var(--card-bg);
+  backdrop-filter: blur(var(--blur));
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
 }
 
-textarea,
-input[type="text"] {
-  width: 100%;
-  padding: 0.5rem;
-  margin-bottom: 1rem;
-  font-family: monospace;
-}
-
-input[type="checkbox"] {
-  margin-right: 0.5rem;
-}
-
-button {
-  background: #B91C1C;
-  color: white;
-  padding: 0.75rem 1.5rem;
-  border: none;
-  font-size: 1rem;
-  cursor: pointer;
-}
-
-button:hover {
-  background: #991B1B;
-}
-
-/* Toggle Switch Style */
+/* Toggle Styling */
 .switch {
   position: relative;
   display: inline-block;
   width: 46px;
   height: 24px;
-  margin-right: 10px;
+  margin-right: 12px;
   vertical-align: middle;
 }
 
@@ -60,18 +52,18 @@ button:hover {
 .slider {
   position: absolute;
   cursor: pointer;
+  background-color: #ccc;
+  border-radius: 24px;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: #ccc;
   transition: 0.4s;
-  border-radius: 24px;
 }
 
 .slider:before {
-  position: absolute;
   content: "";
+  position: absolute;
   height: 18px;
   width: 18px;
   left: 3px;
@@ -82,24 +74,56 @@ button:hover {
 }
 
 input:checked + .slider {
-  background-color: #B91C1C;
+  background-color: var(--primary);
 }
 
 input:checked + .slider:before {
   transform: translateX(22px);
 }
 
-/* Container for each toggle row */
+/* List input styling */
+.list-input {
+  width: 100%;
+  max-width: 400px;
+  padding: 0.5rem;
+  font-family: monospace;
+  font-size: 0.95rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
+}
+
+/* Button Styling */
+button {
+  background: var(--primary);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  margin-top: 1rem;
+}
+
+button:hover {
+  background: #991B1B;
+}
+
+label {
+  display: block;
+  font-weight: bold;
+  margin: 1rem 0 0.5rem;
+}
+
+/* Layout for toggle container */
 .toggle-container {
   display: flex;
   align-items: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 
-.list-input {
-  width: 80%;
-  padding: 0.3rem;
-  font-family: monospace;
+/* Layout for list editor container */
+.list-container {
+  margin-bottom: 2rem;
 }
-
-
