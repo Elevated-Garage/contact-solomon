@@ -274,13 +274,12 @@ app.post('/submit-final-intake', async (req, res) => {
   const hasUploadedPhotos = userUploadedPhotos[sessionId]?.length > 0;
   const photoFlag = intakeData?.garage_photo_upload;
 
-  const requiredFields = [
-    "full_name", "email", "phone",
-    "garage_goals", "square_footage",
-    "must_have_features", "budget",
-    "start_date", "final_notes",
-    "garage_photo_upload"
-  ];
+ let requiredFields = adminConfig.requiredFields?.value || [];
+
+ if (adminConfig.requirePhotoUpload?.enabled) {
+  requiredFields.push("garage_photo_upload");
+ }
+
 
   const missingFields = requiredFields.filter(field => {
     const value = intakeData[field];
