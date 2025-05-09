@@ -14,6 +14,20 @@ async function generateSummaryPDF(data, photos = []) {
   try {
     const logoBytes = fs.readFileSync(path.join(ASSET_PATH, '9.png'));
     logoImage = await pdfDoc.embedPng(logoBytes);
+    
+    function drawHeaderWithLogo(page, logoImage) {
+      if (!logoImage) return;
+      const { width, height } = page.getSize();
+      const logoDims = logoImage.scale(0.3);
+      page.drawImage(logoImage, {
+        x: width / 2 - logoDims.width / 2,
+        y: height - logoDims.height - 40,
+        width: logoDims.width,
+        height: logoDims.height,
+      });
+      return height - logoDims.height - 100; // New y starting point
+    }
+
   } catch (err) {
     console.warn("⚠️ Logo image missing — skipping logo.");
   }
