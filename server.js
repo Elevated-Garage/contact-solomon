@@ -48,10 +48,9 @@ app.post('/upload-photos', upload.array('photos'), async (req, res) => {
   const sessionId = req.headers['x-session-id'];
   ensureSession(sessionId);
 
-  req.files.forEach(file => userUploadedPhotos[sessionId].push(file));
-  userIntakeOverrides[sessionId].garage_photo_upload = "Uploaded";
-
   try {
+    req.files.forEach(file => userUploadedPhotos[sessionId].push(file));
+    userIntakeOverrides[sessionId].garage_photo_upload = "Uploaded";
     // Upload each photo to Drive (optional but already implemented)
     for (const file of req.files) {
       await uploadToDrive({
@@ -331,4 +330,3 @@ app.post('/submit-final-intake', async (req, res) => {
 app.listen(port, () => {
   console.log(`✅ Contact Solomon backend running on port ${port}`);
 });
-
