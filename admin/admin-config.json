@@ -41,7 +41,7 @@
     "full_name", "email", "phone",
     "garage_goals", "square_footage",
     "must_have_features", "budget",
-    "start_date", "final_notes"
+    "start_date", "final_notes"]
   },
   "allowSkipFields": {
     "type": "toggle",
