@@ -10,11 +10,22 @@
   <h1>Solomon Admin Portal</h1>
 
   <div class="section-card">
-    <h2>General Toggles</h2>
-    <form id="admin-form"></form>
-    <button onclick="saveSettings()">💾 Save Settings</button>
+    <h2>🔧 Toggles</h2>
+    <div id="toggle-group"></div>
   </div>
 
-  <script src="settings.js"></script>
+  <div class="section-card">
+    <h2>📋 Required Fields</h2>
+    <div id="list-group"></div>
+  </div>
+
+  <div class="section-card">
+    <h2>🤖 AI Prompts</h2>
+    <div id="textarea-group"></div>
+  </div>
+
+  <button onclick="saveSettings()">💾 Save Settings</button>
+
+  <script src="settings-modular.js"></script>
 </body>
 </html>
