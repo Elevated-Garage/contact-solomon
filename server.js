@@ -22,7 +22,7 @@ const {
 
 // Admin portal
 const adminRoutes = require('./admin/admin.routes'); 
-const adminConfig = require('./admin/admin-config.json');
+
 const app = express();
 const port = process.env.PORT || 10000;
 
