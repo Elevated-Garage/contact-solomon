@@ -45,6 +45,46 @@ async function loadSettings() {
       textarea.value = setting.value || '';
       form.appendChild(label);
       form.appendChild(textarea);
+    } else if (setting.type === 'list') {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'list-container';
+
+      const label = document.createElement('label');
+      label.innerText = setting.label;
+
+      const list = document.createElement('ul');
+      list.id = `${key}-list`;
+      list.style.paddingLeft = '1rem';
+
+      (setting.value || []).forEach(item => {
+        const li = document.createElement('li');
+        li.style.marginBottom = '0.5rem';
+
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = item;
+        input.className = 'list-input';
+
+        li.appendChild(input);
+        list.appendChild(li);
+      });
+
+      const addBtn = document.createElement('button');
+      addBtn.innerText = '+ Add Field';
+      addBtn.type = 'button';
+      addBtn.onclick = () => {
+        const li = document.createElement('li');
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'list-input';
+        li.appendChild(input);
+        list.appendChild(li);
+      };
+
+      wrapper.appendChild(label);
+      wrapper.appendChild(list);
+      wrapper.appendChild(addBtn);
+      form.appendChild(wrapper);
     }
   }
 }
@@ -57,6 +97,14 @@ async function saveSettings() {
       newConfig[key] = { ...setting, enabled: document.getElementById(key).checked };
     } else if (setting.type === 'textarea') {
       newConfig[key] = { ...setting, value: document.getElementById(key).value };
+    } else if (setting.type === 'list') {
+      const listEls = document.querySelectorAll(`#${key}-list input`);
+      newConfig[key] = {
+        ...setting,
+        value: Array.from(listEls)
+          .map(el => el.value.trim())
+          .filter(val => val.length > 0)
+      };
     }
   }
 
