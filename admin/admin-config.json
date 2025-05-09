@@ -14,6 +14,36 @@
     "label": "Send Follow-Up Email to Client",
     "enabled": false
   },
+  "requirePhotoUpload": {
+    "type": "toggle",
+    "label": "Require Photo Upload Before Summary",
+    "enabled": true
+  },
+  "enableDriveUpload": {
+    "type": "toggle",
+    "label": "Upload Files to Google Drive",
+    "enabled": true
+  },
+  "enablePdfGeneration": {
+    "type": "toggle",
+    "label": "Generate PDF Summaries",
+    "enabled": true
+  },
+  "enableStripeCheckout": {
+    "type": "toggle",
+    "label": "Require Stripe Payment for Intake",
+    "enabled": true
+  },
+  "allowSkipFields": {
+    "type": "toggle",
+    "label": "Allow Users to Skip Optional Fields",
+    "enabled": true
+  },
+  "continueChatAfterIntake": {
+    "type": "toggle",
+    "label": "Continue Chat After Intake Completion",
+    "enabled": true
+  },
   "chatResponderPrompt": {
     "type": "textarea",
     "label": "Chat Responder Prompt",
