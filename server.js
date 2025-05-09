@@ -53,8 +53,7 @@ app.post('/upload-photos', upload.array('photos'), async (req, res) => {
   try {
     // Upload each photo to Drive (optional but already implemented)
     for (const file of req.files) {
-          const uploaded = await uploadToDrive
-await uploadToDrive({
+      await uploadToDrive({
         fileName: `${Date.now()}_${file.originalname}`,
         mimeType: file.mimetype,
         buffer: file.buffer,
@@ -64,10 +63,8 @@ await uploadToDrive({
 
     // ✅ Now generate and upload the PDF
     const photos = userUploadedPhotos[sessionId] || [];
-        const pdfBuffer = await generateSummaryPDF
-const pdfBuffer = await generateSummaryPDF(userIntakeOverrides[sessionId], photos);
-    const uploaded =     const uploaded = await uploadToDrive
-await uploadToDrive({
+    const pdfBuffer = await generateSummaryPDF(userIntakeOverrides[sessionId], photos);
+    const uploaded = await uploadToDrive({
       fileName: `Garage-Quote-${sessionId}.pdf`,
       mimeType: 'application/pdf',
       buffer: pdfBuffer,
@@ -75,9 +72,7 @@ await uploadToDrive({
     });
 
     console.log("[📸 Photos and PDF uploaded successfully]");
-        }
-
-res.status(200).json({
+    res.status(200).json({
       show_summary: true,
       drive_file_id: uploaded.id,
       ...userIntakeOverrides[sessionId]
@@ -98,10 +93,8 @@ app.post("/skip-photo-upload", async (req, res) => {
   userIntakeOverrides[sessionId].garage_photo_upload = "Skipped";
 
   try {
-        const pdfBuffer = await generateSummaryPDF
-const pdfBuffer = await generateSummaryPDF(userIntakeOverrides[sessionId]);
-    const uploaded =     const uploaded = await uploadToDrive
-await uploadToDrive({
+    const pdfBuffer = await generateSummaryPDF(userIntakeOverrides[sessionId]);
+    const uploaded = await uploadToDrive({
   fileName: `Garage-Quote-${sessionId}.pdf`,
   mimeType: 'application/pdf',
   buffer: pdfBuffer,
@@ -109,8 +102,6 @@ await uploadToDrive({
 });
 
 console.log("[📸 Intake + Photo Complete] Summary PDF created and uploaded (skip path).");
-
-    }
 
 res.status(200).json({
   show_summary: true,
@@ -268,9 +259,7 @@ app.post('/submit-final-intake', async (req, res) => {
   const intakeData = userIntakeOverrides[sessionId];
   if (intakeData.summary_submitted && intakeData.drive_file_id) {
   console.log("⚠️ Summary already submitted. Sending existing file ID:", intakeData.drive_file_id);
-  return     }
-
-res.status(200).json({
+  return res.status(200).json({
     show_summary: true,
     drive_file_id: intakeData.drive_file_id,
     ...intakeData
@@ -302,11 +291,9 @@ res.status(200).json({
   console.log("[📸 Intake + Photo Complete] Submitting final summary (from confirmation route)...");
 
   const photos = userUploadedPhotos[sessionId] || [];
-      const pdfBuffer = await generateSummaryPDF
-const pdfBuffer = await generateSummaryPDF(intakeData, photos);
+  const pdfBuffer = await generateSummaryPDF(intakeData, photos);
 
-  const uploaded =     const uploaded = await uploadToDrive
-await uploadToDrive({
+  const uploaded = await uploadToDrive({
     fileName: `Garage-Quote-${sessionId}.pdf`,
     mimeType: 'application/pdf',
     buffer: pdfBuffer,
@@ -319,9 +306,7 @@ await uploadToDrive({
   console.log("✅ Sending summary with file ID:", uploaded.id);
 
 
-  return     }
-
-res.status(200).json({
+  return res.status(200).json({
     show_summary: true,
     drive_file_id: uploaded.id,
     ...userIntakeOverrides[sessionId]
@@ -332,5 +317,4 @@ res.status(200).json({
 app.listen(port, () => {
   console.log(`✅ Contact Solomon backend running on port ${port}`);
 });
-
 
