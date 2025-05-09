@@ -1,0 +1,27 @@
+{
+  "photoUpload": {
+    "type": "toggle",
+    "label": "Enable Photo Upload",
+    "enabled": true
+  },
+  "summaryDownload": {
+    "type": "toggle",
+    "label": "Enable Summary Download",
+    "enabled": true
+  },
+  "followUpEmail": {
+    "type": "toggle",
+    "label": "Send Follow-Up Email to Client",
+    "enabled": false
+  },
+  "chatResponderPrompt": {
+    "type": "textarea",
+    "label": "Chat Responder Prompt",
+    "value": "You are a helpful AI assistant that guides users through a garage intake process..."
+  },
+  "intakeExtractorPrompt": {
+    "type": "textarea",
+    "label": "Intake Extractor Prompt",
+    "value": "Extract structured fields from the conversation: name, email, phone, etc..."
+  }
+}
