@@ -1,16 +1,17 @@
-
 let configData = {};
 
 async function loadSettings() {
   const res = await fetch('/admin/settings');
   configData = await res.json();
 
-  const form = document.getElementById('admin-form');
-  form.innerHTML = '';
+  renderToggles(configData, document.getElementById('toggle-group'));
+  renderLists(configData, document.getElementById('list-group'));
+  renderTextareas(configData, document.getElementById('textarea-group'));
+}
 
-  for (const key in configData) {
-    const setting = configData[key];
-
+function renderToggles(data, container) {
+  for (const key in data) {
+    const setting = data[key];
     if (setting.type === 'toggle') {
       const wrapper = document.createElement('div');
       wrapper.className = 'toggle-container';
@@ -35,17 +36,15 @@ async function loadSettings() {
       wrapper.appendChild(switchLabel);
       wrapper.appendChild(labelText);
 
-      form.appendChild(wrapper);
-    } else if (setting.type === 'textarea') {
-      const label = document.createElement('label');
-      label.innerText = setting.label;
+      container.appendChild(wrapper);
+    }
+  }
+}
 
-      const textarea = document.createElement('textarea');
-      textarea.id = key;
-      textarea.value = setting.value || '';
-      form.appendChild(label);
-      form.appendChild(textarea);
-    } else if (setting.type === 'list') {
+function renderLists(data, container) {
+  for (const key in data) {
+    const setting = data[key];
+    if (setting.type === 'list') {
       const wrapper = document.createElement('div');
       wrapper.className = 'list-container';
 
@@ -84,7 +83,23 @@ async function loadSettings() {
       wrapper.appendChild(label);
       wrapper.appendChild(list);
       wrapper.appendChild(addBtn);
-      form.appendChild(wrapper);
+      container.appendChild(wrapper);
+    }
+  }
+}
+
+function renderTextareas(data, container) {
+  for (const key in data) {
+    const setting = data[key];
+    if (setting.type === 'textarea') {
+      const label = document.createElement('label');
+      label.innerText = setting.label;
+
+      const textarea = document.createElement('textarea');
+      textarea.id = key;
+      textarea.value = setting.value || '';
+      container.appendChild(label);
+      container.appendChild(textarea);
     }
   }
 }
