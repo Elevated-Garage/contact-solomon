@@ -326,18 +326,6 @@ app.post('/submit-final-intake', async (req, res) => {
   });
 });
 
-  // ✅ Set the flag to prevent duplicates
-  userIntakeOverrides[sessionId].summary_submitted = true;
-
-  console.log("✅ Sending summary with file ID:", uploaded.id);
-
-
-  return res.status(200).json({
-    show_summary: true,
-    drive_file_id: uploaded.id,
-    ...userIntakeOverrides[sessionId]
-  });
-
 
 // === Start server ===
 app.listen(port, () => {
