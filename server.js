@@ -21,7 +21,8 @@ const {
 } = require('./utils/sessions');
 
 // Admin portal
-const adminRoutes = require('./admin/admin.routes'); 
+const adminRoutes = require('./admin/admin.routes');
+const adminConfig = require('./admin/admin-config.json'); 
 
 const app = express();
 const port = process.env.PORT || 10000;
@@ -63,8 +64,13 @@ app.post('/upload-photos', upload.array('photos'), async (req, res) => {
 
     // ✅ Now generate and upload the PDF
     const photos = userUploadedPhotos[sessionId] || [];
-    const pdfBuffer = await generateSummaryPDF(userIntakeOverrides[sessionId], photos);
-    const uploaded = await uploadToDrive({
+    let pdfBuffer;
+    if (adminConfig.enablePdfGeneration?.enabled) {
+        pdfBuffer = await generateSummaryPDF(userIntakeOverrides[sessionId], photos);
+    }
+    let uploaded;
+    if (adminConfig.enableDriveUpload?.enabled) {
+        uploaded = await uploadToDrive({
       fileName: `Garage-Quote-${sessionId}.pdf`,
       mimeType: 'application/pdf',
       buffer: pdfBuffer,
@@ -93,15 +99,21 @@ app.post("/skip-photo-upload", async (req, res) => {
   userIntakeOverrides[sessionId].garage_photo_upload = "Skipped";
 
   try {
-    const pdfBuffer = await generateSummaryPDF(userIntakeOverrides[sessionId]);
-    const uploaded = await uploadToDrive({
+    let pdfBuffer;
+    if (adminConfig.enablePdfGeneration?.enabled) {
+        pdfBuffer = await generateSummaryPDF(userIntakeOverrides[sessionId]);
+    }
+    let uploaded;
+    if (adminConfig.enableDriveUpload?.enabled) {
+        uploaded = await uploadToDrive({
   fileName: `Garage-Quote-${sessionId}.pdf`,
   mimeType: 'application/pdf',
   buffer: pdfBuffer,
   folderId: process.env.GDRIVE_FOLDER_ID
-});
+        });
+    }
 
-console.log("[📸 Intake + Photo Complete] Summary PDF created and uploaded (skip path).");
+    console.log("[📸 Intake + Photo Complete] Summary PDF created and uploaded (skip path).");
 
 res.status(200).json({
   show_summary: true,
@@ -293,7 +305,9 @@ app.post('/submit-final-intake', async (req, res) => {
   const photos = userUploadedPhotos[sessionId] || [];
   const pdfBuffer = await generateSummaryPDF(intakeData, photos);
 
-  const uploaded = await uploadToDrive({
+  let uploaded;
+    if (adminConfig.enableDriveUpload?.enabled) {
+        uploaded = await uploadToDrive({
     fileName: `Garage-Quote-${sessionId}.pdf`,
     mimeType: 'application/pdf',
     buffer: pdfBuffer,
