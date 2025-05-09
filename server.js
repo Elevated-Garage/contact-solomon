@@ -262,24 +262,21 @@ app.post('/submit-final-intake', async (req, res) => {
 
   const intakeData = userIntakeOverrides[sessionId];
   if (intakeData.summary_submitted && intakeData.drive_file_id) {
-  console.log("⚠️ Summary already submitted. Sending existing file ID:", intakeData.drive_file_id);
-  return res.status(200).json({
-    show_summary: true,
-    drive_file_id: intakeData.drive_file_id,
-    ...intakeData
-  });
-}
-
+    console.log("⚠️ Summary already submitted. Sending existing file ID:", intakeData.drive_file_id);
+    return res.status(200).json({
+      show_summary: true,
+      drive_file_id: intakeData.drive_file_id,
+      ...intakeData
+    });
+  }
 
   const hasUploadedPhotos = userUploadedPhotos[sessionId]?.length > 0;
   const photoFlag = intakeData?.garage_photo_upload;
 
- let requiredFields = adminConfig.requiredFields?.value || [];
-
- if (adminConfig.requirePhotoUpload?.enabled) {
-  requiredFields.push("garage_photo_upload");
- }
-
+  let requiredFields = adminConfig.requiredFields?.value || [];
+  if (adminConfig.requirePhotoUpload?.enabled) {
+    requiredFields.push("garage_photo_upload");
+  }
 
   const missingFields = requiredFields.filter(field => {
     const value = intakeData[field];
@@ -291,17 +288,42 @@ app.post('/submit-final-intake', async (req, res) => {
     return res.status(200).json(intakeData); // triggers frontend prompt logic
   }
 
+  // 💳 Stripe Enforcement
+  if (adminConfig.enableStripeCheckout?.enabled) {
+    const userPaid = await hasUserPaid(sessionId); // Implement this function
+    if (!userPaid) {
+      console.log("🚫 Stripe payment required before intake completion.");
+      return res.status(403).json({ error: "Stripe payment required before completing intake." });
+    }
+  }
+
   console.log("[📸 Intake + Photo Complete] Submitting final summary (from confirmation route)...");
 
   const photos = userUploadedPhotos[sessionId] || [];
-  let pdfBuffer; if (adminConfig.enablePdfGeneration?.enabled) {   pdfBuffer = await generateSummaryPDF(intakeData, photos); }
 
-  const uploaded = await uploadToDrive({
-    fileName: `Garage-Quote-${sessionId}.pdf`,
-    mimeType: 'application/pdf',
-    buffer: pdfBuffer,
-    folderId: process.env.GDRIVE_FOLDER_ID
+  let pdfBuffer;
+  if (adminConfig.enablePdfGeneration?.enabled) {
+    pdfBuffer = await generateSummaryPDF(intakeData, photos);
+  }
+
+  let uploaded;
+  if (adminConfig.enableDriveUpload?.enabled && pdfBuffer) {
+    uploaded = await uploadToDrive({
+      fileName: `Garage-Quote-${sessionId}.pdf`,
+      mimeType: 'application/pdf',
+      buffer: pdfBuffer,
+      folderId: process.env.GDRIVE_FOLDER_ID
+    });
+  }
+
+  userIntakeOverrides[sessionId].summary_submitted = true;
+
+  return res.status(200).json({
+    show_summary: true,
+    drive_file_id: uploaded?.id,
+    ...userIntakeOverrides[sessionId]
   });
+});
 
   // ✅ Set the flag to prevent duplicates
   userIntakeOverrides[sessionId].summary_submitted = true;
