@@ -260,6 +260,7 @@ app.post('/submit-final-intake', async (req, res) => {
   if (!sessionId) return res.status(400).send("Missing session ID");
   ensureSession(sessionId);
 
+
   const intakeData = userIntakeOverrides[sessionId];
   if (intakeData.summary_submitted && intakeData.drive_file_id) {
     console.log("⚠️ Summary already submitted. Sending existing file ID:", intakeData.drive_file_id);
