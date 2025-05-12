@@ -171,6 +171,7 @@ userIntakeOverrides[sessionId] = fallbackResult.updatedData;
 if (!fallbackResult.isComplete) {
   assistantReply = fallbackResult.reply;
 } else {
+  const chatResponse = await chatResponder(userConversations[sessionId], [], sessionMemory);
   assistantReply = chatResponse.message;
 
   if (sessionMemory.photoRequested) {
@@ -189,8 +190,6 @@ if (!fallbackResult.isComplete) {
     responseData.show_summary = true;
   }
 }
-      const chatResponse = await chatResponder(userConversations[sessionId], [], sessionMemory);
-      assistantReply = chatResponse.message;
 
       // Sync memory
       if (sessionMemory.photoRequested) {
@@ -212,8 +211,6 @@ if (!fallbackResult.isComplete) {
 
   
   } else {
-    const chatResponse = await chatResponder(userConversations[sessionId], [], sessionMemory);
-    assistantReply = chatResponse.message;
 
     if (sessionMemory.photoRequested) {
       if (!userFlags[sessionId]) userFlags[sessionId] = {};
