@@ -193,10 +193,10 @@ imgPage.drawImage(img, {
   width: finalWidth,
   height: finalHeight,
 });
-
+  }
 
   const pdfBytes = await pdfDoc.save();
   return Buffer.from(pdfBytes);
-
+}
 
 module.exports = { generateSummaryPDF };
