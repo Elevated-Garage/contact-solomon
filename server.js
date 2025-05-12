@@ -211,7 +211,7 @@ if (!fallbackResult.isComplete) {
        responseData.show_summary = true;
      }
 
-    }
+  
   } else {
     const chatResponse = await chatResponder(userConversations[sessionId], [], sessionMemory);
     assistantReply = chatResponse.message;
