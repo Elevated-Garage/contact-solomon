@@ -57,10 +57,17 @@ async function generateSummaryPDF(data, photos = []) {
     return page;
   };
 
-  const page = createStyledPage();
+  let page = createStyledPage();
   const { width, height } = page.getSize();
 
   let y = drawHeaderWithLogo(page, logoImage) || height - 160;
+
+  function checkPageSpace(requiredHeight = 60) {
+  if (y < requiredHeight) {
+    page = createStyledPage();
+    y = drawHeaderWithLogo(page, logoImage) || height - 160;
+  }
+}
 
   const writeSectionTitle = (text) => {
     page.drawText(text, {
@@ -74,22 +81,40 @@ async function generateSummaryPDF(data, photos = []) {
   };
 
   const writeField = (label, value) => {
-    page.drawText(`${label}:`, {
-      x: 50,
-      y,
-      size: fontSize,
-      font,
-      color: rgb(0.2, 0.2, 0.2)
-    });
-    y -= 16;
-    page.drawText(value || 'N/A', {
+  const labelText = `${label}:`;
+  const content = value || 'N/A';
+
+  // Draw label
+  page.drawText(labelText, {
+    x: 50,
+    y,
+    size: fontSize,
+    font,
+    color: rgb(0.2, 0.2, 0.2)
+  });
+  y -= 16;
+  checkPageSpace();
+
+  // Manual word wrap (approximation)
+  const maxWidth = width - 100;
+  const wrappedLines = font
+    .splitTextIntoLines(content, { maxWidth }) || [content];
+
+  for (let line of wrappedLines) {
+    checkPageSpace();
+    page.drawText(line, {
       x: 70,
       y,
       size: fontSize,
       font
     });
-    y -= 24;
-  };
+    y -= 16;
+  }
+
+  y -= 8;
+  checkPageSpace();
+};
+
 
   writeSectionTitle("Client Information");
   writeField("Full Name", data.full_name);
