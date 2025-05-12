@@ -171,7 +171,6 @@ userIntakeOverrides[sessionId] = fallbackResult.updatedData;
 if (!fallbackResult.isComplete) {
   assistantReply = fallbackResult.reply;
 } else {
-  const chatResponse = await chatResponder(userConversations[sessionId], [], sessionMemory);
   assistantReply = chatResponse.message;
 
   if (sessionMemory.photoRequested) {
