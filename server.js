@@ -12,7 +12,6 @@ const { generateSessionId } = require('./utils/sessions');
 const intakeExtractor = require('./ai/intakeExtractor');
 const chatResponder = require('./ai/chatResponder');
 const doneChecker = require('./ai/doneChecker');
-const handleFallback = require('./ai/fallbackHandler'); // Or middleware/fallbackHandler if in VeraLux
 const {
   userConversations,
   userUploadedPhotos,
@@ -160,28 +159,37 @@ app.post('/message', async (req, res) => {
     photoRequested: userFlags[sessionId]?.photoRequested || false
   };
 
-  const requiredFields = [
-    "full_name", "email", "phone",
-    "garage_goals", "square_footage",
-    "must_have_features", "budget",
-    "start_date", "final_notes"
-  ];
-  const allFieldsPresent = requiredFields.every(key => {
-    const val = userIntakeOverrides[sessionId][key];
-    return val && val.trim().length > 0;
-  });
 
-  if (allFieldsPresent) {
-    const { done, missing } = await doneChecker(userIntakeOverrides[sessionId]);
+const fallbackResult = await handleFallback({
+  data: userIntakeOverrides[sessionId],
+  conversation: userConversations[sessionId],
+  sessionMemory
+});
 
-    if (!done && missing.length > 0) {
-      const enhancedHistory = [
-        ...userConversations[sessionId],
-        { role: 'system', content: `missing_fields: ${JSON.stringify(missing)}` }
-      ];
-      const chatResponse = await chatResponder(enhancedHistory, missing, sessionMemory);
-      assistantReply = chatResponse.message;
-    } else {
+userIntakeOverrides[sessionId] = fallbackResult.updatedData;
+
+if (!fallbackResult.isComplete) {
+  assistantReply = fallbackResult.reply;
+} else {
+  const chatResponse = await chatResponder(userConversations[sessionId], [], sessionMemory);
+  assistantReply = chatResponse.message;
+
+  if (sessionMemory.photoRequested) {
+    if (!userFlags[sessionId]) userFlags[sessionId] = {};
+    userFlags[sessionId].photoRequested = true;
+  }
+
+  const photoFlag = userIntakeOverrides[sessionId]?.garage_photo_upload;
+  const photosUploaded = userUploadedPhotos[sessionId]?.length > 0;
+
+  if (!photosUploaded && (!photoFlag || photoFlag === '')) {
+    responseData.triggerUpload = true;
+    assistantReply = "📸 Before we finish, could you upload a photo of your garage or choose to skip it?";
+  } else if (!userIntakeOverrides[sessionId].summary_submitted) {
+    console.log("[✅ Intake + Photo Complete] Ready to finalize summary.");
+    responseData.show_summary = true;
+  }
+}
       const chatResponse = await chatResponder(userConversations[sessionId], [], sessionMemory);
       assistantReply = chatResponse.message;
 
