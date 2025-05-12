@@ -28,14 +28,14 @@ async function generateSummaryPDF(data, photos = []) {
   function drawHeaderWithLogo(page, logoImage) {
     if (!logoImage) return;
     const { width, height } = page.getSize();
-    const logoDims = logoImage.scale(0.3);
+    const logoDims = logoImage.scale(0.15);
     page.drawImage(logoImage, {
       x: width / 2 - logoDims.width / 2,
-      y: height - logoDims.height - 40,
+      y: height - logoDims.height - 20,
       width: logoDims.width,
       height: logoDims.height,
     });
-    return height - logoDims.height - 100;
+    return height - logoDims.height - 50;
   }
 
   const drawWatermark = (page) => {
