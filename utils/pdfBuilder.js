@@ -80,6 +80,28 @@ async function generateSummaryPDF(data, photos = []) {
     y -= 20;
   };
 
+function wrapText(text, maxWidth, font, fontSize) {
+  const words = text.split(' ');
+  const lines = [];
+  let currentLine = '';
+
+  for (let word of words) {
+    const testLine = currentLine ? `${currentLine} ${word}` : word;
+    const testWidth = font.widthOfTextAtSize(testLine, fontSize);
+
+    if (testWidth < maxWidth) {
+      currentLine = testLine;
+    } else {
+      lines.push(currentLine);
+      currentLine = word;
+    }
+  }
+
+  if (currentLine) lines.push(currentLine);
+  return lines;
+}
+
+  
   const writeField = (label, value) => {
   const labelText = `${label}:`;
   const content = value || 'N/A';
@@ -97,8 +119,7 @@ async function generateSummaryPDF(data, photos = []) {
 
   // Manual word wrap (approximation)
   const maxWidth = width - 100;
-  const wrappedLines = font
-    .splitTextIntoLines(content, { maxWidth }) || [content];
+  const wrappedLines = wrapText(content, maxWidth, font, fontSize);
 
   for (let line of wrappedLines) {
     checkPageSpace();
