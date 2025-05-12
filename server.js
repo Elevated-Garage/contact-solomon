@@ -209,9 +209,6 @@ if (!fallbackResult.isComplete) {
        responseData.show_summary = true;
      }
 
-  
-  } else {
-
     if (sessionMemory.photoRequested) {
       if (!userFlags[sessionId]) userFlags[sessionId] = {};
       userFlags[sessionId].photoRequested = true;
