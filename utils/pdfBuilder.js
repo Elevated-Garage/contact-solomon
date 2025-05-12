@@ -166,21 +166,34 @@ function wrapText(text, maxWidth, font, fontSize) {
       ? await pdfDoc.embedPng(imgBytes)
       : await pdfDoc.embedJpg(imgBytes);
     const imgPage = createStyledPage();
-    const imgDims = img.scale(0.5);
-    imgPage.drawText("Uploaded Photo", {
-      x: 50,
-      y: imgPage.getHeight() - 40,
-      size: fontSize + 1,
-      font,
-      color: rgb(0.7, 0, 0),
-    });
-    imgPage.drawImage(img, {
-      x: 50,
-      y: imgPage.getHeight() - imgDims.height - 80,
-      width: imgDims.width,
-      height: imgDims.height,
-    });
-  }
+   imgPage.drawText("Uploaded Photo", {
+  x: 50,
+  y: imgPage.getHeight() - 40,
+  size: fontSize + 1,
+  font,
+  color: rgb(0.7, 0, 0),
+});
+
+const maxWidth = imgPage.getWidth() - 100;
+const maxHeight = imgPage.getHeight() - 140;
+
+const scaled = img.scale(1);
+let finalWidth = scaled.width;
+let finalHeight = scaled.height;
+
+if (finalWidth > maxWidth || finalHeight > maxHeight) {
+  const scaleFactor = Math.min(maxWidth / finalWidth, maxHeight / finalHeight);
+  finalWidth *= scaleFactor;
+  finalHeight *= scaleFactor;
+}
+
+imgPage.drawImage(img, {
+  x: (imgPage.getWidth() - finalWidth) / 2,
+  y: (imgPage.getHeight() - finalHeight) / 2 - 20,
+  width: finalWidth,
+  height: finalHeight,
+});
+
 
   const pdfBytes = await pdfDoc.save();
   return Buffer.from(pdfBytes);
