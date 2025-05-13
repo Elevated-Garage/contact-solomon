@@ -181,13 +181,6 @@ if (monitorResult.nextStep === "escalate_to_human") {
   responseData.handoff = true;
 }
 
-      // Sync memory
-      if (sessionMemory.photoRequested) {
-        if (!userFlags[sessionId]) userFlags[sessionId] = {};
-        userFlags[sessionId].photoRequested = true;
-      }
-
-      // 👇 Photo enforcement BEFORE summary
 
   userConversations[sessionId].push({ role: 'assistant', content: assistantReply });
   responseData.reply = assistantReply;
