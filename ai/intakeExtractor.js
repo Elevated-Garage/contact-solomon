@@ -13,9 +13,11 @@ async function intakeExtractor(conversation) {
     intakePrompt = "Extract JSON intake fields from this message: {{message}}";
   }
 
-  const transcript = conversation
+  const safeConversation = Array.isArray(conversation) ? conversation : [];
+  const transcript = safeConversation
     .map(entry => `${entry.role === "user" ? "User" : "Solomon"}: ${entry.content}`)
     .join("\n");
+
 
   const finalPrompt = intakePrompt.replace("{{message}}", transcript);
 
