@@ -57,12 +57,21 @@ async function intakeExtractor(conversation) {
 
     
     // ✅ Normalize short acceptable answers for final_notes
-    if (parsedFields.final_notes) {
-      const shortAnswer = parsedFields.final_notes.toLowerCase().trim();
-      if (["no", "none", "nope", "nothing else", "n/a"].includes(shortAnswer)) {
-        parsedFields.final_notes = "nothing else";
-      }
-    }
+   const normalizeNo = (val) => {
+  const cleaned = val?.toLowerCase().trim();
+  return ["no", "none", "nope", "nothing else", "n/a", "not sure", "i don't have any"].includes(cleaned);
+};
+
+// Normalize final_notes
+if (parsedFields.final_notes && normalizeNo(parsedFields.final_notes)) {
+  parsedFields.final_notes = "nothing else";
+}
+
+// Normalize preferred_materials
+if (parsedFields.preferred_materials && normalizeNo(parsedFields.preferred_materials)) {
+  parsedFields.preferred_materials = "Open to suggestions";
+}
+
 
     const readyForCheck = requiredKeys.every(key => isValid(parsedFields[key]));
 
