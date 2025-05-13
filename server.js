@@ -194,7 +194,20 @@ const monitorResult = await MonitorAI({
     }
 });
 
-assistantReply = monitorResult.reply;
+// Only use MonitorAI to determine flow — not for response generation
+if (!monitorResult.showSummary && !monitorResult.triggerUpload) {
+  assistantReply = await chatResponder(
+    userConversations[sessionId],
+    monitorResult.missingFields || [],
+    sessionMemory
+  );
+} else if (monitorResult.completeMessage) {
+  assistantReply = monitorResult.completeMessage;
+} else {
+  assistantReply = "✅ All set! Let’s move to the next step.";
+}
+
+userConversations[sessionId].push({ role: 'assistant', content: assistantReply });
 responseData.reply = assistantReply;
 
 if (monitorResult.triggerUpload) {
@@ -207,10 +220,8 @@ if (monitorResult.nextStep === "escalate_to_human") {
   responseData.handoff = true;
 }
 
+res.status(200).json(responseData);
 
-  userConversations[sessionId].push({ role: 'assistant', content: assistantReply });
-  responseData.reply = assistantReply;
-  res.status(200).json(responseData);
 });
 
 // === Stripe Checkout Session Route ===
