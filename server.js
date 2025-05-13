@@ -77,6 +77,11 @@ app.post('/upload-photos', upload.array('photos'), async (req, res) => {
     });
 
     console.log("[📸 Photos and PDF uploaded successfully]");
+    
+    logClientActivity("default", "photo");
+    logClientActivity("default", "summary");
+
+    
     res.status(200).json({
       show_summary: true,
       drive_file_id: uploaded.id,
@@ -108,6 +113,9 @@ app.post("/skip-photo-upload", async (req, res) => {
 });
 
 console.log("[📸 Intake + Photo Complete] Summary PDF created and uploaded (skip path).");
+
+   logClientActivity("default", "summary");
+ 
 
 res.status(200).json({
   show_summary: true,
@@ -312,6 +320,9 @@ app.post('/submit-final-intake', async (req, res) => {
   }
 
   userIntakeOverrides[sessionId].summary_submitted = true;
+
+  logClientActivity("default", "submit");
+
 
   return res.status(200).json({
     show_summary: true,
