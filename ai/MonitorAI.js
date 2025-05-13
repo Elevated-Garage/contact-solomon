@@ -44,6 +44,10 @@ Reply only in JSON format like:
     const content = response.choices[0].message.content.trim();
     try {
       const parsed = JSON.parse(content);
+      if (process.env.VERBOSE_LOGGING === "true") {
+        console.log("[MonitorAI] AI chose response:", parsed);
+      }
+
       return {
         isComplete: false,
         nextStep: parsed.nextStep || "ask_field",
