@@ -17,10 +17,10 @@ async function handleFallback(session, userInput) {
   const done = await doneChecker(mergedData);
 
   if (!done.isComplete) {
-    const prompt = await chatResponder({ missingFields: done.missingFields });
+    const prompt = await chatResponder(conversation || [], done.missingFields, sessionMemory);
     return {
       isComplete: false,
-      reply: prompt,
+      reply: prompt.message,
       updatedData: mergedData
     };
   }
