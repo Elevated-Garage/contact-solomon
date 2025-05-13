@@ -42,6 +42,7 @@ async function intakeExtractor(conversation) {
       "garage_goals",
       "square_footage",
       "must_have_features",
+      "preferred_materials",
       "budget",
       "start_date",
       "final_notes"
