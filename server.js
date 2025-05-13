@@ -188,23 +188,6 @@ if (monitorResult.nextStep === "escalate_to_human") {
       }
 
       // 👇 Photo enforcement BEFORE summary
-      const photoFlag = userIntakeOverrides[sessionId]?.garage_photo_upload;
-      const photosUploaded = userUploadedPhotos[sessionId]?.length > 0;
-
-     if (!photosUploaded && (!photoFlag || photoFlag === '')) {
-       responseData.triggerUpload = true;
-       assistantReply = "📸 Before we finish, could you upload a photo of your garage or choose to skip it?";
-     } else if (!userIntakeOverrides[sessionId].summary_submitted) {
-       console.log("[✅ Intake + Photo Complete] Ready to finalize summary.");
-       responseData.show_summary = true;
-     }
-
-    if (sessionMemory.photoRequested) {
-      if (!userFlags[sessionId]) userFlags[sessionId] = {};
-      userFlags[sessionId].photoRequested = true;
-    }
-
-  }
 
   userConversations[sessionId].push({ role: 'assistant', content: assistantReply });
   responseData.reply = assistantReply;
