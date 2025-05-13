@@ -44,6 +44,11 @@ Reply only in JSON format like:
     const content = response.choices[0].message.content.trim();
     try {
       const parsed = JSON.parse(content);
+
+// 🛡️ Safety check: prevent GPT from saying "we're done" too early
+if (!parsed.reply || parsed.reply.toLowerCase().includes("everything we need")) {
+  parsed.reply = "Almost done! Could you answer the remaining questions?";
+}
       if (process.env.VERBOSE_LOGGING === "true") {
         console.log("[MonitorAI] AI chose response:", parsed);
       }
@@ -107,4 +112,3 @@ Reply only in JSON format like:
 }
 
 module.exports = MonitorAI;
-
