@@ -19,6 +19,7 @@ async function MonitorAI({ conversation = [], intakeData = {}, sessionMemory = {
 
   // Run field check
   const done = await doneChecker(intakeData, requiredFields);
+  const missingFields = done?.missingFields || [];
   const photoUploaded = intakeData[photoField] === "Uploaded";
   const photoSkipped = intakeData[photoField] === "Skipped";
 
@@ -26,7 +27,7 @@ async function MonitorAI({ conversation = [], intakeData = {}, sessionMemory = {
   if (!done.isComplete) {
     const prompt = `
 You are a helpful assistant guiding a user through an intake process for a ${config.industry || "service"} project.
-The following fields are missing: ${done.missingFields.join(", ")}.
+The following fields are missing: ${missingFields.join(", ")};
 Respond with a concise, friendly message asking for one of these fields next.
 Reply only in JSON format like:
 {
@@ -36,7 +37,7 @@ Reply only in JSON format like:
 }`;
 
     const response = await openai.chat.completions.create({
-      model: "gpt-4",
+      model: "gpt-4-turbo",
       messages: [
         { role: "system", content: prompt },
         { role: "user", content: conversation.map(m => `${m.role}: ${m.content}`).join("\n") }
