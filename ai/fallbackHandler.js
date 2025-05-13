@@ -4,19 +4,15 @@ const doneChecker = require('./doneChecker');
 
 /**
  * Handles fallback when intake is incomplete.
- * @param {object} session - intakeSession object with .data
- * @param {string} userInput - raw user input
+ * @param {object} args - contains data, conversation, sessionMemory
  * @returns {object} { isComplete, reply, updatedData }
  */
-async function handleFallback({ data, conversation, sessionMemory })
- {
-  // Extract new info from input
-  const newFields = await intakeExtractor(userInput);
+async function handleFallback({ data, conversation, sessionMemory }) {
+  // Extract new info from the conversation
   const newFields = await intakeExtractor(conversation || []);
   const mergedData = { ...data, ...newFields };
 
-
-  // Check completeness
+  // Check if all required fields are now present
   const done = await doneChecker(mergedData);
 
   if (!done.isComplete) {
