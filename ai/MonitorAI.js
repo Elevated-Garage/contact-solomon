@@ -1,30 +1,27 @@
-
 const OpenAI = require("openai");
 const doneChecker = require("./doneChecker");
 const intakeExtractor = require("./intakeExtractor");
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-/**
- * MonitorAI: Determines next step in the intake flow.
- * @param {Object} params
- * @param {Array} params.conversation - Full message history
- * @param {Object} params.intakeData - Current extracted field values
- * @param {Object} params.sessionMemory - Memory flags (photo, payment, etc)
- * @param {Object} params.config - Industry-specific settings
- * @returns {Object} { isComplete, nextStep, reply, missingFields, triggerUpload, showSummary }
- */
 async function MonitorAI({ conversation = [], intakeData = {}, sessionMemory = {}, config = {} }) {
-  const { requiredFields = [], photoField = "photo", photoRequired = true } = config;
+  const {
+    requiredFields = [],
+    photoField = "photo",
+    photoRequired = true,
+    generatePdfWithoutPhoto = false,
+    photoPrompt = "📸 Before we wrap up, could you upload a photo or skip?",
+    completeMessage = "✅ All set! Ready to finalize your project summary."
+  } = config;
 
-  // Run field check
   const done = await doneChecker(intakeData, requiredFields);
   const missingFields = done?.missingFields || [];
+
   const photoUploaded = intakeData[photoField] === "Uploaded";
   const photoSkipped = intakeData[photoField] === "Skipped";
 
-  // If fields are incomplete, ask AI how to proceed
-  if (!done.isComplete) {
+  // Prompt user for missing fields
+  if (!done?.isComplete) {
     const prompt = `
 You are a helpful assistant guiding a user through an intake process for a ${config.industry || "service"} project.
 The following fields are missing: ${missingFields.join(", ")};
@@ -41,7 +38,6 @@ Reply only in JSON format like:
       messages: [
         { role: "system", content: prompt },
         { role: "user", content: conversation.map(m => `${m.role}: ${m.content}`).join("\n") }
-
       ]
     });
 
@@ -56,7 +52,7 @@ Reply only in JSON format like:
         triggerUpload: false,
         showSummary: false
       };
-    } catch (e) {
+    } catch {
       return {
         isComplete: false,
         nextStep: "ask_field",
@@ -68,27 +64,43 @@ Reply only in JSON format like:
     }
   }
 
-  // If all fields are complete but photo is still required
-  if (done.isComplete && photoRequired && !photoUploaded && !photoSkipped) {
+  // If all required fields are done but photo is still expected
+  if (done?.isComplete && photoRequired && !photoUploaded && !photoSkipped) {
     return {
       isComplete: false,
       nextStep: "request_photo",
-      reply: config.photoPrompt || "📸 Before we wrap up, could you upload a photo or skip?",
+      reply: photoPrompt,
       triggerUpload: true,
       missingFields: [],
       showSummary: false
     };
   }
 
-  // If everything is ready
+  // Final check – allow summary even without photo if configured
+  const canProceed =
+    !photoRequired || photoUploaded || photoSkipped || generatePdfWithoutPhoto;
+
+  if (done?.isComplete && canProceed) {
+    return {
+      isComplete: true,
+      nextStep: "submit_summary",
+      reply: completeMessage,
+      triggerUpload: false,
+      missingFields: [],
+      showSummary: true
+    };
+  }
+
+  // Safety fallback
   return {
-    isComplete: true,
-    nextStep: "submit_summary",
-    reply: config.completeMessage || "✅ All set! Ready to finalize your project summary.",
+    isComplete: false,
+    nextStep: "wait",
+    reply: "Thanks! Let me know when you're ready to continue.",
     triggerUpload: false,
-    missingFields: [],
-    showSummary: true
+    missingFields,
+    showSummary: false
   };
 }
 
 module.exports = MonitorAI;
+
