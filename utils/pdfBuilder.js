@@ -151,6 +151,7 @@ function wrapText(text, maxWidth, font, fontSize) {
   writeSectionTitle("Key Requirements");
   writeField("Must-Have Features", data.must_have_features);
   writeField("Preferred Start Date", data.start_date);
+  writeField("Preferred Materials", data.preferred_materials);
   writeField("Final Notes", data.final_notes);
 
   page.drawText(`Phone: ${data.phone || 'N/A'}   Web: elevatedgarage.com`, {
