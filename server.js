@@ -142,7 +142,7 @@ app.post('/message', async (req, res) => {
   const value = fields[key];
 
   // 🛡️ Don't overwrite uploaded photo flag with an empty string
-  if (key === 'garage_photo_upload' && (!value || value.trim() === '')) {
+  if (key === 'photo' && (!value || value.trim() === '')) {
     continue;
   }
 
@@ -245,11 +245,11 @@ app.post('/submit-final-intake', async (req, res) => {
   }
 
   const hasUploadedPhotos = userUploadedPhotos[sessionId]?.length > 0;
-  const photoFlag = intakeData?.garage_photo_upload;
+  const photoFlag = intakeData?.photo;
 
   let requiredFields = adminConfig.requiredFields?.value || [];
   if (adminConfig.requirePhotoUpload?.enabled) {
-    requiredFields.push("garage_photo_upload");
+    requiredFields.push("photo");
   }
 
   const missingFields = requiredFields.filter(field => {
