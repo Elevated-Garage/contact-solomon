@@ -8,10 +8,13 @@ const doneChecker = require('./doneChecker');
  * @param {string} userInput - raw user input
  * @returns {object} { isComplete, reply, updatedData }
  */
-async function handleFallback(session, userInput) {
+async function handleFallback({ data, conversation, sessionMemory })
+ {
   // Extract new info from input
   const newFields = await intakeExtractor(userInput);
-  const mergedData = { ...session.data, ...newFields };
+  const newFields = await intakeExtractor(conversation || []);
+  const mergedData = { ...data, ...newFields };
+
 
   // Check completeness
   const done = await doneChecker(mergedData);
