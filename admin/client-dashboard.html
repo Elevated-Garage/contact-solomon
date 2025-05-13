@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Client Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 2rem;
+      background: #f9f9f9;
+    }
+    .card {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 0 10px #ccc;
+      padding: 1.5rem;
+      max-width: 500px;
+      margin: auto;
+    }
+    h2 { margin-bottom: 1rem; }
+    .stat { margin: 0.5rem 0; font-size: 1.1rem; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Client Usage Overview</h2>
+    <div id="stats">
+      <p class="stat">Loading...</p>
+    </div>
+  </div>
+
+  <script>
+    const companyId = window.location.pathname.split("/").pop();
+    fetch(`/admin/client-stats/${companyId}`)
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('stats').innerHTML = `
+          <p class="stat">📨 Submissions: ${data.submissions}</p>
+          <p class="stat">📸 Photo Uploads: ${data.photoUploads}</p>
+          <p class="stat">📄 Summaries Generated: ${data.summariesGenerated}</p>
+          <p class="stat">🧠 Fallback Enabled: ${data.fallbackEnabled ? 'Yes' : 'No'}</p>
+        `;
+      });
+  </script>
+</body>
+</html>
