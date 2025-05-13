@@ -23,7 +23,6 @@ const {
 
 // Admin portal
 const adminRoutes = require('./admin/admin.routes'); 
-const adminConfig = require('./admin/admin-config.json');
 const app = express();
 const port = process.env.PORT || 10000;
 
@@ -167,7 +166,24 @@ const monitorResult = await MonitorAI({
   conversation: userConversations[sessionId],
   intakeData: userIntakeOverrides[sessionId],
   sessionMemory,
-  config: adminConfig
+  config: {
+      photoField: "photo",
+      photoRequired: true,
+      generatePdfWithoutPhoto: true,
+      completeMessage: "✅ All set! Ready to finalize your project summary.",
+      photoPrompt: "📸 Upload a quick photo or tap skip to continue.",
+      requiredFields: [
+        "full_name",
+        "email",
+        "phone",
+        "garage_goals",
+        "square_footage",
+        "must_have_features",
+        "budget",
+        "start_date",
+        "final_notes"
+      ]
+    }
 });
 
 assistantReply = monitorResult.reply;
