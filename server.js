@@ -49,7 +49,8 @@ app.post('/upload-photos', upload.array('photos'), async (req, res) => {
   ensureSession(sessionId);
 
   req.files.forEach(file => userUploadedPhotos[sessionId].push(file));
-  userIntakeOverrides[sessionId].garage_photo_upload = "Uploaded";
+  userIntakeOverrides[sessionId].photo = "Uploaded";
+
 
   try {
     // Upload each photo to Drive (optional but already implemented)
@@ -95,7 +96,8 @@ app.post("/skip-photo-upload", async (req, res) => {
   if (!sessionId) return res.status(400).send("Missing session ID");
   ensureSession(sessionId);
 
-  userIntakeOverrides[sessionId].garage_photo_upload = "Skipped";
+  userIntakeOverrides[sessionId].photo = "Skipped";
+
 
   try {
     const pdfBuffer = await generateSummaryPDF(userIntakeOverrides[sessionId]);
