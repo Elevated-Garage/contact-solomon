@@ -39,7 +39,8 @@ Reply only in JSON format like:
       model: "gpt-4",
       messages: [
         { role: "system", content: prompt },
-        { role: "user", content: conversation.map(m => \`\${m.role}: \${m.content}\`).join("\n") }
+        { role: "user", content: conversation.map(m => `${m.role}: ${m.content}`).join("\n") }
+
       ]
     });
 
