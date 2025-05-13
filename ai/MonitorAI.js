@@ -51,7 +51,7 @@ Reply only in JSON format like:
       return {
         isComplete: false,
         nextStep: parsed.nextStep || "ask_field",
-        missingFields: done.missingFields,
+        missingFields,
         reply: parsed.reply || "",
         triggerUpload: false,
         showSummary: false
@@ -60,7 +60,7 @@ Reply only in JSON format like:
       return {
         isComplete: false,
         nextStep: "ask_field",
-        missingFields: done.missingFields,
+        missingFields,
         reply: "Almost done! Could you answer the remaining questions?",
         triggerUpload: false,
         showSummary: false
