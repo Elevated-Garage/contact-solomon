@@ -12,7 +12,7 @@ const { generateSessionId } = require('./utils/sessions');
 const intakeExtractor = require('./ai/intakeExtractor');
 const chatResponder = require('./ai/chatResponder');
 const doneChecker = require('./ai/doneChecker');
-const handleFallback = require('./ai/fallbackHandler');
+const MonitorAI = require('./ai/MonitorAI');
 const {
   userConversations,
   userUploadedPhotos,
@@ -161,19 +161,25 @@ app.post('/message', async (req, res) => {
   };
 
 
-const fallbackResult = await handleFallback({
-  data: userIntakeOverrides[sessionId],
+const monitorResult = await MonitorAI({
   conversation: userConversations[sessionId],
-  sessionMemory
+  intakeData: userIntakeOverrides[sessionId],
+  sessionMemory,
+  config: adminConfig
 });
 
-userIntakeOverrides[sessionId] = fallbackResult.updatedData;
+assistantReply = monitorResult.reply;
+responseData.reply = assistantReply;
 
-if (!fallbackResult.isComplete) {
-  assistantReply = fallbackResult.reply;
-} else {
-  const chatResponse = await chatResponder(userConversations[sessionId], [], sessionMemory);
-  assistantReply = chatResponse.message;
+if (monitorResult.triggerUpload) {
+  responseData.triggerUpload = true;
+}
+if (monitorResult.showSummary) {
+  responseData.show_summary = true;
+}
+if (monitorResult.nextStep === "escalate_to_human") {
+  responseData.handoff = true;
+}
 
       // Sync memory
       if (sessionMemory.photoRequested) {
