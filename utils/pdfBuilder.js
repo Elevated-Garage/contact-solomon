@@ -141,6 +141,7 @@ function wrapText(text, maxWidth, font, fontSize) {
   writeField("Full Name", data.full_name);
   writeField("Email", data.email);
   writeField("Phone", data.phone);
+  writeField("Location", data.location);
 
   writeSectionTitle("Garage Project Overview");
   writeField("Client Vision for the Garage", data.garage_goals);
