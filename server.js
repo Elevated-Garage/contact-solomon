@@ -173,6 +173,7 @@ if (!fallbackResult.isComplete) {
   assistantReply = fallbackResult.reply;
 } else {
   const chatResponse = await chatResponder(userConversations[sessionId], [], sessionMemory);
+  assistantReply = chatResponse.message;
 
       // Sync memory
       if (sessionMemory.photoRequested) {
@@ -197,9 +198,6 @@ if (!fallbackResult.isComplete) {
       userFlags[sessionId].photoRequested = true;
     }
 
-    if (chatResponse.signal === "triggerUploader") {
-      responseData.triggerUpload = true;
-    }
   }
 
   userConversations[sessionId].push({ role: 'assistant', content: assistantReply });
