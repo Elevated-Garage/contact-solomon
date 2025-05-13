@@ -38,6 +38,7 @@ async function intakeExtractor(conversation) {
       "full_name",
       "email",
       "phone",
+      "location",
       "garage_goals",
       "square_footage",
       "must_have_features",
