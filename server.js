@@ -206,6 +206,12 @@ app.post('/message', async (req, res) => {
     }
   });
 
+// ✅ Normalize GPT reply if it returned { message: "..." }
+if (typeof assistantReply === 'object' && assistantReply?.message) {
+  assistantReply = assistantReply.message;
+}
+
+  
   const responseData = { sessionId, reply: assistantReply };
 
   if (monitorResult.triggerUpload) {
