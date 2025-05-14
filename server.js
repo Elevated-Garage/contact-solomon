@@ -259,6 +259,7 @@ if (typeof assistantReply === 'object' && assistantReply?.message) {
   }
 
   res.status(200).json(responseData);
+  }
 });
 
 
