@@ -140,7 +140,20 @@ app.post('/message', async (req, res) => {
   userConversations[sessionId].length <= 1
 ) {
   console.log("💬 Starting fresh — sending first question via chatResponder.");
-  const assistantReply = await chatResponder([], config.requiredFields || [], {});
+  const assistantReply = await chatResponder([], [
+  "full_name",
+  "email",
+  "phone",
+  "location",
+  "garage_goals",
+  "square_footage",
+  "must_have_features",
+  "preferred_materials",
+  "budget",
+  "start_date",
+  "final_notes"
+], {});
+
   userConversations[sessionId].push({ role: 'assistant', content: assistantReply });
   return res.status(200).json({ reply: assistantReply });
 }
