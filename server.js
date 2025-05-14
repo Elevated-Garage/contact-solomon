@@ -211,7 +211,7 @@ userConversations[sessionId] = userConversations[sessionId].map(m => ({
     photoRequested: userFlags[sessionId]?.photoRequested || false
   };
 
-  const monitorResult = await MonitorAI({
+  monitorResult = await MonitorAI({
     conversation: userConversations[sessionId],
     intakeData: userIntakeOverrides[sessionId],
     sessionMemory,
