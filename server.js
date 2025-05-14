@@ -207,9 +207,11 @@ const monitorResult = await MonitorAI({
         "full_name",
         "email",
         "phone",
+        "location",
         "garage_goals",
         "square_footage",
         "must_have_features",
+        "Preferred_materials",
         "budget",
         "start_date",
         "final_notes"
