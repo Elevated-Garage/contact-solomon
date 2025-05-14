@@ -207,8 +207,13 @@ if (!monitorResult.showSummary && !monitorResult.triggerUpload) {
   assistantReply = "✅ All set! Let’s move to the next step.";
 }
 
+if (typeof assistantReply === 'object' && assistantReply?.message) {
+  assistantReply = assistantReply.message;
+}
+
 userConversations[sessionId].push({ role: 'assistant', content: assistantReply });
 responseData.reply = assistantReply;
+
 
 if (monitorResult.triggerUpload) {
   responseData.triggerUpload = true;
