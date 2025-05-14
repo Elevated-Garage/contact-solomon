@@ -53,10 +53,11 @@ async function intakeExtractor(conversation) {
     const acceptedShortAnswers = ["no", "none", "nope", "nothing else"];
 
   const isValid = (value) => {
-  if (!value) return false;
+  if (typeof value !== "string") return false;
   const cleaned = value.trim().toLowerCase();
   return cleaned !== "";
 };
+
 
     
     // ✅ Normalize short acceptable answers for final_notes
