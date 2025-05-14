@@ -114,6 +114,7 @@ form?.addEventListener('submit', async (e) => {
     });
 
     const data = await res.json();
+    console.log("🧪 AI Response:", data);
 
     if (data.triggerUpload) {
       const uploader = document.getElementById("photo-uploader");
@@ -121,14 +122,20 @@ form?.addEventListener('submit', async (e) => {
         console.log("📸 Displaying photo uploader");
         uploader.classList.remove("hidden");
         uploader.scrollIntoView({ behavior: "smooth", block: "center" });
+      } else {
+        console.warn("❌ Photo uploader element not found in DOM.");
       }
     }
 
-    appendMessage('Solomon', data.reply);
+    if (typeof data.reply === 'string') {
+      appendMessage('Solomon', data.reply);
+    }
+
   } catch (err) {
     appendMessage('Solomon', '❌ Error responding. Please try again.');
   }
 });
+
 
 // Drag-click area to open file dialog
 dragArea?.addEventListener("click", (e) => {
