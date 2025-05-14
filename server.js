@@ -130,6 +130,7 @@ res.status(200).json({
 });
 
 // === Main AI route ===
+
 app.post('/message', async (req, res) => {
   const sessionId = req.headers['x-session-id'] || generateSessionId();
   const { message } = req.body;
@@ -143,14 +144,20 @@ app.post('/message', async (req, res) => {
   // Push user message
   userConversations[sessionId].push({ role: 'user', content: String(message) });
 
-  // AI always speaks immediately after user
+  // 🟢 Introductory reply if this is the first message
+  if (userConversations[sessionId].length <= 2) {
+    const intro = "Absolutely! I’d love to help you get started. What’s your name?";
+    userConversations[sessionId].push({ role: 'assistant', content: intro });
+    return res.status(200).json({ reply: intro });
+  }
+
+  // GPT responds based on intake state
   let assistantReply = await chatResponder(
     userConversations[sessionId],
     [],
     { intakeData: userIntakeOverrides[sessionId] }
   );
 
-  // Push assistant reply
   userConversations[sessionId].push({ role: 'assistant', content: assistantReply });
 
   // Run extractor AFTER GPT reply
@@ -166,7 +173,7 @@ app.post('/message', async (req, res) => {
 
   console.log("[intakeExtractor] Smart-merged updated intake:", userIntakeOverrides[sessionId]);
 
-  // Now run logic
+  // Now run MonitorAI logic
   const sessionMemory = {
     intakeData: userIntakeOverrides[sessionId],
     photoUploaded: userUploadedPhotos[sessionId]?.length > 0,
@@ -216,6 +223,7 @@ app.post('/message', async (req, res) => {
 
   res.status(200).json(responseData);
 });
+
 
 // === Stripe Checkout Session Route ===
 app.post('/create-checkout-session', async (req, res) => {
