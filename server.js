@@ -190,18 +190,22 @@ userConversations[sessionId] = userConversations[sessionId].map(m => ({
   // Run extractor AFTER GPT reply
   const { fields } = await intakeExtractor(userConversations[sessionId]);
 
+  let extractedSomething = false;
   for (const key in fields) {
     const value = fields[key];
     if (key === 'photo' && (!value || value.trim() === '')) continue;
     if (value && value.trim() !== '') {
       userIntakeOverrides[sessionId][key] = value;
+      extractedSomething = true;
     }
   }
 
   console.log("[intakeExtractor] Smart-merged updated intake:", userIntakeOverrides[sessionId]);
 
-  // Now run MonitorAI logic
-  const sessionMemory = {
+  // Now run MonitorAI logic (only if something new was extracted)
+  let monitorResult = { triggerUpload: false };
+  if (extractedSomething) {
+    const sessionMemory = {
     intakeData: userIntakeOverrides[sessionId],
     photoUploaded: userUploadedPhotos[sessionId]?.length > 0,
     photoRequested: userFlags[sessionId]?.photoRequested || false
