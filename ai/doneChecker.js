@@ -9,7 +9,7 @@ async function doneChecker(fields) {
   const normalized = fields.final_notes?.toLowerCase().trim();
   if (normalized === "no" || normalized === "none" || normalized === "n/a" || normalized === "nothing else") {
     console.log("[doneChecker] Bypassing AI: 'final_notes' is short and acceptable.");
-    return { done: true, missing: [] };
+    return { isComplete: true, missingFields: [] };
   }
 
   let donePrompt = "";
@@ -37,7 +37,7 @@ async function doneChecker(fields) {
       ? missingMatches[1].split(",").map(f => f.trim().replace(/['"]/g, "")).filter(Boolean)
       : [];
 
-    return { done: isDone, missing };
+    return { isComplete: isDone, missingFields: missing };
   } catch (error) {
     console.error("doneChecker AI error:", error.message);
     // 🧠 Hybrid fallback
@@ -46,8 +46,8 @@ async function doneChecker(fields) {
     const missing = requiredFields.filter(field => !fields[field] || fields[field].trim().length === 0);
     console.warn("⚠️ Using hybrid fallback due to AI failure. Missing fields:", missing);
     return {
-      done: missing.length === 0,
-      missing
+      isComplete: missing.length === 0,
+      missingFields: missing
     };
   }
 }
