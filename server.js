@@ -237,28 +237,29 @@ userConversations[sessionId] = userConversations[sessionId].map(m => ({
     }
   });
 
+
 // ✅ Normalize GPT reply if it returned { message: "..." }
 if (typeof assistantReply === 'object' && assistantReply?.message) {
   assistantReply = assistantReply.message;
 }
 
-  
-  const responseData = { sessionId, reply: assistantReply };
+const responseData = { sessionId, reply: assistantReply };
 
-  if (monitorResult.triggerUpload) {
-    console.log("📸 MonitorAI signaled to trigger photo upload.");
-    responseData.triggerUpload = true;
-  }
+if (monitorResult.triggerUpload) {
+  console.log("📸 MonitorAI signaled to trigger photo upload.");
+  responseData.triggerUpload = true;
+}
 
-  if (monitorResult.showSummary) {
-    responseData.show_summary = true;
-  }
+if (monitorResult.showSummary) {
+  responseData.show_summary = true;
+}
 
-  if (monitorResult.nextStep === "escalate_to_human") {
-    responseData.handoff = true;
-  }
+if (monitorResult.nextStep === "escalate_to_human") {
+  responseData.handoff = true;
+}
 
-  res.status(200).json(responseData);
+res.status(200).json(responseData);
+
   }
 });
 
