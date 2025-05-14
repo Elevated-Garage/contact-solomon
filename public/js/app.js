@@ -97,7 +97,7 @@ function showSummary(data) {
     <p><strong>Full Name:</strong> ${data.full_name || 'N/A'}</p>
     <p><strong>Email:</strong> ${data.email || 'N/A'}</p>
     <p><strong>Phone:</strong> ${data.phone || 'N/A'}</p>
-    <p><strong>Garage Goals:</strong> ${data.goals || 'N/A'}</p>
+    <p><strong>Goals:</strong> ${data.goals || 'N/A'}</p>
     <p><strong>Square Footage:</strong> ${data.square_footage || 'N/A'}</p>
     <p><strong>Must-Have Features:</strong> ${data.must_have_features || 'N/A'}</p>
     <p><strong>Budget:</strong> ${data.budget || 'N/A'}</p>
@@ -268,7 +268,7 @@ const intakeFieldPrompts = {
   full_name: "What’s your full name?",
   email: "Could you provide your email address?",
   phone: "What’s the best phone number to reach you at?",
-  goals: "Tell me a bit about your garage goals. What would you love to see?",
+  goals: "Tell me a bit about your Goals. What would you love to see?",
   square_footage: "Approximately how many square feet is your garage?",
   must_have_features: "What are your must-have features?",
   budget: "What’s your ideal budget for this garage project?",
