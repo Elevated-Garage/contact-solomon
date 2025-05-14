@@ -1,4 +1,3 @@
-// server.js (Patched: Enforces photo confirmation before summary)
 
 const express = require('express');
 const multer = require('multer');
@@ -6,7 +5,45 @@ const cors = require('cors');
 require('dotenv').config();
 const path = require('path');
 
+// Load adminConfig with fallback
+let adminConfig = {
+  enableDriveUpload: { enabled: true },
+  enablePdfGeneration: { enabled: true },
+  requirePhotoUpload: { enabled: true },
+  enableStripeCheckout: { enabled: false },
+  requiredFields: {
+    value: [
+      "full_name", "email", "phone", "location",
+      "garage_goals", "square_footage", "must_have_features",
+      "preferred_materials", "budget", "start_date", "final_notes"
+    ]
+  }
+};
+try {
+  adminConfig = require('./admin/admin-config.json');
+  console.log("✅ Loaded admin-config.json");
+} catch (e) {
+  console.warn("⚠️ No admin-config.json found — using default settings.");
+}
+
 // Solomon core modules
+const { generateSummaryPDF } = require('./utils/pdfBuilder');
+const { generateSessionId } = require('./utils/sessions');
+const intakeExtractor = require('./ai/intakeExtractor');
+const chatResponder = require('./ai/chatResponder');
+const doneChecker = require('./ai/doneChecker');
+const MonitorAI = require('./ai/MonitorAI');
+const {
+  userConversations,
+  userUploadedPhotos,
+  userIntakeOverrides,
+  userFlags,
+  ensureSession
+} = require('./utils/sessions');
+
+// Admin portal
+const { router: adminRoutes, logClientActivity } = require('./admin/admin.routes'); 
+
 const { generateSummaryPDF } = require('./utils/pdfBuilder');
 const { generateSessionId } = require('./utils/sessions');
 const intakeExtractor = require('./ai/intakeExtractor');
@@ -152,18 +189,11 @@ app.post('/message', async (req, res) => {
   }
 
   // GPT responds based on intake state
- // 🧼 Clean conversation messages: ensure all .content are strings
-userConversations[sessionId] = userConversations[sessionId].map(m => ({
-  ...m,
-  content: typeof m.content === 'string' ? m.content : JSON.stringify(m.content)
-}));
-
-let assistantReply = await chatResponder(
-  userConversations[sessionId],
-  [],
-  { intakeData: userIntakeOverrides[sessionId] }
-);
-
+  let assistantReply = await chatResponder(
+    userConversations[sessionId],
+    [],
+    { intakeData: userIntakeOverrides[sessionId] }
+  );
 
   userConversations[sessionId].push({ role: 'assistant', content: assistantReply });
 
@@ -214,15 +244,9 @@ let assistantReply = await chatResponder(
   });
 
 // ✅ Normalize GPT reply if it returned { message: "..." }
-// Normalize OpenAI response to always return a string
-if (typeof assistantReply !== 'string') {
-  if (assistantReply?.message) {
-    assistantReply = assistantReply.message;
-  } else {
-    assistantReply = JSON.stringify(assistantReply);
-  }
+if (typeof assistantReply === 'object' && assistantReply?.message) {
+  assistantReply = assistantReply.message;
 }
-
 
   
   const responseData = { sessionId, reply: assistantReply };
