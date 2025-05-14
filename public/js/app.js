@@ -228,7 +228,6 @@ submitBtn?.addEventListener("click", async () => {
 
     if (res.ok) {
       console.log("✅ Photos uploaded.");
-      data.garage_photo_upload = "Uploaded";
       closePhotoUploader(); // 👈 hide the uploader
       await finalizeIntakeFlow();
     } else {
