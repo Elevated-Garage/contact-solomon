@@ -8,7 +8,10 @@ document.getElementById("input-field")?.addEventListener("keydown", function (e)
   }
 });
 // update from 'user-input'
-const chatLog = document.getElementById('chat-log');const dragArea = document.getElementById("drag-area");
+const chatLog = document.getElementById('chat-log');
+appendMessage("Solomon", "👋 Hey there! Before we get started, I have a few quick questions to help design your perfect garage.");
+
+const dragArea = document.getElementById("drag-area");
 const fileInput = document.getElementById("file-upload");
 const submitBtn = document.getElementById("photo-submit");
 const skipBtn = document.getElementById("photo-skip");
@@ -172,22 +175,7 @@ form?.addEventListener('submit', async (e) => {
 
 
 // Drag-click area to open file dialog
-
-window.addEventListener("DOMContentLoaded", () => {
-  const dragArea = document.getElementById("drag-area");
-  if (dragArea) {
-    dragArea.addEventListener("click", (e) => {
-      const isInside = e.target.closest('.remove-button') || e.target.closest('.thumbnail-container');
-      const isFileInput = e.target.tagName === 'INPUT';
-      if (!isInside && !isFileInput) {
-        document.getElementById("file-upload")?.click();
-      }
-    });
-  } else {
-    console.warn("❌ dragArea not found");
-  }
-});
-
+dragArea?.addEventListener("click", (e) => {
   const isInside = e.target.closest('.remove-button') || e.target.closest('.thumbnail-container');
   const isFileInput = e.target.tagName === 'INPUT';
   if (!isInside && !isFileInput) fileInput?.click();
@@ -463,5 +451,40 @@ document.getElementById('close-summary')?.addEventListener('click', () => {
     setTimeout(() => {
       modal.classList.add('hidden');
     }, 350);
+  }
+});
+
+
+// ✅ Auto-start intake if this is a new session and chat is empty
+window.addEventListener('DOMContentLoaded', async () => {
+  const hasMessages = document.querySelectorAll('.message').length > 0;
+  if (!hasMessages) {
+    console.log("🚀 Triggering AI kickoff message...");
+    showTyping();
+    try {
+      const res = await fetch('/message', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-session-id': sessionId
+        },
+        body: JSON.stringify({ message: "__init__" }) // neutral trigger
+      });
+      hideTyping();
+      const data = await res.json();
+      if (typeof data.reply === 'string') {
+        appendMessage('Solomon', data.reply);
+      }
+      if (data.triggerUpload) {
+        const uploader = document.getElementById("photo-uploader");
+        if (uploader) {
+          openPhotoUploader();
+          uploader.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }
+    } catch (err) {
+      hideTyping();
+      console.error("❌ Failed to start AI conversation:", err);
+    }
   }
 });
