@@ -141,6 +141,7 @@ function wrapText(text, maxWidth, font, fontSize) {
   writeField("Full Name", data.full_name);
   writeField("Email", data.email);
   writeField("Phone", data.phone);
+  writeField("Location", data.location);
 
   writeSectionTitle("Garage Project Overview");
   writeField("Client Vision for the Garage", data.garage_goals);
@@ -150,6 +151,7 @@ function wrapText(text, maxWidth, font, fontSize) {
   writeSectionTitle("Key Requirements");
   writeField("Must-Have Features", data.must_have_features);
   writeField("Preferred Start Date", data.start_date);
+  writeField("Preferred Materials", data.preferred_materials);
   writeField("Final Notes", data.final_notes);
 
   page.drawText(`Phone: ${data.phone || 'N/A'}   Web: elevatedgarage.com`, {

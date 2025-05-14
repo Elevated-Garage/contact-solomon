@@ -10,6 +10,7 @@ document.getElementById("input-field")?.addEventListener("keydown", function (e)
 // update from 'user-input'
 const chatLog = document.getElementById('chat-log');
 appendMessage("Solomon", "👋 Hey there! Before we get started, I have a few quick questions to help design your perfect garage.");
+
 const dragArea = document.getElementById("drag-area");
 const fileInput = document.getElementById("file-upload");
 const submitBtn = document.getElementById("photo-submit");
@@ -148,7 +149,11 @@ form?.addEventListener('submit', async (e) => {
     hideTyping();
 
     const data = await res.json();
-    appendMessage('Solomon', data.reply);
+
+    // ✅ Corrected location for safety check
+    if (typeof data.reply === 'string') {
+      appendMessage('Solomon', data.reply);
+    }
 
     if (data.triggerUpload) {
       const uploader = document.getElementById("photo-uploader");
@@ -449,3 +454,37 @@ document.getElementById('close-summary')?.addEventListener('click', () => {
   }
 });
 
+
+// ✅ Auto-start intake if this is a new session and chat is empty
+window.addEventListener('DOMContentLoaded', async () => {
+  const hasMessages = document.querySelectorAll('.message').length > 0;
+  if (!hasMessages) {
+    console.log("🚀 Triggering AI kickoff message...");
+    showTyping();
+    try {
+      const res = await fetch('/message', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-session-id': sessionId
+        },
+        body: JSON.stringify({ message: "__init__" }) // neutral trigger
+      });
+      hideTyping();
+      const data = await res.json();
+      if (typeof data.reply === 'string') {
+        appendMessage('Solomon', data.reply);
+      }
+      if (data.triggerUpload) {
+        const uploader = document.getElementById("photo-uploader");
+        if (uploader) {
+          openPhotoUploader();
+          uploader.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }
+    } catch (err) {
+      hideTyping();
+      console.error("❌ Failed to start AI conversation:", err);
+    }
+  }
+});

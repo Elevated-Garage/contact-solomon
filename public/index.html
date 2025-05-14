@@ -27,13 +27,19 @@
 
   <!-- Single Component Loader + App Init -->
   <script type="module">
-    async function loadComponent(id, file) {
-      const container = document.getElementById(id);
-      if (container) {
-        const html = await fetch(`/components/${file}`).then(r => r.text());
-        container.innerHTML = html;
-      }
-    }
+   async function loadComponent(id, file) {
+  const container = document.getElementById(id);
+  try {
+    const response = await fetch(`/components/${file}`);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const html = await response.text();
+    container.innerHTML = html;
+    console.log(`✅ Loaded ${file}`);
+  } catch (err) {
+    console.error(`❌ Failed to load ${file}:`, err.message);
+  }
+}
+
 
     await Promise.all([
       loadComponent("header", "header.html"),

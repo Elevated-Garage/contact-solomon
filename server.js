@@ -1,10 +1,30 @@
-// server.js (Patched: Enforces photo confirmation before summary)
 
 const express = require('express');
 const multer = require('multer');
 const cors = require('cors');
 require('dotenv').config();
 const path = require('path');
+
+// Load adminConfig with fallback
+let adminConfig = {
+  enableDriveUpload: { enabled: true },
+  enablePdfGeneration: { enabled: true },
+  requirePhotoUpload: { enabled: true },
+  enableStripeCheckout: { enabled: false },
+  requiredFields: {
+    value: [
+      "full_name", "email", "phone", "location",
+      "garage_goals", "square_footage", "must_have_features",
+      "preferred_materials", "budget", "start_date", "final_notes"
+    ]
+  }
+};
+try {
+  adminConfig = require('./admin/admin-config.json');
+  console.log("✅ Loaded admin-config.json");
+} catch (e) {
+  console.warn("⚠️ No admin-config.json found — using default settings.");
+}
 
 // Solomon core modules
 const { generateSummaryPDF } = require('./utils/pdfBuilder');
@@ -22,7 +42,7 @@ const {
 } = require('./utils/sessions');
 
 // Admin portal
-const adminRoutes = require('./admin/admin.routes'); 
+const { router: adminRoutes, logClientActivity } = require('./admin/admin.routes'); 
 const app = express();
 const port = process.env.PORT || 10000;
 
@@ -77,6 +97,11 @@ app.post('/upload-photos', upload.array('photos'), async (req, res) => {
     });
 
     console.log("[📸 Photos and PDF uploaded successfully]");
+    
+    logClientActivity("default", "photo");
+    logClientActivity("default", "summary");
+
+    
     res.status(200).json({
       show_summary: true,
       drive_file_id: uploaded.id,
@@ -109,6 +134,9 @@ app.post("/skip-photo-upload", async (req, res) => {
 
 console.log("[📸 Intake + Photo Complete] Summary PDF created and uploaded (skip path).");
 
+   logClientActivity("default", "summary");
+ 
+
 res.status(200).json({
   show_summary: true,
   drive_file_id: uploaded.id,
@@ -122,51 +150,72 @@ res.status(200).json({
 });
 
 // === Main AI route ===
+
 app.post('/message', async (req, res) => {
   const sessionId = req.headers['x-session-id'] || generateSessionId();
   const { message } = req.body;
   ensureSession(sessionId);
 
-  if (!message || typeof message !== 'string' || message.trim() === '') {
+  // Handle empty or invalid input
+  if ((!message || typeof message !== 'string' || message.trim() === '') && message !== '__init__') {
     return res.json({ reply: "Please type a message before sending." });
   }
 
-  userConversations[sessionId].push({ role: 'user', content: message });
+  // Push user message
+  userConversations[sessionId].push({ role: 'user', content: String(message) });
 
-  // Extract new fields from the user's message
+  // 🟢 Introductory reply if this is the first message
+  if (userConversations[sessionId].length <= 2) {
+    const intro = "Absolutely! I’d love to help you get started. What’s your name?";
+    userConversations[sessionId].push({ role: 'assistant', content: intro });
+    return res.status(200).json({ reply: intro });
+  }
+
+  // 🧼 Clean up conversation before passing to GPT
+userConversations[sessionId] = userConversations[sessionId].map(m => ({
+  ...m,
+  content: typeof m.content === 'string' ? m.content : JSON.stringify(m.content)
+}));
+
+
+  // GPT responds based on intake state
+  let assistantReply = await chatResponder(
+    userConversations[sessionId],
+    [],
+    { intakeData: userIntakeOverrides[sessionId] }
+  );
+
+  userConversations[sessionId].push({ role: 'assistant', content: assistantReply });
+
+  // Run extractor AFTER GPT reply
   const { fields } = await intakeExtractor(userConversations[sessionId]);
 
-  // Merge extracted fields into memory
+  let extractedSomething = false;
   for (const key in fields) {
-  const value = fields[key];
-
-  // 🛡️ Don't overwrite uploaded photo flag with an empty string
-  if (key === 'photo' && (!value || value.trim() === '')) {
-    continue;
+    const value = fields[key];
+    if (key === 'photo' && (!value || value.trim() === '')) continue;
+    if (value && value.trim() !== '') {
+      userIntakeOverrides[sessionId][key] = value;
+      extractedSomething = true;
+    }
   }
-
-  if (value && value.trim() !== '') {
-    userIntakeOverrides[sessionId][key] = value;
-  }
-}
 
   console.log("[intakeExtractor] Smart-merged updated intake:", userIntakeOverrides[sessionId]);
 
-  let assistantReply;
-  const responseData = { sessionId };
-
-  const sessionMemory = {
+  // Now run MonitorAI logic (only if something new was extracted)
+  let monitorResult = { triggerUpload: false };
+  if (extractedSomething) {
+    const sessionMemory = {
     intakeData: userIntakeOverrides[sessionId],
     photoUploaded: userUploadedPhotos[sessionId]?.length > 0,
     photoRequested: userFlags[sessionId]?.photoRequested || false
   };
 
-
-const monitorResult = await MonitorAI({
-  conversation: userConversations[sessionId],
-  intakeData: userIntakeOverrides[sessionId],
-  sessionMemory,
-  config: {
+  monitorResult = await MonitorAI({
+    conversation: userConversations[sessionId],
+    intakeData: userIntakeOverrides[sessionId],
+    sessionMemory,
+    config: {
       photoField: "photo",
       photoRequired: true,
       generatePdfWithoutPhoto: true,
@@ -176,34 +225,44 @@ const monitorResult = await MonitorAI({
         "full_name",
         "email",
         "phone",
+        "location",
         "garage_goals",
         "square_footage",
         "must_have_features",
+        "preferred_materials",
         "budget",
         "start_date",
         "final_notes"
       ]
     }
-});
+  });
 
-assistantReply = monitorResult.reply;
-responseData.reply = assistantReply;
+
+// ✅ Normalize GPT reply if it returned { message: "..." }
+if (typeof assistantReply === 'object' && assistantReply?.message) {
+  assistantReply = assistantReply.message;
+}
+
+const responseData = { sessionId, reply: assistantReply };
 
 if (monitorResult.triggerUpload) {
+  console.log("📸 MonitorAI signaled to trigger photo upload.");
   responseData.triggerUpload = true;
 }
+
 if (monitorResult.showSummary) {
   responseData.show_summary = true;
 }
+
 if (monitorResult.nextStep === "escalate_to_human") {
   responseData.handoff = true;
 }
 
+res.status(200).json(responseData);
 
-  userConversations[sessionId].push({ role: 'assistant', content: assistantReply });
-  responseData.reply = assistantReply;
-  res.status(200).json(responseData);
+  }
 });
+
 
 // === Stripe Checkout Session Route ===
 app.post('/create-checkout-session', async (req, res) => {
@@ -312,6 +371,9 @@ app.post('/submit-final-intake', async (req, res) => {
   }
 
   userIntakeOverrides[sessionId].summary_submitted = true;
+
+  logClientActivity("default", "submit");
+
 
   return res.status(200).json({
     show_summary: true,
