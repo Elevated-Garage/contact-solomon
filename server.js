@@ -152,11 +152,18 @@ app.post('/message', async (req, res) => {
   }
 
   // GPT responds based on intake state
-  let assistantReply = await chatResponder(
-    userConversations[sessionId],
-    [],
-    { intakeData: userIntakeOverrides[sessionId] }
-  );
+ // 🧼 Clean conversation messages: ensure all .content are strings
+userConversations[sessionId] = userConversations[sessionId].map(m => ({
+  ...m,
+  content: typeof m.content === 'string' ? m.content : JSON.stringify(m.content)
+}));
+
+let assistantReply = await chatResponder(
+  userConversations[sessionId],
+  [],
+  { intakeData: userIntakeOverrides[sessionId] }
+);
+
 
   userConversations[sessionId].push({ role: 'assistant', content: assistantReply });
 
