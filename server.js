@@ -194,6 +194,11 @@ const monitorResult = await MonitorAI({
     }
 });
 
+if (monitorResult.triggerUpload) {
+  console.log("📸 MonitorAI signaled to trigger photo upload.");
+  responseData.triggerUpload = true;
+}
+  
 // Only use MonitorAI to determine flow — not for response generation
 if (!monitorResult.showSummary && !monitorResult.triggerUpload) {
   assistantReply = await chatResponder(
@@ -215,9 +220,6 @@ userConversations[sessionId].push({ role: 'assistant', content: assistantReply }
 responseData.reply = assistantReply;
 
 
-if (monitorResult.triggerUpload) {
-  responseData.triggerUpload = true;
-}
 if (monitorResult.showSummary) {
   responseData.show_summary = true;
 }
