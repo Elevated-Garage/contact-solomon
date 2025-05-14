@@ -135,69 +135,49 @@ app.post('/message', async (req, res) => {
   const { message } = req.body;
   ensureSession(sessionId);
 
-  if (
-  Object.keys(userIntakeOverrides[sessionId]).length === 0 &&
-  userConversations[sessionId].length <= 1
-) {
-  console.log("💬 Starting fresh — sending first question via chatResponder.");
-  const assistantReply = await chatResponder([], [
-  "full_name",
-  "email",
-  "phone",
-  "location",
-  "garage_goals",
-  "square_footage",
-  "must_have_features",
-  "preferred_materials",
-  "budget",
-  "start_date",
-  "final_notes"
-], {});
-
-  userConversations[sessionId].push({ role: 'assistant', content: assistantReply });
-  return res.status(200).json({ reply: assistantReply });
-}
-
+  // Handle empty or invalid input
   if ((!message || typeof message !== 'string' || message.trim() === '') && message !== '__init__') {
-  return res.json({ reply: "Please type a message before sending." });
-}
+    return res.json({ reply: "Please type a message before sending." });
+  }
 
+  // Push user message
   userConversations[sessionId].push({ role: 'user', content: message });
 
-  // Extract new fields from the user's message
+  // AI always speaks immediately after user
+  let assistantReply = await chatResponder(
+    userConversations[sessionId],
+    [],
+    { intakeData: userIntakeOverrides[sessionId] }
+  );
+
+  // Push assistant reply
+  userConversations[sessionId].push({ role: 'assistant', content: assistantReply });
+
+  // Run extractor AFTER GPT reply
   const { fields } = await intakeExtractor(userConversations[sessionId]);
 
-  // Merge extracted fields into memory
   for (const key in fields) {
-  const value = fields[key];
-
-  // 🛡️ Don't overwrite uploaded photo flag with an empty string
-  if (key === 'photo' && (!value || value.trim() === '')) {
-    continue;
+    const value = fields[key];
+    if (key === 'photo' && (!value || value.trim() === '')) continue;
+    if (value && value.trim() !== '') {
+      userIntakeOverrides[sessionId][key] = value;
+    }
   }
-
-  if (value && value.trim() !== '') {
-    userIntakeOverrides[sessionId][key] = value;
-  }
-}
 
   console.log("[intakeExtractor] Smart-merged updated intake:", userIntakeOverrides[sessionId]);
 
-  let assistantReply;
-  const responseData = { sessionId };
-
+  // Now run logic
   const sessionMemory = {
     intakeData: userIntakeOverrides[sessionId],
     photoUploaded: userUploadedPhotos[sessionId]?.length > 0,
     photoRequested: userFlags[sessionId]?.photoRequested || false
   };
 
-
-const monitorResult = await MonitorAI({
-  conversation: userConversations[sessionId],
-  intakeData: userIntakeOverrides[sessionId],
-  sessionMemory,
-  config: {
+  const monitorResult = await MonitorAI({
+    conversation: userConversations[sessionId],
+    intakeData: userIntakeOverrides[sessionId],
+    sessionMemory,
+    config: {
       photoField: "photo",
       photoRequired: true,
       generatePdfWithoutPhoto: true,
@@ -211,49 +191,30 @@ const monitorResult = await MonitorAI({
         "garage_goals",
         "square_footage",
         "must_have_features",
-        "Preferred_materials",
+        "preferred_materials",
         "budget",
         "start_date",
         "final_notes"
       ]
     }
-});
+  });
 
-if (monitorResult.triggerUpload) {
-  console.log("📸 MonitorAI signaled to trigger photo upload.");
-  responseData.triggerUpload = true;
-}
-  
-// Only use MonitorAI to determine flow — not for response generation
-if (!monitorResult.showSummary && !monitorResult.triggerUpload) {
-  assistantReply = await chatResponder(
-    userConversations[sessionId],
-    monitorResult.missingFields || [],
-    sessionMemory
-  );
-} else if (monitorResult.completeMessage) {
-  assistantReply = monitorResult.completeMessage;
-} else {
-  assistantReply = "✅ All set! Let’s move to the next step.";
-}
+  const responseData = { sessionId, reply: assistantReply };
 
-if (typeof assistantReply === 'object' && assistantReply?.message) {
-  assistantReply = assistantReply.message;
-}
+  if (monitorResult.triggerUpload) {
+    console.log("📸 MonitorAI signaled to trigger photo upload.");
+    responseData.triggerUpload = true;
+  }
 
-userConversations[sessionId].push({ role: 'assistant', content: assistantReply });
-responseData.reply = assistantReply;
+  if (monitorResult.showSummary) {
+    responseData.show_summary = true;
+  }
 
+  if (monitorResult.nextStep === "escalate_to_human") {
+    responseData.handoff = true;
+  }
 
-if (monitorResult.showSummary) {
-  responseData.show_summary = true;
-}
-if (monitorResult.nextStep === "escalate_to_human") {
-  responseData.handoff = true;
-}
-
-res.status(200).json(responseData);
-
+  res.status(200).json(responseData);
 });
 
 // === Stripe Checkout Session Route ===
