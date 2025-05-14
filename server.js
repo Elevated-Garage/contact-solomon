@@ -135,6 +135,16 @@ app.post('/message', async (req, res) => {
   const { message } = req.body;
   ensureSession(sessionId);
 
+  if (
+  Object.keys(userIntakeOverrides[sessionId]).length === 0 &&
+  userConversations[sessionId].length <= 1
+) {
+  console.log("💬 Starting fresh — sending first question via chatResponder.");
+  const assistantReply = await chatResponder([], config.requiredFields || [], {});
+  userConversations[sessionId].push({ role: 'assistant', content: assistantReply });
+  return res.status(200).json({ reply: assistantReply });
+}
+
   if (!message || typeof message !== 'string' || message.trim() === '') {
     return res.json({ reply: "Please type a message before sending." });
   }
