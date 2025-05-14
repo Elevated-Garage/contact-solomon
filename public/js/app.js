@@ -148,7 +148,11 @@ form?.addEventListener('submit', async (e) => {
     hideTyping();
 
     const data = await res.json();
-    appendMessage('Solomon', data.reply);
+
+    // ✅ Corrected location for safety check
+    if (typeof data.reply === 'string') {
+      appendMessage('Solomon', data.reply);
+    }
 
     if (data.triggerUpload) {
       const uploader = document.getElementById("photo-uploader");
