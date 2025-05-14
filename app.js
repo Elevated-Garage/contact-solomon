@@ -45,7 +45,7 @@ function showSummary(data) {
     <p><strong>Budget:</strong> ${data.budget || 'N/A'}</p>
     <p><strong>Start Date:</strong> ${data.start_date || 'N/A'}</p>
     <p><strong>Final Notes:</strong> ${data.final_notes || 'N/A'}</p>
-    <p><strong>Garage Photo Upload:</strong> ${data.photo_upload || 'N/A'}</p>
+    <p><strong>Photo Upload:</strong> ${data.photo_upload || 'N/A'}</p>
   `;
   summaryContainer.classList.remove('hidden');
   summaryContainer.scrollIntoView({ behavior: 'smooth' });
