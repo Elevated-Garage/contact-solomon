@@ -89,20 +89,29 @@ ${conversation.map(m => `${m.role === 'user' ? 'User' : 'Solomon'}: ${m.content}
 
 
   // ✅ All done — ready to summarize
-  const canProceed =
-    !photoRequired || photoUploaded || photoSkipped || generatePdfWithoutPhoto;
+ const canProceed =
+  !photoRequired || photoUploaded || photoSkipped || generatePdfWithoutPhoto;
 
-  if (done?.isComplete && canProceed) {
-    return {
-      isComplete: true,
-      nextStep: "submit_summary",
-      missingFields: [],
-      aiFieldChoice: null,
-      reply: null,
-      triggerUpload: false,
-      showSummary: true
-    };
+if (done?.isComplete && canProceed) {
+  if (photoUploaded) {
+    console.log("✅ Photo uploaded — proceeding to summary.");
+  } else if (photoSkipped) {
+    console.log("⏭️ Photo skipped — proceeding to summary.");
+  } else if (!photoRequired) {
+    console.log("📃 Photo not required — proceeding to summary.");
   }
+
+  return {
+    isComplete: true,
+    nextStep: "submit_summary",
+    missingFields: [],
+    aiFieldChoice: null,
+    reply: null,
+    triggerUpload: false,
+    showSummary: true
+  };
+}
+
 
   // Fallback — wait
   return {
