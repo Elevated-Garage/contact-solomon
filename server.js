@@ -184,6 +184,12 @@ userConversations[sessionId] = userConversations[sessionId].map(m => ({
     [],
     { intakeData: userIntakeOverrides[sessionId] }
   );
+  if (typeof assistantReply === 'object' && assistantReply?.message) {
+  assistantReply = assistantReply.message;
+} else if (typeof assistantReply !== 'string') {
+  assistantReply = JSON.stringify(assistantReply);
+}
+
 
   userConversations[sessionId].push({ role: 'assistant', content: assistantReply });
 
