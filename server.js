@@ -214,9 +214,15 @@ let assistantReply = await chatResponder(
   });
 
 // ✅ Normalize GPT reply if it returned { message: "..." }
-if (typeof assistantReply === 'object' && assistantReply?.message) {
-  assistantReply = assistantReply.message;
+// Normalize OpenAI response to always return a string
+if (typeof assistantReply !== 'string') {
+  if (assistantReply?.message) {
+    assistantReply = assistantReply.message;
+  } else {
+    assistantReply = JSON.stringify(assistantReply);
+  }
 }
+
 
   
   const responseData = { sessionId, reply: assistantReply };
