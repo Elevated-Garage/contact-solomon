@@ -158,9 +158,9 @@ app.post('/message', async (req, res) => {
   return res.status(200).json({ reply: assistantReply });
 }
 
-  if (!message || typeof message !== 'string' || message.trim() === '') {
-    return res.json({ reply: "Please type a message before sending." });
-  }
+  if ((!message || typeof message !== 'string' || message.trim() === '') && message !== '__init__') {
+  return res.json({ reply: "Please type a message before sending." });
+}
 
   userConversations[sessionId].push({ role: 'user', content: message });
 
