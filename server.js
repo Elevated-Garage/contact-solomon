@@ -141,7 +141,7 @@ app.post('/message', async (req, res) => {
   }
 
   // Push user message
-  userConversations[sessionId].push({ role: 'user', content: message });
+  userConversations[sessionId].push({ role: 'user', content: String(message) });
 
   // AI always speaks immediately after user
   let assistantReply = await chatResponder(
