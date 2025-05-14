@@ -43,23 +43,6 @@ const {
 
 // Admin portal
 const { router: adminRoutes, logClientActivity } = require('./admin/admin.routes'); 
-
-const { generateSummaryPDF } = require('./utils/pdfBuilder');
-const { generateSessionId } = require('./utils/sessions');
-const intakeExtractor = require('./ai/intakeExtractor');
-const chatResponder = require('./ai/chatResponder');
-const doneChecker = require('./ai/doneChecker');
-const MonitorAI = require('./ai/MonitorAI');
-const {
-  userConversations,
-  userUploadedPhotos,
-  userIntakeOverrides,
-  userFlags,
-  ensureSession
-} = require('./utils/sessions');
-
-// Admin portal
-const { router: adminRoutes, logClientActivity } = require('./admin/admin.routes'); 
 const app = express();
 const port = process.env.PORT || 10000;
 
