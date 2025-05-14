@@ -171,6 +171,13 @@ app.post('/message', async (req, res) => {
     return res.status(200).json({ reply: intro });
   }
 
+  // 🧼 Clean up conversation before passing to GPT
+userConversations[sessionId] = userConversations[sessionId].map(m => ({
+  ...m,
+  content: typeof m.content === 'string' ? m.content : JSON.stringify(m.content)
+}));
+
+
   // GPT responds based on intake state
   let assistantReply = await chatResponder(
     userConversations[sessionId],
