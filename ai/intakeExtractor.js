@@ -15,8 +15,10 @@ async function intakeExtractor(conversation) {
 
   const safeConversation = Array.isArray(conversation) ? conversation : [];
   const transcript = safeConversation
-    .map(entry => `${entry.role === "user" ? "User" : "Solomon"}: ${entry.content}`)
-    .join("\n");
+  .filter(entry => entry.role === "user")
+  .map(entry => `User: ${entry.content}`)
+  .join("\n");
+
 
 
   const finalPrompt = intakePrompt.replace("{{message}}", transcript);
