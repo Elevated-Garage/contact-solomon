@@ -14,7 +14,7 @@ Return a single valid JSON object with the following fields:
 
 "location": City or full street address. Can be as general as a city name or as specific as a full street address. Only extract this field if the user clearly provides it. Do not infer based on context.
 
-"garage_goals": Primary purpose or vision for the garage (e.g. "home gym", "organized storage", "workshop")
+"goals": Primary purpose or vision for the garage (e.g. "home gym", "organized storage", "workshop")
 
 "square_footage": Rough garage size. Accept both numeric answers (e.g. "454") and estimates (e.g. “400 sq ft”, “2-car”, “About 800”). If the user replies with just a number, assume they are giving a square footage measurement.
 
@@ -28,7 +28,7 @@ Return a single valid JSON object with the following fields:
 
 "final_notes": Capture any additional context, repair details, or final remarks shared toward the end of the conversation. Accept any clearly stated input — including short phrases like “no”, “none”, or “nothing else” — as valid. Do not infer values from silence, indirect conversation, or unrelated messages. Only extract this field if the user explicitly provides a final remark or directly says they have nothing more to add. Never fabricate values.
 
-"garage_photo_upload": Leave this blank. It is only set by the user clicking a skip button in the interface — not through conversation. Do not extract this field unless the user explicitly says something like "skip the photo step" or "I don’t want to upload a photo." Never infer this based on unrelated answers.
+"photo_upload": Leave this blank. It is only set by the user clicking a skip button in the interface — not through conversation. Do not extract this field unless the user explicitly says something like "skip the photo step" or "I don’t want to upload a photo." Never infer this based on unrelated answers.
 
 ⚠️ If a field is not mentioned, leave it as an empty string. Do NOT guess, do NOT generate placeholder values.
 

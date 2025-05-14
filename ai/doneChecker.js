@@ -42,7 +42,7 @@ async function doneChecker(fields) {
     console.error("doneChecker AI error:", error.message);
     // 🧠 Hybrid fallback
     
-    const requiredFields = ["full_name", "email", "phone", "location", "garage_goals", "square_footage", "must_have_features", "preferred_materials", "budget", "start_date", "final_notes"];
+    const requiredFields = ["full_name", "email", "phone", "location", "goals", "square_footage", "must_have_features", "preferred_materials", "budget", "start_date", "final_notes"];
     const missing = requiredFields.filter(field => !fields[field] || fields[field].trim().length === 0);
     console.warn("⚠️ Using hybrid fallback due to AI failure. Missing fields:", missing);
     return {

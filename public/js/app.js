@@ -58,7 +58,7 @@ function shouldTriggerPhotoStep(data) {
     "full_name",
     "email",
     "phone",
-    "garage_goals",
+    "goals",
     "square_footage",
     "must_have_features",
     "budget",
@@ -69,7 +69,7 @@ function shouldTriggerPhotoStep(data) {
   const basicComplete = requiredFields.every(field => data[field] && data[field].trim() !== "");
 
   // ✅ Only trigger photo step if it's still missing
-  const photoIncomplete = !data.garage_photo_upload || data.garage_photo_upload.trim() === "";
+  const photoIncomplete = !data.photo_upload || data.photo_upload.trim() === "";
 
   return basicComplete && photoIncomplete;
 }
@@ -79,7 +79,7 @@ function shouldTriggerPhotoStep(data) {
 function isIntakeComplete(data) {
   const filledCount = [
     data.full_name, data.email, data.phone,
-    data.garage_goals, data.square_footage,
+    data.goals, data.square_footage,
     data.must_have_features, data.budget,
     data.start_date, data.final_notes
   ].filter(Boolean).length;
@@ -97,13 +97,13 @@ function showSummary(data) {
     <p><strong>Full Name:</strong> ${data.full_name || 'N/A'}</p>
     <p><strong>Email:</strong> ${data.email || 'N/A'}</p>
     <p><strong>Phone:</strong> ${data.phone || 'N/A'}</p>
-    <p><strong>Garage Goals:</strong> ${data.garage_goals || 'N/A'}</p>
+    <p><strong>Garage Goals:</strong> ${data.goals || 'N/A'}</p>
     <p><strong>Square Footage:</strong> ${data.square_footage || 'N/A'}</p>
     <p><strong>Must-Have Features:</strong> ${data.must_have_features || 'N/A'}</p>
     <p><strong>Budget:</strong> ${data.budget || 'N/A'}</p>
     <p><strong>Start Date:</strong> ${data.start_date || 'N/A'}</p>
     <p><strong>Final Notes:</strong> ${data.final_notes || 'N/A'}</p>
-    <p><strong>Garage Photo Upload:</strong> ${data.garage_photo_upload || 'N/A'}</p>
+    <p><strong>Garage Photo Upload:</strong> ${data.photo_upload || 'N/A'}</p>
   `;
 
   modal.classList.remove('fade-out', 'hidden');
@@ -268,7 +268,7 @@ const intakeFieldPrompts = {
   full_name: "What’s your full name?",
   email: "Could you provide your email address?",
   phone: "What’s the best phone number to reach you at?",
-  garage_goals: "Tell me a bit about your garage goals. What would you love to see?",
+  goals: "Tell me a bit about your garage goals. What would you love to see?",
   square_footage: "Approximately how many square feet is your garage?",
   must_have_features: "What are your must-have features?",
   budget: "What’s your ideal budget for this garage project?",

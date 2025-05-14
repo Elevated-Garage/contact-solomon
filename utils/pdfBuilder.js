@@ -144,7 +144,7 @@ function wrapText(text, maxWidth, font, fontSize) {
   writeField("Location", data.location);
 
   writeSectionTitle("Garage Project Overview");
-  writeField("Client Vision for the Garage", data.garage_goals);
+  writeField("Client Vision for the Garage", data.goals);
   writeField("Garage Dimensions", `${data.square_footage} sq ft`);
   writeField("Estimated Investment Range", `$${data.budget}`);
 

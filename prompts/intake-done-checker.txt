@@ -7,7 +7,7 @@ The required fields are:
 - full_name  
 - email  
 - phone  
-- garage_goals  
+- goals  
 - square_footage  
 - must_have_features  
 - budget  

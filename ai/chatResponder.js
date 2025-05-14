@@ -24,7 +24,7 @@ async function chatResponder(messageHistory, missingFields = [], sessionMemory =
   // Smart photo request trigger
   const intakeData = sessionMemory.intakeData || {};
   const isIntakeComplete = sessionMemory.doneCheckerComplete === true;
-  const alreadyHasPhoto = intakeData.garage_photo_upload || sessionMemory.photoUploaded;
+  const alreadyHasPhoto = intakeData.photo_upload || sessionMemory.photoUploaded;
 
   if (isIntakeComplete && !alreadyHasPhoto && !sessionMemory.photoRequested) {
     sessionMemory.photoRequested = true;

@@ -14,7 +14,7 @@ let adminConfig = {
   requiredFields: {
     value: [
       "full_name", "email", "phone", "location",
-      "garage_goals", "square_footage", "must_have_features",
+      "goals", "square_footage", "must_have_features",
       "preferred_materials", "budget", "start_date", "final_notes"
     ]
   }
@@ -226,7 +226,7 @@ userConversations[sessionId] = userConversations[sessionId].map(m => ({
         "email",
         "phone",
         "location",
-        "garage_goals",
+        "goals",
         "square_footage",
         "must_have_features",
         "preferred_materials",
