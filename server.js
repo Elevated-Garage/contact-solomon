@@ -198,13 +198,17 @@ userConversations[sessionId] = userConversations[sessionId].map(m => ({
 
   let extractedSomething = false;
   for (const key in fields) {
-    const value = fields[key];
-    if (key === 'photo' && (!value || value.trim() === '')) continue;
-    if (value && value.trim() !== '') {
-      userIntakeOverrides[sessionId][key] = value;
-      extractedSomething = true;
-    }
+  const value = fields[key];
+  const stringValue = typeof value === "string" ? value : String(value);
+
+  if (key === 'photo' && (!stringValue || stringValue.trim() === '')) continue;
+
+  if (stringValue.trim() !== '') {
+    userIntakeOverrides[sessionId][key] = stringValue;
+    extractedSomething = true;
   }
+}
+
 
   console.log("[intakeExtractor] Smart-merged updated intake:", userIntakeOverrides[sessionId]);
 
