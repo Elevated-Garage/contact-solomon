@@ -61,6 +61,7 @@ function shouldTriggerPhotoStep(data) {
     "goals",
     "square_footage",
     "must_have_features",
+    "preferred_materials",
     "budget",
     "start_date",
     "final_notes"
@@ -78,9 +79,9 @@ function shouldTriggerPhotoStep(data) {
 // Check if all required fields are filled
 function isIntakeComplete(data) {
   const filledCount = [
-    data.full_name, data.email, data.phone,
+    data.full_name, data.email, data.phone, data.location,
     data.goals, data.square_footage,
-    data.must_have_features, data.budget,
+    data.must_have_features, data.prefered_materials, data.budget,
     data.start_date, data.final_notes
   ].filter(Boolean).length;
   return filledCount === 9;
@@ -97,9 +98,11 @@ function showSummary(data) {
     <p><strong>Full Name:</strong> ${data.full_name || 'N/A'}</p>
     <p><strong>Email:</strong> ${data.email || 'N/A'}</p>
     <p><strong>Phone:</strong> ${data.phone || 'N/A'}</p>
+    <p><strong>Location:</strong> ${data.location || 'N/A'}</p>
     <p><strong>Goals:</strong> ${data.goals || 'N/A'}</p>
     <p><strong>Square Footage:</strong> ${data.square_footage || 'N/A'}</p>
     <p><strong>Must-Have Features:</strong> ${data.must_have_features || 'N/A'}</p>
+    <p><strong>Must-Preferred Materials:</strong> ${data.preferred_materials || 'N/A'}</p>
     <p><strong>Budget:</strong> ${data.budget || 'N/A'}</p>
     <p><strong>Start Date:</strong> ${data.start_date || 'N/A'}</p>
     <p><strong>Final Notes:</strong> ${data.final_notes || 'N/A'}</p>
@@ -269,13 +272,16 @@ const intakeFieldPrompts = {
   full_name: "What’s your full name?",
   email: "Could you provide your email address?",
   phone: "What’s the best phone number to reach you at?",
-  goals: "Tell me a bit about your Goals. What would you love to see?",
+  location: "Where is the garage located?",
+  goals: "Tell me a bit about your goals. What would you love to see?",
   square_footage: "Approximately how many square feet is your garage?",
   must_have_features: "What are your must-have features?",
+  preferred_materials: "Do you have any preferred materials or finishes?",
   budget: "What’s your ideal budget for this garage project?",
   start_date: "When are you hoping to get started?",
   final_notes: "Any final notes or specific requests you'd like us to know?"
 };
+
 
 function getMissingFields(data) {
   return Object.keys(intakeFieldPrompts).filter(field => {
