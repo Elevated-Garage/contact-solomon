@@ -1,4 +1,3 @@
-
 require("dotenv").config();
 const OpenAI = require("openai");
 const fs = require("fs");
@@ -35,14 +34,19 @@ async function chatResponder(messageHistory, missingFields = [], sessionMemory =
     };
   }
 
-  // Standard AI completion
+  // Sanitize messages
+  const cleanedMessages = [
+    { role: "system", content: solomonPrompt },
+    ...messageHistory.map(m => ({
+      role: m.role,
+      content: typeof m.content === "string" ? m.content : JSON.stringify(m.content)
+    }))
+  ];
+
   try {
     const completion = await openai.chat.completions.create({
       model: "gpt-4",
-      messages: [
-        { role: "system", content: solomonPrompt },
-        ...messageHistory
-      ]
+      messages: cleanedMessages
     });
 
     return {
