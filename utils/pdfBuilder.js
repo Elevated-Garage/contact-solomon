@@ -203,32 +203,4 @@ async function generateSummaryPDF(data, photos = []) {
   return Buffer.from(pdfBytes);
 }
 
-if (require.main === module) {
-  const fs = require('fs');
-  const path = require('path');
-
-  const sampleData = {
-    session_id: "demo-session-001",
-    full_name: "Nick DeSantis",
-    email: "nick@elevatedgarage.com",
-    phone: "208-555-1234",
-    location: "Post Falls, ID",
-    goals: "Workshop with built-in storage and flooring",
-    square_footage: "500",
-    must_have_features: "Workbench, epoxy, lighting",
-    preferred_materials: "Stainless steel and wood",
-    budget: "$50,000",
-    start_date: "Summer 2025",
-    final_notes: "Include 240v outlet for tools",
-    photo_upload: "Uploaded"
-  };
-
-  (async () => {
-    const buffer = await generateSummaryPDF(sampleData, []);
-    fs.writeFileSync(path.join(__dirname, 'Test-Summary.pdf'), buffer);
-    console.log("✅ Test-Summary.pdf generated");
-  })();
-}
-
-
 module.exports = { generateSummaryPDF };
