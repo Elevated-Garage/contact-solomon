@@ -155,7 +155,8 @@ form?.addEventListener('submit', async (e) => {
       appendMessage('Solomon', data.reply);
     }
 
-    if (data.triggerUpload) {
+    if (data.triggerUpload && !window.photoAlreadyUploaded) {
+        window.photoAlreadyUploaded = true;
       const uploader = document.getElementById("photo-uploader");
       if (uploader) {
         openPhotoUploader();
@@ -475,7 +476,8 @@ window.addEventListener('DOMContentLoaded', async () => {
       if (typeof data.reply === 'string') {
         appendMessage('Solomon', data.reply);
       }
-      if (data.triggerUpload) {
+      if (data.triggerUpload && !window.photoAlreadyUploaded) {
+        window.photoAlreadyUploaded = true;
         const uploader = document.getElementById("photo-uploader");
         if (uploader) {
           openPhotoUploader();
