@@ -369,7 +369,8 @@ async function finalizeIntakeFlow() {
     console.log("📦 Intake data received:", data);
     console.log("🔍 shouldTriggerPhotoStep:", shouldTriggerPhotoStep(data));
 
-   if (shouldTriggerPhotoStep(data)) {
+if (shouldTriggerPhotoStep(data) && !window.photoAlreadyUploaded) {
+  window.photoAlreadyUploaded = true;
   console.log("📸 Attempting to show photo uploader...");
   const uploader = document.getElementById("photo-uploader");
   if (uploader) {
@@ -379,6 +380,7 @@ async function finalizeIntakeFlow() {
   } else {
     console.warn("❌ #photo-uploader not found in DOM.");
   }
+
 } else if (data.show_summary || data.summary_submitted) {
 
   summaryAlreadySubmitted = true;
