@@ -1,3 +1,4 @@
+
 const { PDFDocument, StandardFonts, rgb } = require('pdf-lib');
 const fs = require('fs');
 const path = require('path');
@@ -25,19 +26,6 @@ async function generateSummaryPDF(data, photos = []) {
     console.warn("⚠️ Watermark image missing — skipping watermark.");
   }
 
-  function drawHeaderWithLogo(page, logoImage) {
-    if (!logoImage) return;
-    const { width, height } = page.getSize();
-    const logoDims = logoImage.scale(0.15);
-    page.drawImage(logoImage, {
-      x: width / 2 - logoDims.width / 2,
-      y: height - logoDims.height - 20,
-      width: logoDims.width,
-      height: logoDims.height,
-    });
-    return height - logoDims.height - 50;
-  }
-
   const drawWatermark = (page) => {
     if (!watermarkImage) return;
     const { width, height } = page.getSize();
@@ -57,144 +45,158 @@ async function generateSummaryPDF(data, photos = []) {
     return page;
   };
 
-  let page = createStyledPage();
+  function wrapText(text, maxWidth, font, fontSize) {
+    const words = text.split(' ');
+    const lines = [];
+    let currentLine = '';
+
+    for (let word of words) {
+      const testLine = currentLine ? `${currentLine} ${word}` : word;
+      const testWidth = font.widthOfTextAtSize(testLine, fontSize);
+
+      if (testWidth < maxWidth) {
+        currentLine = testLine;
+      } else {
+        lines.push(currentLine);
+        currentLine = word;
+      }
+    }
+
+    if (currentLine) lines.push(currentLine);
+    return lines;
+  }
+
+  const page = createStyledPage();
   const { width, height } = page.getSize();
 
-  let y = drawHeaderWithLogo(page, logoImage) || height - 160;
-
-  function checkPageSpace(requiredHeight = 60) {
-  if (y < requiredHeight) {
-    page = createStyledPage();
-    y = drawHeaderWithLogo(page, logoImage) || height - 160;
-  }
-}
-
-  const writeSectionTitle = (text) => {
-    page.drawText(text, {
-      x: 50,
-      y,
-      size: fontSize + 1,
-      font,
-      color: rgb(0.7, 0, 0),
+  // Draw logo
+  if (logoImage) {
+    const logoDims = logoImage.scale(0.15);
+    page.drawImage(logoImage, {
+      x: width / 2 - logoDims.width / 2,
+      y: height - logoDims.height - 20,
+      width: logoDims.width,
+      height: logoDims.height,
     });
-    y -= 20;
+  }
+
+  const headingColor = rgb(0.7, 0, 0);
+  const labelColor = rgb(0.2, 0.2, 0.2);
+
+  let y = height - 120;
+
+  const drawTitle = (text) => {
+    page.drawText(text, {
+      x: width / 2 - 100,
+      y,
+      size: 20,
+      font,
+      color: headingColor
+    });
+    y -= 25;
   };
 
-function wrapText(text, maxWidth, font, fontSize) {
-  const words = text.split(' ');
-  const lines = [];
-  let currentLine = '';
-
-  for (let word of words) {
-    const testLine = currentLine ? `${currentLine} ${word}` : word;
-    const testWidth = font.widthOfTextAtSize(testLine, fontSize);
-
-    if (testWidth < maxWidth) {
-      currentLine = testLine;
-    } else {
-      lines.push(currentLine);
-      currentLine = word;
+  const drawField = (label, value, xOffset = inch * 0.75) => {
+    page.drawText(`${label}:`, { x: xOffset, y, font, size: 12, color: labelColor });
+    y -= 14;
+    const wrappedLines = wrapText(value || 'N/A', width / 2 - 90, font, fontSize);
+    for (let line of wrappedLines) {
+      page.drawText(line, { x: xOffset + 20, y, font, size: fontSize });
+      y -= 14;
     }
-  }
+    y -= 10;
+  };
 
-  if (currentLine) lines.push(currentLine);
-  return lines;
-}
-
-  
-  const writeField = (label, value) => {
-  const labelText = `${label}:`;
-  const content = value || 'N/A';
-
-  // Draw label
-  page.drawText(labelText, {
-    x: 50,
+  drawTitle("Client Summary");
+  page.drawText(`Session ID: ${data.session_id}`, {
+    x: width / 2 - 100,
     y,
-    size: fontSize,
     font,
-    color: rgb(0.2, 0.2, 0.2)
+    size: 10,
+    color: black
   });
-  y -= 16;
-  checkPageSpace();
+  y -= 25;
 
-  // Manual word wrap (approximation)
-  const maxWidth = width - 100;
-  const wrappedLines = wrapText(content, maxWidth, font, fontSize);
+  // Left Column Data
+  const xLeft = inch * 0.75;
+  y -= 10;
+  drawField("Full Name", data.full_name, xLeft);
+  drawField("Email", data.email, xLeft);
+  drawField("Phone", data.phone, xLeft);
+  drawField("Location", data.location, xLeft);
+  drawField("Garage Goals", data.goals, xLeft);
+  drawField("Square Footage", data.square_footage, xLeft);
+  drawField("Must-Have Features", data.must_have_features, xLeft);
+  drawField("Preferred Materials", data.preferred_materials, xLeft);
+  drawField("Budget", data.budget, xLeft);
+  drawField("Start Date", data.start_date, xLeft);
+  drawField("Final Notes", data.final_notes, xLeft);
 
-  for (let line of wrappedLines) {
-    checkPageSpace();
-    page.drawText(line, {
-      x: 70,
-      y,
-      size: fontSize,
-      font
-    });
-    y -= 16;
+  // Right Column Notes
+  const notes_x = width / 2 + 90;
+  let notes_y = height - 140;
+  page.drawText("Notes:", {
+    x: notes_x,
+    y: notes_y,
+    font,
+    size: 12,
+    color: headingColor
+  });
+  notes_y -= 10;
+  for (let i = 0; i < 10; i++) {
+    notes_y -= 14;
+    page.drawLine(notes_x, notes_y, width - inch * 0.75, notes_y);
   }
 
-  y -= 8;
-  checkPageSpace();
-};
-
-
-  writeSectionTitle("Client Information");
-  writeField("Full Name", data.full_name);
-  writeField("Email", data.email);
-  writeField("Phone", data.phone);
-  writeField("Location", data.location);
-
-  writeSectionTitle("Garage Project Overview");
-  writeField("Client Vision for the Garage", data.goals);
-  writeField("Garage Dimensions", `${data.square_footage} sq ft`);
-  writeField("Estimated Investment Range", `$${data.budget}`);
-
-  writeSectionTitle("Key Requirements");
-  writeField("Must-Have Features", data.must_have_features);
-  writeField("Preferred Start Date", data.start_date);
-  writeField("Preferred Materials", data.preferred_materials);
-  writeField("Final Notes", data.final_notes);
-
-  page.drawText(`Phone: ${data.phone || 'N/A'}   Web: elevatedgarage.com`, {
-    x: 50,
-    y: 30,
-    size: 10,
+  // Footer
+  page.drawText(`Session ID: ${data.session_id}`, {
+    x: inch * 0.75,
+    y: 40,
+    size: 9,
+    font,
+    color: rgb(0.5, 0.5, 0.5),
+  });
+  page.drawText(`Contact: info@elevatedgarage.com | (208) 555-1234`, {
+    x: inch * 0.75,
+    y: 25,
+    size: 9,
     font,
     color: rgb(0.5, 0.5, 0.5),
   });
 
+  // Photos
   for (const file of photos) {
     const imgBytes = file.buffer;
     const img = file.mimetype === 'image/png'
       ? await pdfDoc.embedPng(imgBytes)
       : await pdfDoc.embedJpg(imgBytes);
     const imgPage = createStyledPage();
-   imgPage.drawText("Uploaded Photo", {
-  x: 50,
-  y: imgPage.getHeight() - 40,
-  size: fontSize + 1,
-  font,
-  color: rgb(0.7, 0, 0),
-});
+    imgPage.drawText("Uploaded Photo", {
+      x: 50,
+      y: imgPage.getHeight() - 40,
+      size: fontSize + 1,
+      font,
+      color: headingColor,
+    });
 
-const maxWidth = imgPage.getWidth() - 100;
-const maxHeight = imgPage.getHeight() - 140;
+    const maxWidth = imgPage.getWidth() - 100;
+    const maxHeight = imgPage.getHeight() - 140;
+    const scaled = img.scale(1);
+    let finalWidth = scaled.width;
+    let finalHeight = scaled.height;
 
-const scaled = img.scale(1);
-let finalWidth = scaled.width;
-let finalHeight = scaled.height;
+    if (finalWidth > maxWidth || finalHeight > maxHeight) {
+      const scaleFactor = Math.min(maxWidth / finalWidth, maxHeight / finalHeight);
+      finalWidth *= scaleFactor;
+      finalHeight *= scaleFactor;
+    }
 
-if (finalWidth > maxWidth || finalHeight > maxHeight) {
-  const scaleFactor = Math.min(maxWidth / finalWidth, maxHeight / finalHeight);
-  finalWidth *= scaleFactor;
-  finalHeight *= scaleFactor;
-}
-
-imgPage.drawImage(img, {
-  x: (imgPage.getWidth() - finalWidth) / 2,
-  y: (imgPage.getHeight() - finalHeight) / 2 - 20,
-  width: finalWidth,
-  height: finalHeight,
-});
+    imgPage.drawImage(img, {
+      x: (imgPage.getWidth() - finalWidth) / 2,
+      y: (imgPage.getHeight() - finalHeight) / 2 - 20,
+      width: finalWidth,
+      height: finalHeight,
+    });
   }
 
   const pdfBytes = await pdfDoc.save();
