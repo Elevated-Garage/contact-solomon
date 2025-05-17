@@ -322,6 +322,17 @@ function promptNextMissingField() {
     e.preventDefault();
     const answer = input.innerText.trim();
     if (!answer) return;
+
+    if (field === "phone" && !isValidPhone(answer)) {
+    appendMessage("Solomon", "📱 That doesn’t look like a valid 10-digit phone number. Please try again.");
+    return;
+    }
+
+    if (field === "email" && !isValidEmail(answer)) {
+    appendMessage("Solomon", "✉️ That email doesn’t look right. Please double check it.");
+    return;
+    }
+
     appendMessage("You", answer);
     input.innerText = "";
 
