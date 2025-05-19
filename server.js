@@ -398,7 +398,8 @@ const mailOptions = {
   attachments: [
     {
       filename: `Solomon-Summary-${sessionId}.pdf`,
-      path: `/path/to/generated/pdf`
+      path: content: pdfBuffer
+
     }
   ]
 };
