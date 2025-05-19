@@ -7,9 +7,11 @@ The required fields are:
 - full_name  
 - email  
 - phone  
+- location  
 - goals  
 - square_footage  
 - must_have_features  
+- preferred_materials  
 - budget  
 - start_date  
 - final_notes
@@ -18,7 +20,8 @@ Rules for completeness:
 - A field is incomplete if it is missing or blank.
 - Short, dismissive responses such as "no", "none", "nope", or "nothing else" are considered valid and complete for **all fields**.
 - These checks are case-insensitive.
-- Any other non-empty value should be considered complete.
+- Any other non-empty value — even casual ones like “next week” or “$12,000” — should be considered complete.
+
 
 If **all required fields** are complete, respond with:
 
