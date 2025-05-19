@@ -380,6 +380,38 @@ app.post('/submit-final-intake', async (req, res) => {
     });
   }
 
+  const nodemailer = require("nodemailer");
+
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USERNAME,
+    pass: process.env.EMAIL_PASSWORD
+  }
+});
+
+const mailOptions = {
+  from: process.env.EMAIL_USERNAME,
+  to: "you@example.com", // or intakeData.email
+  subject: "📄 New Solomon Intake Submission",
+  text: "A new submission just came in. Check your Drive or dashboard for the full PDF.",
+  attachments: [
+    {
+      filename: `Solomon-Summary-${sessionId}.pdf`,
+      path: `/path/to/generated/pdf`
+    }
+  ]
+};
+
+transporter.sendMail(mailOptions, (error, info) => {
+  if (error) {
+    console.error("❌ Email failed:", error);
+  } else {
+    console.log("✅ Email sent:", info.response);
+  }
+});
+
+
   userIntakeOverrides[sessionId].summary_submitted = true;
 
   logClientActivity("default", "submit");
