@@ -26,6 +26,15 @@ if (!sessionId) {
 }
 console.log("🧭 Using session ID:", sessionId);
 
+function isValidPhone(phone) {
+  return /^\d{10}$/.test(phone);
+}
+
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+
 let summaryAlreadySubmitted = false; // 🛡 Prevent infinite summary submissions
 
 // Append message to chat log
@@ -313,6 +322,17 @@ function promptNextMissingField() {
     e.preventDefault();
     const answer = input.innerText.trim();
     if (!answer) return;
+
+    if (field === "phone" && !isValidPhone(answer)) {
+    appendMessage("Solomon", "📱 That doesn’t look like a valid 10-digit phone number. Please try again.");
+    return;
+    }
+
+    if (field === "email" && !isValidEmail(answer)) {
+    appendMessage("Solomon", "✉️ That email doesn’t look right. Please double check it.");
+    return;
+    }
+
     appendMessage("You", answer);
     input.innerText = "";
 
