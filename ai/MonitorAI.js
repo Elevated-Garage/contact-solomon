@@ -17,6 +17,18 @@ async function MonitorAI({ conversation = [], intakeData = {}, sessionMemory = {
   const done = await doneChecker(intakeData, requiredFields);
   const missingFields = done?.missingFields || [];
 
+    // ✅ OVERRIDE: If AI says fields are missing but they're clearly filled, trust the actual data
+  const overrideIfPresent = missingFields.filter(field => {
+    const val = intakeData[field];
+    return val && String(val).trim().length > 0;
+  });
+
+  if (overrideIfPresent.length > 0) {
+    console.warn("[MonitorAI] AI flagged valid fields as missing. Overriding AI result.");
+    return { isComplete: true, missingFields: [] };
+  }
+
+
   const photoValue = intakeData[photoField];
   const photoUploaded = photoValue === "Uploaded";
   const photoSkipped = photoValue === "Skipped";
