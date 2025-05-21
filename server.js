@@ -44,7 +44,7 @@ const {
 // Admin portal
 const { router: adminRoutes, logClientActivity } = require('./admin/admin.routes'); 
 const app = express();
-const port = process.env.PORT || 10000;
+const port = parseInt(process.env.PORT, 10) || 10000;
 
 // 🔧 Global middleware
 app.use(express.json());
