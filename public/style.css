@@ -190,26 +190,30 @@ body::before {
 
 #input-field {
   flex: 1;
-  padding: 0.6rem 0.75rem;
-  line-height: 1.2;
-  border: none;
-  background-color: transparent;
-  border-radius: 8px;
-  font-size: 16px;
-  color: #fce7e7;
-  outline: none;
+  padding: 0;                /* Remove vertical padding for centering */
+  padding-left: 0.75rem;     /* Only left padding for spacing */
+  min-height: 44px;          /* Make sure the input is tall enough */
   display: flex;
   align-items: center;
-  position: relative; /* required for ::before positioning */
+  position: relative;
+  font-size: 16px;
+  color: #fce7e7;
+  background-color: transparent;
+  border-radius: 8px;
+  border: none;
+  outline: none;
 }
 
 #input-field:empty::before {
   content: "type answer here...";
-  color: #888; /* placeholder color */
+  color: #888;
   position: absolute;
   left: 0.75rem;
   top: 50%;
+  transform: translateY(-50%);
   pointer-events: none;
+  font-size: 16px;
+  line-height: 1;
 }
 
 
