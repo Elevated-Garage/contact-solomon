@@ -190,18 +190,16 @@ body::before {
 
 #input-field {
   flex: 1;
-  padding: 0;                /* Remove vertical padding for centering */
-  padding-left: 0.75rem;     /* Only left padding for spacing */
-  min-height: 44px;          /* Make sure the input is tall enough */
-  display: flex;
-  align-items: center;
-  position: relative;
+  padding: 0 0.75rem;          /* Remove vertical padding */
+  min-height: 44px;            /* Height of the input */
+  line-height: 44px;           /* Match line-height to min-height for vertical centering */
   font-size: 16px;
   color: #fce7e7;
   background-color: transparent;
   border-radius: 8px;
   border: none;
   outline: none;
+  position: relative;
 }
 
 #input-field:empty::before {
@@ -209,12 +207,15 @@ body::before {
   color: #888;
   position: absolute;
   left: 0.75rem;
-  top: 50%;
-  transform: translateY(-50%);
+  top: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
   pointer-events: none;
   font-size: 16px;
-  line-height: 1;
+  line-height: 44px;
 }
+
 
 
 #send-button {
