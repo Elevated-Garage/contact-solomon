@@ -208,7 +208,7 @@ body::before {
   color: #888; /* placeholder color */
   position: absolute;
   left: 0.75rem;
-  top: 0.6rem;
+  top: 50%;
   pointer-events: none;
 }
 
